@@ -18,23 +18,38 @@ public class PlayerAnimationHandler : MonoBehaviour {
         //Animator.SetBool("OnAir", !_states.OnGround);
         Animator.SetBool("Crouch", _states.Crouch);
 
+        if (_states.Jump) {
+            Animator.SetBool("Jump", true);
+        }
+
+        if (_states.JumpHigh) {
+            Animator.SetBool("Jump", true);
+            Animator.SetBool("JumpHigh", true);
+        }
+
+        if (_states.JumpDouble) {
+            Animator.SetTrigger("JumpDouble");
+        }
+        
         if (_states.LookRight) {
             if (_states.RightDouble) {
-                Animator.SetBool("Run", true);
+                if (_states.OnGround) {
+                    Animator.SetBool("Run", true);
+                } else {
+                    if (!Animator.GetBool(AnimatorBool.IS_SPURTING) && _states.CanSpurtOrRetreatOnAir) {
+                        Animator.SetTrigger("SpurtOnAir");
+                    }
+                }
             } else {
                 Animator.SetBool("Run", false);
                 Animator.SetBool("WalkForward", _states.Right);
             }
 
             if (_states.LeftDouble) {
-                if (!Animator.GetBool(AnimatorBool.IS_RETREATING)) {
-                    if (_states.OnGround) {
-                        Animator.SetTrigger("Retreat");
-                    } else {
-                        // TODO 空中后跳
-                        
-                    }                   
-                }    
+                if (!Animator.GetBool(AnimatorBool.IS_RETREATING) &&
+                    (_states.OnGround || _states.CanSpurtOrRetreatOnAir)) {
+                    Animator.SetTrigger("Retreat");
+                }
             } else {
                 Animator.SetBool("WalkBack", _states.Left);
             }
@@ -47,13 +62,10 @@ public class PlayerAnimationHandler : MonoBehaviour {
             }
 
             if (_states.RightDouble) {
-                if (!Animator.GetBool(AnimatorBool.IS_RETREATING)) {
-                    if (_states.OnGround) {
-                        Animator.SetTrigger("Retreat");
-                    } else {
-                        // TODO 空中后跳
-                    }                   
-                }               
+                if (!Animator.GetBool(AnimatorBool.IS_RETREATING) &&
+                    (_states.OnGround || _states.CanSpurtOrRetreatOnAir)) {
+                    Animator.SetTrigger("Retreat");
+                }
             } else {
                 Animator.SetBool("WalkBack", _states.Right);
             }
@@ -75,8 +87,19 @@ public class PlayerAnimationHandler : MonoBehaviour {
         //StartCoroutine(CloseBoolInAnim("Jump"));
     }
 
+    public void JumpDoubleAnim() {
+        Animator.SetTrigger("JumpDouble");
+    }
+
+    public void JumpHighAnim() {
+        Animator.SetBool("Jump", true);
+        Animator.SetBool("JumpHigh", true);
+    }
+
     public void CloseJumpAnim() {
         Animator.SetBool("Jump", false);
+        Animator.SetBool("JumpHigh", false);
+        Animator.ResetTrigger("JumpDouble");
     }
 
     private IEnumerator CloseBoolInAnim(string animName, float time) {

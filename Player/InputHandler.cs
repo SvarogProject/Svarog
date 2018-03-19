@@ -8,6 +8,8 @@ public class InputHandler : MonoBehaviour {
     private Animator _animator;
     private AttacksBase[] _attacks;
 
+    private bool _jumpButtonUp;
+
     private readonly DoubleClick _rightDoubleClick = new DoubleClick();
     private readonly DoubleClick _leftDoubleClick = new DoubleClick();
 
@@ -20,12 +22,17 @@ public class InputHandler : MonoBehaviour {
     public void FixedUpdate() {
 
         Attack();
-        Jump();
         Move();
+        Jump();
+        
         _states.Crouch = Input.GetButton("Crouch" + PlayerInputId);
 
         if (Input.GetKey(KeyCode.P)) {
             _animator.SetTrigger("HurtSmall"); // TODO TEST
+        }
+
+        if (Input.GetKey(KeyCode.O)) {
+            _animator.SetBool("Defense", !_animator.GetBool("Defense")); // TODO TEST
         }
     }
 
@@ -57,7 +64,7 @@ public class InputHandler : MonoBehaviour {
     private void Attack() {
         if (_states.Attackable) {
             foreach (var attack in _attacks) {
-                DoAttack(attack);
+                attack.Do(PlayerInputId);
             }
         } else {
             foreach (var attack in _attacks) {
@@ -67,10 +74,13 @@ public class InputHandler : MonoBehaviour {
     }
 
     private void Jump() {
+        // 普通跳
         if (_animator.GetBool(AnimatorBool.JUMPABLE)) {
             _states.Jump = Input.GetButtonDown("Jump" + PlayerInputId);
+            _jumpButtonUp = false; // 初始化跳跃键没松开
 
             if (_states.Jump) {
+                //_animator.SetBool("Jump", true);
                 _states.RightDouble = false;
                 _states.LeftDouble = false;
                 _leftDoubleClick.Reset();
@@ -79,19 +89,48 @@ public class InputHandler : MonoBehaviour {
         } else {
             _states.Jump = false;
         }
-    }
 
-    private void DoAttack(AttacksBase attack) {
-        if (Input.GetButtonDown(attack.AttackButtonName + PlayerInputId)) {
-            attack.Do();
-        }
+        // 二段跳
+        if (_animator.GetBool(AnimatorBool.JUMP) && !_animator.GetBool(AnimatorBool.USED_JUMP_DOUBLE)) {
+            if (!_jumpButtonUp) {
+                _jumpButtonUp = Input.GetButtonUp("Jump" + PlayerInputId); // 检测是否松开
+            } else {
+                _states.JumpDouble = Input.GetButtonDown("Jump" + PlayerInputId);
 
-        if (attack.Attack) {
-            attack.AttackTimer += Time.deltaTime;
+                if (_states.JumpDouble) {
+                    //_animator.SetTrigger("JumpDouble");
+                    _states.RightDouble = false;
+                    _states.LeftDouble = false;
+                    _leftDoubleClick.Reset();
+                    _rightDoubleClick.Reset();
+                    _rightDoubleClick.Reset();
 
-            if (attack.AttackTimer > attack.AttackRate || attack.TimesPressed >= 3) {
-                attack.Reset();
+                    _states.JumpLeft = Input.GetButton("Left" + PlayerInputId);
+                    _states.JumpRight = Input.GetButton("Right" + PlayerInputId);
+                    
+                    _jumpButtonUp = false;
+                }              
             }
+        } else {
+            _states.JumpDouble = false;
+        }
+        
+        // 高跳
+        if (_animator.GetBool(AnimatorBool.HIGH_JUMPABLE)) {
+            _states.Jump = Input.GetButtonDown("Jump" + PlayerInputId);
+            _states.JumpHigh = _states.Jump;
+            _jumpButtonUp = false; // 初始化跳跃键没松开
+
+            if (_states.JumpHigh) {
+                //_animator.SetBool("Jump", true);
+                //_animator.SetBool("JumpHigh", true);
+                _states.RightDouble = false;
+                _states.LeftDouble = false;
+                _leftDoubleClick.Reset();
+                _rightDoubleClick.Reset();
+            }
+        } else {
+            _states.JumpHigh = false;
         }
     }
 }

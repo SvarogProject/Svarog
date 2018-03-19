@@ -25,6 +25,10 @@ public class PlayerStateManager : MonoBehaviour {
     public bool LeftDouble;
     public bool RightDouble;
 
+    public bool JumpDouble;
+
+    public bool JumpHigh;
+    
     public bool JumpRight;
     public bool JumpLeft;
 
@@ -35,6 +39,8 @@ public class PlayerStateManager : MonoBehaviour {
     // public bool CurrentlyAttacking;
     public bool OnGround;
     public bool LookRight;
+
+    public bool CanSpurtOrRetreatOnAir;
 
     public Slider HealthSlider;
     public GameObject[] MovementColliders;
@@ -81,7 +87,7 @@ public class PlayerStateManager : MonoBehaviour {
         LayerMask layer = 1 << 10; // 只检测地板这层
         bool retVal = Physics2D.Raycast(movementCollider.transform.position, Vector2.down, 0.3f, layer);
 
-        if (retVal && _animationHandler.Animator.GetBool("Jump")) { // 跳跃落地进行一系列处理
+        if (retVal && _animationHandler.Animator.GetBool("Jump") && _movementHandler.Rigidbody.velocity.y <= 0) { // 跳跃落地进行一系列处理
             JumpRight = false;
             JumpLeft = false;
             ResetAttacks();

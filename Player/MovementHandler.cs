@@ -11,19 +11,26 @@ public class MovementHandler : MonoBehaviour {
     public float WalkBackSpeed;
     public float RetreatSpeed;
     public float EndRunTime; // 跑步的刹车时间
+    public float RetreatOnAirTime;
+    public float SpurtOnAirTime;
 
-    private Rigidbody2D _rigidbody;
+    public Rigidbody2D Rigidbody;
     private PlayerStateManager _states;
     private PlayerAnimationHandler _animation;
 
     private float _actualSpeed;
     private float _endRunTimer; // 跑步小刹车倒计时
+    private bool _isRetreatingOnAir;
+    private bool _isSpurtingOnAir;
+
+    private float _gravityScale;
 
     public void Start() {
-        _rigidbody = GetComponent<Rigidbody2D>();
+        Rigidbody = GetComponent<Rigidbody2D>();
         _states = GetComponent<PlayerStateManager>();
         _animation = GetComponent<PlayerAnimationHandler>();
-        _rigidbody.freezeRotation = true;
+        Rigidbody.freezeRotation = true;
+        _gravityScale = Rigidbody.gravityScale;
     }
 
     public void FixedUpdate() {
@@ -40,38 +47,24 @@ public class MovementHandler : MonoBehaviour {
         if (!isRetreating && !isSpurting) {
             Walk();
         }
-
-/*        if (_states.LookRight) { // 人物面朝右边
-
-            if (_states.RightDouble) {
-                if (_states.OnGround) {
-                    transform.Translate(Vector2.right * Time.deltaTime * RunSpeed);
-                } else {
-                    // TODO 空中冲刺
-                }
-            } else if (_states.LeftDouble) {
-                // TODO 回退
-            }
-        } else { // 人物面朝左边
-            if (_states.LeftDouble) {
-                if (_states.OnGround) {
-                    transform.Translate(Vector2.right * Time.deltaTime * RunSpeed);
-                } else {
-                    // TODO 空中冲刺
-                }
-            } else if (_states.RightDouble) {
-                // TODO 回退
-            }
-        }*/
     }
 
     private bool Spurt() {
         if (_animation.Animator.GetBool(AnimatorBool.IS_RUNNING)) {
-            if (_states.OnGround) {
-                transform.Translate(Vector2.right * Time.deltaTime * RunSpeed);
-            } else {
-                // TODO 空中冲刺
-            }
+            transform.Translate(Vector2.right * Time.deltaTime * RunSpeed);
+
+            return true;
+        }
+
+        if (_animation.Animator.GetBool(AnimatorBool.IS_SPURTING) && _states.CanSpurtOrRetreatOnAir) {
+            StartCoroutine(DoSpurtingOnAir());
+
+            return true;
+        }
+
+        if (_isSpurtingOnAir) {
+            transform.Translate(Vector2.right * Time.deltaTime * SpurtOnAirSpeed);
+
             return true;
         }
 
@@ -97,7 +90,21 @@ public class MovementHandler : MonoBehaviour {
     private bool Retreat() {
         if (_animation.Animator.GetBool(AnimatorBool.IS_RETREATING)) {
             EndRunTime = 0; // 清除刹车的效果
-            transform.Translate(Vector2.left * Time.deltaTime * RetreatSpeed);
+
+            if (_states.OnGround) {
+                transform.Translate(Vector2.left * Time.deltaTime * RetreatSpeed);
+
+                return true;
+            }
+
+            if (_states.CanSpurtOrRetreatOnAir) {
+
+                StartCoroutine(DoRetreatingOnAir());
+            }
+        }
+
+        if (_isRetreatingOnAir) {
+            transform.Translate(Vector2.left * Time.deltaTime * RetreatOnAirSpeed);
 
             return true;
         }
@@ -125,23 +132,35 @@ public class MovementHandler : MonoBehaviour {
     }
 
     private void Jump() {
-        if (_states.Jump) {
-            if (_states.OnGround) {
-                if (_states.Right) {
-                    _states.JumpRight = true;
-                } else if (_states.Left) {
-                    _states.JumpLeft = true;
-                } else if (_endRunTimer > 0 && _states.LookRight) { // 除了正按着前进还有一种可能是跑步的刹车中起跳
-                    _states.JumpRight = true;
-                } else if (_endRunTimer > 0 && !_states.LookRight) {
-                    _states.JumpLeft = true;
-                }
-
-                _animation.JumpAnim();
-                _states.ResetAttacks();
-
-                _rigidbody.velocity = new Vector3(_rigidbody.velocity.x, JumpSpeed);
+        if (_states.Jump && _states.OnGround) {
+            if (_states.Right) {
+                _states.JumpRight = true;
+            } else if (_states.Left) {
+                _states.JumpLeft = true;
+            } else if (_endRunTimer > 0 && _states.LookRight) { // 除了正按着前进还有一种可能是跑步的刹车中起跳
+                _states.JumpRight = true;
+            } else if (_endRunTimer > 0 && !_states.LookRight) {
+                _states.JumpLeft = true;
             }
+
+            if (_states.JumpHigh) {
+                //_animation.JumpHighAnim();
+                Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, HighJumpSpeed);
+            } else {
+                //_animation.JumpAnim();
+                Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, JumpSpeed);
+            }
+
+            _states.ResetAttacks();
+
+            // 初始化空中冲刺或者急退
+            _states.CanSpurtOrRetreatOnAir = true;
+        }
+
+        if (_states.JumpDouble) { // 二段跳
+            //_animation.JumpDoubleAnim();
+            _states.ResetAttacks();
+            Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, JumpSpeed);
         }
     }
 
@@ -155,9 +174,54 @@ public class MovementHandler : MonoBehaviour {
         while (t < timer) {
             t += Time.deltaTime;
 
-            _rigidbody.velocity = direction;
+            Rigidbody.velocity = direction;
 
             yield return null;
         }
+    }
+
+    private IEnumerator DoSpurtingOnAir() {
+        _states.CanSpurtOrRetreatOnAir = false;
+        _isSpurtingOnAir = true;
+        Rigidbody.velocity = Vector2.zero;
+        Rigidbody.gravityScale = 0;
+
+        if (_states.LookRight) {
+            _states.JumpRight = true;
+            _states.JumpLeft = false;
+        } else {
+            _states.JumpLeft = true;
+            _states.JumpRight = false;
+        }
+
+        yield return new WaitForSeconds(SpurtOnAirTime);
+
+        _isSpurtingOnAir = false;
+        Rigidbody.gravityScale = _gravityScale;
+        Rigidbody.AddForce(new Vector2(0, -Rigidbody.gravityScale));
+
+    }
+
+    private IEnumerator DoRetreatingOnAir() {
+        _states.CanSpurtOrRetreatOnAir = false;
+        _isRetreatingOnAir = true;
+        Rigidbody.velocity = Vector2.zero;
+        Rigidbody.gravityScale = 0;
+
+        if (_states.LookRight) {
+            _states.JumpLeft = true;
+            _states.JumpRight = false;
+        } else {
+            _states.JumpRight = true;
+            _states.JumpLeft = false;
+        }
+
+        yield return new WaitForSeconds(RetreatOnAirTime);
+
+        _isRetreatingOnAir = false;
+        Rigidbody.gravityScale = _gravityScale;
+        Rigidbody.AddForce(new Vector2(0, -Rigidbody.gravityScale));
+
+
     }
 }

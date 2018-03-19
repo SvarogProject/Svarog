@@ -65,14 +65,21 @@ public class DoubleClick {
         OnSeconed onSeconed) {
         _timer -= Time.deltaTime;
 
-        if (Input.GetButtonDown(buttonName) && _clickCount == ClickCount.ZeroTime) {
-            _timer = _waitTime;
-            _clickCount = ClickCount.FirstTime;
+        if (Input.anyKeyDown) {
+            if (Input.GetButtonDown(buttonName)) {
+                if (_clickCount == ClickCount.ZeroTime) {
+                    _timer = _waitTime;
+                    _clickCount = ClickCount.FirstTime;
 
-            if (onFirstDown != null) {
-                onFirstDown();
-            }
+                    if (onFirstDown != null) {
+                        onFirstDown();
+                    }
+                }
+            } else {
+                _clickCount = ClickCount.ZeroTime; // 按下了别的键应重置
+            }  
         }
+
 
         if (Input.GetButtonUp(buttonName) && _clickCount == ClickCount.FirstTime) {
             _clickCount = ClickCount.SecondTime;
