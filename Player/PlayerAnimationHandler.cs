@@ -55,7 +55,13 @@ public class PlayerAnimationHandler : MonoBehaviour {
             }
         } else {
             if (_states.LeftDouble) {
-                Animator.SetBool("Run", true);
+                if (_states.OnGround) {
+                    Animator.SetBool("Run", true);
+                } else {
+                    if (!Animator.GetBool(AnimatorBool.IS_SPURTING) && _states.CanSpurtOrRetreatOnAir) {
+                        Animator.SetTrigger("SpurtOnAir");
+                    }
+                }
             } else {
                 Animator.SetBool("Run", false);
                 Animator.SetBool("WalkForward", _states.Left);

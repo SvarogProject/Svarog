@@ -64,7 +64,17 @@ public class InputHandler : MonoBehaviour {
     private void Attack() {
         if (_states.Attackable) {
             foreach (var attack in _attacks) {
-                attack.Do(PlayerInputId);
+                if (attack.AttackAnimName == "FirePunch") {
+                    attack.Do(PlayerInputId, _states.LookRight, () => {
+                        _animator.SetBool("Jump", true);
+
+                        GetComponent<Rigidbody2D>().velocity = new Vector3(GetComponent<Rigidbody2D>().velocity.x,
+                            GetComponent<MovementHandler>().JumpSpeed);
+                    });
+                } else {
+                    attack.Do(PlayerInputId, _states.LookRight);
+                }
+
             }
         } else {
             foreach (var attack in _attacks) {
@@ -76,7 +86,10 @@ public class InputHandler : MonoBehaviour {
     private void Jump() {
         // 普通跳
         if (_animator.GetBool(AnimatorBool.JUMPABLE)) {
-            _states.Jump = Input.GetButtonDown("Jump" + PlayerInputId);
+            if (Input.GetButtonDown("Jump" + PlayerInputId)) {
+                _states.Jump = true;
+            }
+            
             _jumpButtonUp = false; // 初始化跳跃键没松开
 
             if (_states.Jump) {
@@ -95,8 +108,10 @@ public class InputHandler : MonoBehaviour {
             if (!_jumpButtonUp) {
                 _jumpButtonUp = Input.GetButtonUp("Jump" + PlayerInputId); // 检测是否松开
             } else {
-                _states.JumpDouble = Input.GetButtonDown("Jump" + PlayerInputId);
-
+                if (Input.GetButtonDown("Jump" + PlayerInputId)) {
+                    _states.JumpDouble = true;
+                }
+                
                 if (_states.JumpDouble) {
                     //_animator.SetTrigger("JumpDouble");
                     _states.RightDouble = false;
@@ -117,7 +132,10 @@ public class InputHandler : MonoBehaviour {
         
         // 高跳
         if (_animator.GetBool(AnimatorBool.HIGH_JUMPABLE)) {
-            _states.Jump = Input.GetButtonDown("Jump" + PlayerInputId);
+            if (Input.GetButtonDown("Jump" + PlayerInputId)) {
+                _states.JumpDouble = true;
+            }
+            
             _states.JumpHigh = _states.Jump;
             _jumpButtonUp = false; // 初始化跳跃键没松开
 

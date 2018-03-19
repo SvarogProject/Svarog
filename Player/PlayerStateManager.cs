@@ -46,7 +46,8 @@ public class PlayerStateManager : MonoBehaviour {
     public GameObject[] MovementColliders;
 
     private DamageColliderHandler _damageColliderHandler;
-    private PlayerAnimationHandler _animationHandler;
+    [HideInInspector]
+    public PlayerAnimationHandler AnimationHandler;
     private MovementHandler _movementHandler;
 
     private SpriteRenderer _spriteRenderer;
@@ -55,7 +56,7 @@ public class PlayerStateManager : MonoBehaviour {
 
     public void Start() {
         _damageColliderHandler = GetComponent<DamageColliderHandler>();
-        _animationHandler = GetComponent<PlayerAnimationHandler>();
+        AnimationHandler = GetComponent<PlayerAnimationHandler>();
         _movementHandler = GetComponent<MovementHandler>();
         _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
         // blood = GetComponentInChildren<ParticleSystem>();
@@ -72,7 +73,7 @@ public class PlayerStateManager : MonoBehaviour {
 
         if (Health <= 0 && LevelManager.GetInstance().EnableCountdown) {
             LevelManager.GetInstance().EndRoundFunction();
-            _animationHandler.Animator.Play("Dead");
+            AnimationHandler.Animator.Play("Dead");
         }
     }
 
@@ -87,11 +88,11 @@ public class PlayerStateManager : MonoBehaviour {
         LayerMask layer = 1 << 10; // 只检测地板这层
         bool retVal = Physics2D.Raycast(movementCollider.transform.position, Vector2.down, 0.3f, layer);
 
-        if (retVal && _animationHandler.Animator.GetBool("Jump") && _movementHandler.Rigidbody.velocity.y <= 0) { // 跳跃落地进行一系列处理
+        if (retVal && AnimationHandler.Animator.GetBool("Jump") && _movementHandler.Rigidbody.velocity.y <= 0) { // 跳跃落地进行一系列处理
             JumpRight = false;
             JumpLeft = false;
             ResetAttacks();
-            _animationHandler.CloseJumpAnim();
+            AnimationHandler.CloseJumpAnim();
         }
 
         return retVal;

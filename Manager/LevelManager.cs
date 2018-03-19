@@ -10,7 +10,7 @@ public class LevelManager : MonoBehaviour {
 
     private readonly WaitForSeconds _oneSec = new WaitForSeconds(1); // 重复利用等一秒
 
-    private CameraManager _cameraManager; 
+    private CameraManager _cameraManager;
     private CharacterManager _characterManager;
     private LevelUI _levelUi;       // 保存UI元素，方便调用
     private int _currentRounds = 1; // 当前回合
@@ -50,12 +50,51 @@ public class LevelManager : MonoBehaviour {
         // 控制角色朝向
         if (_characterManager.Players[0].PlayerStates.transform.position.x <
             _characterManager.Players[1].PlayerStates.transform.position.x) {
-            _characterManager.Players[0].PlayerStates.LookRight = true;
-            _characterManager.Players[1].PlayerStates.LookRight = false;
-        }
-        else {
-            _characterManager.Players[0].PlayerStates.LookRight = false;
-            _characterManager.Players[1].PlayerStates.LookRight = true;
+            // 这些状态不转头
+            if (!(_characterManager.Players[0].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_SPURTING) ||
+                  _characterManager.Players[0].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_RUNNING) ||
+                  _characterManager.Players[0].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_RUN_ENDING) ||
+                  _characterManager.Players[0].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_RETREATING))) {
+                _characterManager.Players[0].PlayerStates.LookRight = true;
+            }
+
+            if (!(_characterManager.Players[1].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_SPURTING) ||
+                  _characterManager.Players[1].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_RUNNING) ||
+                  _characterManager.Players[1].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_RUN_ENDING) ||
+                  _characterManager.Players[1].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_RETREATING))) {
+                _characterManager.Players[1].PlayerStates.LookRight = false;
+            }
+
+        } else {
+            if (!(_characterManager.Players[0].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_SPURTING) ||
+                  _characterManager.Players[0].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_RUNNING) ||
+                  _characterManager.Players[0].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_RUN_ENDING) ||
+                  _characterManager.Players[0].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_RETREATING))) {
+                _characterManager.Players[0].PlayerStates.LookRight = false;
+            }
+
+            if (!(_characterManager.Players[1].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_SPURTING) ||
+                  _characterManager.Players[1].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_RUNNING) ||
+                  _characterManager.Players[1].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_RUN_ENDING) ||
+                  _characterManager.Players[1].PlayerStates.AnimationHandler.Animator
+                      .GetBool(AnimatorBool.IS_RETREATING))) {
+                _characterManager.Players[1].PlayerStates.LookRight = true;
+            }
         }
     }
 
@@ -83,6 +122,7 @@ public class LevelManager : MonoBehaviour {
 
     private IEnumerator StartGame() {
         Debug.Log("StartGame");
+
         yield return CreatePlayers();
         yield return InitRound();
     }
@@ -102,6 +142,7 @@ public class LevelManager : MonoBehaviour {
 
     private IEnumerator CreatePlayers() {
         Debug.Log("CreatePlayers");
+
         for (var i = 0; i < _characterManager.Players.Count; i++) {
             var player = Instantiate(
                     _characterManager.Players[i].PlayerPrefab,
@@ -123,6 +164,7 @@ public class LevelManager : MonoBehaviour {
 
     private IEnumerator InitPlayers() {
         Debug.Log("InitPlayers");
+
         for (var i = 0; i < _characterManager.Players.Count; i++) {
             _characterManager.Players[i].PlayerStates.Health = 100;
             //_characterManager.Players[i].PlayerStates.AnimationHandler.Animator.Play("Locomotion");
@@ -138,17 +180,25 @@ public class LevelManager : MonoBehaviour {
         _levelUi.AnnouncerTextLine1.gameObject.SetActive(true);
         _levelUi.AnnouncerTextLine1.text = "Round " + _currentRounds;
         _levelUi.AnnouncerTextLine1.color = Color.white;
+
         yield return _oneSec;
         yield return _oneSec;
+
         _levelUi.AnnouncerTextLine1.text = "Three";
         _levelUi.AnnouncerTextLine1.color = Color.white;
+
         yield return _oneSec;
+
         _levelUi.AnnouncerTextLine1.text = "Two";
         _levelUi.AnnouncerTextLine1.color = Color.white;
+
         yield return _oneSec;
+
         _levelUi.AnnouncerTextLine1.text = "One";
         _levelUi.AnnouncerTextLine1.color = Color.white;
+
         yield return _oneSec;
+
         _levelUi.AnnouncerTextLine1.color = Color.white;
         _levelUi.AnnouncerTextLine1.text = "FIGHT!";
 
@@ -160,6 +210,7 @@ public class LevelManager : MonoBehaviour {
                     var inputHandler = player.PlayerStates.gameObject.GetComponent<InputHandler>();
                     inputHandler.PlayerInputId = player.InputId;
                     inputHandler.enabled = true;
+
                     break;
                 // AI控制
                 case PlayerBase.PlayerType.Ai:
@@ -168,19 +219,24 @@ public class LevelManager : MonoBehaviour {
 
                     // 给AI设置敌人
                     ai.EnemyStates = _characterManager.GetOppositePlayer(player).PlayerStates;
+
                     break;
                 // 网络控制
                 case PlayerBase.PlayerType.Simulation:
+
                     break;
                 case PlayerBase.PlayerType.None:
+
                     break;
                 default:
+
                     throw new ArgumentOutOfRangeException();
             }
         }
 
         // 过一秒让提示消失
         yield return _oneSec;
+
         _levelUi.AnnouncerTextLine1.gameObject.SetActive(false);
         EnableCountdown = true; // TODO 这个倒计时应该是可以设置的，无限时间模式则为false
     }
@@ -194,15 +250,20 @@ public class LevelManager : MonoBehaviour {
             switch (player.Type) {
                 case PlayerBase.PlayerType.User:
                     player.PlayerStates.GetComponent<InputHandler>().enabled = false;
+
                     break;
                 case PlayerBase.PlayerType.Ai:
                     player.PlayerStates.GetComponent<AICharacter>().enabled = false;
+
                     break;
                 case PlayerBase.PlayerType.Simulation:
+
                     break;
                 case PlayerBase.PlayerType.None:
+
                     break;
                 default:
+
                     throw new ArgumentOutOfRangeException();
             }
         }
@@ -218,8 +279,7 @@ public class LevelManager : MonoBehaviour {
             _levelUi.AnnouncerTextLine1.gameObject.SetActive(true);
             _levelUi.AnnouncerTextLine1.text = "Time Out!";
             _levelUi.AnnouncerTextLine1.color = Color.white;
-        }
-        else {
+        } else {
             _levelUi.AnnouncerTextLine1.gameObject.SetActive(true);
             _levelUi.AnnouncerTextLine1.text = "K.O.";
             _levelUi.AnnouncerTextLine1.color = Color.white;
@@ -241,8 +301,7 @@ public class LevelManager : MonoBehaviour {
         if (vPlayer == null) {
             _levelUi.AnnouncerTextLine1.text = "Draw"; // 平局
             _levelUi.AnnouncerTextLine1.color = Color.white;
-        }
-        else {
+        } else {
             _levelUi.AnnouncerTextLine1.text = vPlayer.PlayerId + " Wins!";
             _levelUi.AnnouncerTextLine1.color = Color.white;
         }
@@ -269,8 +328,7 @@ public class LevelManager : MonoBehaviour {
 
         if (!matchOver) {
             StartCoroutine(InitRound());
-        }
-        else {
+        } else {
             foreach (var player in _characterManager.Players) {
                 player.Score = 0;
                 player.HasCharacter = false;
@@ -281,8 +339,7 @@ public class LevelManager : MonoBehaviour {
                     GameSceneManager.GetInstance().LoadNextOnProgression();
                 else
                     GameSceneManager.GetInstance().RequestLevelLoad(SceneType.main, "GameOver");
-            }
-            else {
+            } else {
                 GameSceneManager.GetInstance().RequestLevelLoad(SceneType.main, "select");
             }
         }
@@ -294,7 +351,9 @@ public class LevelManager : MonoBehaviour {
 
         foreach (var player in _characterManager.Players) {
             if (player.Score < MaxRounds) continue;
+
             retVal = true;
+
             break;
         }
 
@@ -307,18 +366,19 @@ public class LevelManager : MonoBehaviour {
             return null;
 
         PlayerStateManager targetPlayerState;
+
         if (_characterManager.Players[0].PlayerStates.Health < _characterManager.Players[1].PlayerStates.Health) {
             _characterManager.Players[1].Score++;
             targetPlayerState = _characterManager.Players[1].PlayerStates;
             _levelUi.AddWinIndicator(1);
-        }
-        else {
+        } else {
             _characterManager.Players[0].Score++;
             targetPlayerState = _characterManager.Players[0].PlayerStates;
             _levelUi.AddWinIndicator(0);
         }
 
         var retVal = _characterManager.GetPlayerByStates(targetPlayerState);
+
         return retVal;
     }
 }

@@ -14,7 +14,9 @@ public class AttacksBase {
 
     private int _currentComb;
     private float _waitTimer;
-    private float _minWaitTime = 0.05f;
+    private const float MinWaitTime = 0.05f;
+
+    public delegate void OnAttack();
 
     public void Reset() {
         Attack = false;
@@ -22,9 +24,9 @@ public class AttacksBase {
         TimesPressed = 0;
     }
 
-    public void Do(string playerInputId) {
+    public void Do(string playerInputId, bool lookRight, OnAttack onAttack = null) {
         if (IsCombSkill) {
-            DoComb(playerInputId);
+            DoComb(playerInputId, lookRight, onAttack);
             return;
         }
         
@@ -42,12 +44,16 @@ public class AttacksBase {
         }
     }
 
-    private void DoComb(string playerInputId) {
+    private void DoComb(string playerInputId, bool lookRight, OnAttack onAttack) {
         if (_currentComb == CombButtonNames.Length) { // 组合技完成，释放技能
             Attack = true;
             AttackTimer = 0;
             _currentComb = 0;
             _waitTimer = 0;
+
+            if (onAttack != null) {
+                onAttack();
+            }         
         }
 
         if (Attack) {
@@ -59,8 +65,21 @@ public class AttacksBase {
         
         
         // 判定组合技
-        if (Input.anyKeyDown && _waitTimer >= _minWaitTime) {
-            if (Input.GetButtonDown(CombButtonNames[_currentComb] + playerInputId)) {
+        if (Input.anyKeyDown && _waitTimer >= MinWaitTime) {
+            bool clickTrue;
+            if (!lookRight) {
+                if (CombButtonNames[_currentComb] == "Left") {
+                    clickTrue = Input.GetButtonDown("Right" + playerInputId);
+                } else if (CombButtonNames[_currentComb] == "Right") {
+                    clickTrue = Input.GetButtonDown("Left" + playerInputId);
+                } else {
+                    clickTrue = Input.GetButtonDown(CombButtonNames[_currentComb] + playerInputId);
+                }
+            } else {
+                clickTrue = Input.GetButtonDown(CombButtonNames[_currentComb] + playerInputId);
+            }
+
+            if (clickTrue) {
                 _currentComb++;
                 _waitTimer = 0;
             } else {
