@@ -13,22 +13,34 @@ public class PlayerAnimationHandler : MonoBehaviour {
     public void FixedUpdate() {
 
         //_states.Moveable = !Animator.GetBool("DontMove");
+        Animator.SetBool("Dead", _states.Dead);
 
-        //Animator.SetBool("TakesHit", _states.IsGettingHit);
-        //Animator.SetBool("OnAir", !_states.OnGround);
+        if (_states.IsGettingHurtSmall) {
+            Animator.SetTrigger("HurtSmall");
+        }
+
+        if (_states.IsGettinghurtLarge) {
+            Animator.SetTrigger("HurtLarge");
+        }
+
+        if (_states.IsGettingFriePunch) {
+            Animator.SetBool("HurtOnAir", true);
+            Animator.SetTrigger("HurtLarge");
+            Animator.SetBool("Jump", true);
+        }
+
         Animator.SetBool("Crouch", _states.Crouch);
 
         if (_states.Jump) {
-            Animator.SetBool("Jump", true);
+            JumpAnim();
         }
 
         if (_states.JumpHigh) {
-            Animator.SetBool("Jump", true);
-            Animator.SetBool("JumpHigh", true);
+            JumpHighAnim();
         }
 
         if (_states.JumpDouble) {
-            Animator.SetTrigger("JumpDouble");
+            JumpDoubleAnim();
         }
         
         if (_states.LookRight) {
@@ -86,18 +98,21 @@ public class PlayerAnimationHandler : MonoBehaviour {
         }
     }
 
-    public void JumpAnim() {
-        //Animator.SetBool("Attack1", false);
-        //Animator.SetBool("Attack2", false);
+    private void JumpAnim() {
+        Animator.ResetTrigger("SpurtOnAir");
+        Animator.ResetTrigger("Retreat");
         Animator.SetBool("Jump", true);
-        //StartCoroutine(CloseBoolInAnim("Jump"));
     }
 
-    public void JumpDoubleAnim() {
+    private void JumpDoubleAnim() {
+        Animator.ResetTrigger("SpurtOnAir");
+        Animator.ResetTrigger("Retreat");
         Animator.SetTrigger("JumpDouble");
     }
 
-    public void JumpHighAnim() {
+    private void JumpHighAnim() {
+        Animator.ResetTrigger("SpurtOnAir");
+        Animator.ResetTrigger("Retreat");
         Animator.SetBool("Jump", true);
         Animator.SetBool("JumpHigh", true);
     }
@@ -105,7 +120,10 @@ public class PlayerAnimationHandler : MonoBehaviour {
     public void CloseJumpAnim() {
         Animator.SetBool("Jump", false);
         Animator.SetBool("JumpHigh", false);
+        Animator.SetBool("HurtOnAir", false);
         Animator.ResetTrigger("JumpDouble");
+        Animator.ResetTrigger("SpurtOnAir");
+        Animator.ResetTrigger("Retreat");
     }
 
     private IEnumerator CloseBoolInAnim(string animName, float time) {

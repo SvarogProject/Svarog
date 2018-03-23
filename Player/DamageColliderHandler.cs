@@ -7,10 +7,7 @@ public class DamageColliderHandler : MonoBehaviour {
     public GameObject[] DamageCollidersLeft;
     public GameObject[] DamageColldersRight;
 
-    public enum DamageType {
-        Light,
-        Heavy
-    }
+
 
     public enum DCtype {
         Bottom,

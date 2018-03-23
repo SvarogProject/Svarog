@@ -16,7 +16,7 @@ public class AISnapshots : MonoBehaviour {
 
     public void RequestAISnapshot(AICharacter t)
     {
-        int index = GameSceneManager.GetInstance().progIndex;
+        int index = GameSceneManager.GetInstance().NextProgressionIndex;
 
         if (index > ai_stats.Count-1)
         {

@@ -270,7 +270,7 @@ public class AICharacter : MonoBehaviour {
     //Our Blocking Logic goes here
     void Blocking() {
         //If we are about to recieve damage
-        if (states.IsGettingHit) {
+        if (states.IsGettingHurtSmall) {
             //..get the random value
             if (!gotRandom) {
                 storeRandom = ReturnRandom();
@@ -280,7 +280,7 @@ public class AICharacter : MonoBehaviour {
             //...there's 50% chances of us blocking
             if (storeRandom < 50) {
                 blocking = true;
-                states.IsGettingHit = false;
+                states.IsGettingHurtSmall = false;
                 //states.blocking = true;
             }
         }

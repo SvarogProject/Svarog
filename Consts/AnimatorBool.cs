@@ -8,4 +8,5 @@
     public const string USED_JUMP_DOUBLE = "UsedJumpDouble";
     public const string JUMP = "Jump";
     public const string HIGH_JUMPABLE = "HighJumpable";
+    public const string IS_FIRE_PUNCH = "IsFirePunch";
 }

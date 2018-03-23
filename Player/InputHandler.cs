@@ -13,6 +13,8 @@ public class InputHandler : MonoBehaviour {
     private readonly DoubleClick _rightDoubleClick = new DoubleClick();
     private readonly DoubleClick _leftDoubleClick = new DoubleClick();
 
+    private IInputHandler _input;
+
     public void Start() {
         _states = GetComponent<PlayerStateManager>();
         _animator = GetComponent<PlayerAnimationHandler>().Animator;
@@ -21,10 +23,22 @@ public class InputHandler : MonoBehaviour {
 
     public void FixedUpdate() {
 
+        /*
+        if (_input == null) {
+            _input = new JoystickInputHandler(this);
+        } else {
+            // joystick
+            _input.HandleAttack();
+            _input.HandleMove();
+            _input.HandleCrouch();
+            _input.HandleJump();
+        }
+        */
+
         Attack();
         Move();
         Jump();
-        
+
         _states.Crouch = Input.GetButton("Crouch" + PlayerInputId);
 
         if (Input.GetKey(KeyCode.P)) {
@@ -89,7 +103,7 @@ public class InputHandler : MonoBehaviour {
             if (Input.GetButtonDown("Jump" + PlayerInputId)) {
                 _states.Jump = true;
             }
-            
+
             _jumpButtonUp = false; // 初始化跳跃键没松开
 
             if (_states.Jump) {
@@ -111,7 +125,7 @@ public class InputHandler : MonoBehaviour {
                 if (Input.GetButtonDown("Jump" + PlayerInputId)) {
                     _states.JumpDouble = true;
                 }
-                
+
                 if (_states.JumpDouble) {
                     //_animator.SetTrigger("JumpDouble");
                     _states.RightDouble = false;
@@ -122,20 +136,20 @@ public class InputHandler : MonoBehaviour {
 
                     _states.JumpLeft = Input.GetButton("Left" + PlayerInputId);
                     _states.JumpRight = Input.GetButton("Right" + PlayerInputId);
-                    
+
                     _jumpButtonUp = false;
-                }              
+                }
             }
         } else {
             _states.JumpDouble = false;
         }
-        
+
         // 高跳
         if (_animator.GetBool(AnimatorBool.HIGH_JUMPABLE)) {
             if (Input.GetButtonDown("Jump" + PlayerInputId)) {
-                _states.JumpDouble = true;
+                _states.Jump = true;
             }
-            
+
             _states.JumpHigh = _states.Jump;
             _jumpButtonUp = false; // 初始化跳跃键没松开
 

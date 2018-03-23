@@ -2,22 +2,26 @@
 using System.Collections;
 
 public class DoDamage : MonoBehaviour {
-    public DamageColliderHandler.DamageType DamageType;
+    public DamageType DamageType;
     
     private PlayerStateManager _states;
+    private PlayerAnimationHandler _animation;
 
     void Start() {
         _states = GetComponentInParent<PlayerStateManager>();
+        _animation = GetComponentInParent<PlayerAnimationHandler>();
     }
 
     void OnTriggerEnter2D(Collider2D other) {
-        if (other.GetComponentInParent<PlayerStateManager>()) {
+        if (other.GetComponentInParent<PlayerStateManager>() && other.CompareTag("HurtCollider")) {
             var otherState = other.GetComponentInParent<PlayerStateManager>();
 
             if (otherState != _states) {
-                // if (!oState.CurrentlyAttacking) {
-                otherState.TakeDamage(5, DamageType);
-                // }
+                if (_animation.Animator.GetBool(AnimatorBool.IS_FIRE_PUNCH)) {
+                    otherState.TakeDamage(10, DamageType.FirePunch);
+                } else {
+                    otherState.TakeDamage(5, DamageType);
+                }
             }
         }
     }

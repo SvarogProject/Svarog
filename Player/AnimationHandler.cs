@@ -15,7 +15,7 @@ public class AnimationHandler : MonoBehaviour {
 
     public void FixedUpdate() {
 
-        Animator.SetBool("TakesHit", _states.IsGettingHit);
+        //Animator.SetBool("TakesHit", _states.IsGettingHit);
         Animator.SetBool("OnAir", !_states.OnGround);
         Animator.SetBool("Crouch", _states.Crouch);
 

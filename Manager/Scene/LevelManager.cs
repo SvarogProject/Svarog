@@ -50,51 +50,33 @@ public class LevelManager : MonoBehaviour {
         // 控制角色朝向
         if (_characterManager.Players[0].PlayerStates.transform.position.x <
             _characterManager.Players[1].PlayerStates.transform.position.x) {
+
             // 这些状态不转头
-            if (!(_characterManager.Players[0].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_SPURTING) ||
-                  _characterManager.Players[0].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_RUNNING) ||
-                  _characterManager.Players[0].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_RUN_ENDING) ||
-                  _characterManager.Players[0].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_RETREATING))) {
+            if (!_characterManager.Players[0].PlayerStates.GetComponentInChildren<Animator>()
+                .GetBool(AnimatorBool.IS_SPURTING)) {
                 _characterManager.Players[0].PlayerStates.LookRight = true;
             }
 
-            if (!(_characterManager.Players[1].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_SPURTING) ||
-                  _characterManager.Players[1].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_RUNNING) ||
-                  _characterManager.Players[1].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_RUN_ENDING) ||
-                  _characterManager.Players[1].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_RETREATING))) {
+            if (!_characterManager.Players[1].PlayerStates.GetComponentInChildren<Animator>()
+                .GetBool(AnimatorBool.IS_SPURTING)) {
                 _characterManager.Players[1].PlayerStates.LookRight = false;
             }
 
         } else {
-            if (!(_characterManager.Players[0].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_SPURTING) ||
-                  _characterManager.Players[0].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_RUNNING) ||
-                  _characterManager.Players[0].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_RUN_ENDING) ||
-                  _characterManager.Players[0].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_RETREATING))) {
-                _characterManager.Players[0].PlayerStates.LookRight = false;
+            // 开局没初始化的时候为空
+            if (_characterManager.Players[0].PlayerStates.AnimationHandler.Animator != null) {
+                // 这些状态不转头
+                if (!_characterManager.Players[0].PlayerStates.AnimationHandler.Animator
+                    .GetBool(AnimatorBool.IS_SPURTING)) {
+                    _characterManager.Players[0].PlayerStates.LookRight = false;
+                }
+
+                if (!_characterManager.Players[1].PlayerStates.AnimationHandler.Animator
+                    .GetBool(AnimatorBool.IS_SPURTING)) {
+                    _characterManager.Players[1].PlayerStates.LookRight = true;
+                }
             }
 
-            if (!(_characterManager.Players[1].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_SPURTING) ||
-                  _characterManager.Players[1].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_RUNNING) ||
-                  _characterManager.Players[1].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_RUN_ENDING) ||
-                  _characterManager.Players[1].PlayerStates.AnimationHandler.Animator
-                      .GetBool(AnimatorBool.IS_RETREATING))) {
-                _characterManager.Players[1].PlayerStates.LookRight = true;
-            }
         }
     }
 
@@ -167,7 +149,8 @@ public class LevelManager : MonoBehaviour {
 
         for (var i = 0; i < _characterManager.Players.Count; i++) {
             _characterManager.Players[i].PlayerStates.Health = 100;
-            //_characterManager.Players[i].PlayerStates.AnimationHandler.Animator.Play("Locomotion");
+            _characterManager.Players[i].PlayerStates.ResetPlayer();
+            _characterManager.Players[i].PlayerStates.AnimationHandler.Animator.Play("Idle");
             _characterManager.Players[i].PlayerStates.transform.position = SpawnPositions[i].position;
         }
 
@@ -245,7 +228,7 @@ public class LevelManager : MonoBehaviour {
         Debug.Log("DisableControl");
 
         foreach (var player in _characterManager.Players) {
-            player.PlayerStates.ResetStateInputs(); // 先重置角色状态
+            player.PlayerStates.ResetPlayer(); // 先重置角色状态
 
             switch (player.Type) {
                 case PlayerBase.PlayerType.User:
@@ -338,9 +321,9 @@ public class LevelManager : MonoBehaviour {
                 if (vPlayer == _characterManager.Players[0])
                     GameSceneManager.GetInstance().LoadNextOnProgression();
                 else
-                    GameSceneManager.GetInstance().RequestLevelLoad(SceneType.main, "GameOver");
+                    GameSceneManager.GetInstance().RequestLevelLoad(SceneType.Main, "GameOver");
             } else {
-                GameSceneManager.GetInstance().RequestLevelLoad(SceneType.main, "select");
+                GameSceneManager.GetInstance().RequestLevelLoad(SceneType.Main, "Select");
             }
         }
     }

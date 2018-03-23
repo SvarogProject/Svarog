@@ -23,6 +23,49 @@ public class DoubleClick {
         _waitTime = waitTime;
     }
 
+    public void HandleDoubleClickWithAxis(string axisName, bool isPositiveValue, OnSeconed onSeconed) {
+        HandleDoubleClickWithAxis(axisName, isPositiveValue, null, null, onSeconed);
+    }
+    
+    public void HandleDoubleClickWithAxis(string axisName, bool isPositiveValue, OnFirstDown onFirstDown,
+        OnFirstUp onFirstUp, OnSeconed onSeconed) {
+        _timer -= Time.deltaTime;
+
+        float axisValue = Input.GetAxis(axisName);
+
+        if (_clickCount == ClickCount.ZeroTime &&
+            (axisValue > 0 && isPositiveValue || axisValue < 0 && !isPositiveValue)) {
+            if (_clickCount == ClickCount.ZeroTime) {
+                _timer = _waitTime;
+                _clickCount = ClickCount.FirstTime;
+
+                if (onFirstDown != null) {
+                    onFirstDown();
+                }
+            }
+        }
+
+        if (_clickCount == ClickCount.FirstTime &&
+            (axisValue <= 0 && isPositiveValue || axisValue >= 0 && !isPositiveValue)) {
+            _clickCount = ClickCount.SecondTime;
+
+            if (onFirstUp != null) {
+                onFirstUp();
+            }
+        }
+
+
+        if (_timer < 0) {
+            _clickCount = ClickCount.ZeroTime;
+        }
+
+        if (_clickCount == ClickCount.SecondTime && _timer > 0f &&
+            (axisValue > 0 && isPositiveValue || axisValue < 0 && !isPositiveValue)) {
+            onSeconed();
+            _clickCount = ClickCount.ZeroTime;
+        }
+    }
+
     public void HandleDoubleClick(KeyCode keyCode, OnSeconed onSeconed) {
         HandleDoubleClick(keyCode, null, null, onSeconed);
     }
@@ -77,7 +120,7 @@ public class DoubleClick {
                 }
             } else {
                 _clickCount = ClickCount.ZeroTime; // 按下了别的键应重置
-            }  
+            }
         }
 
 

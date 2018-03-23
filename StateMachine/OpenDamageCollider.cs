@@ -4,7 +4,7 @@ using System.Collections;
 public class OpenDamageCollider : StateMachineBehaviour {
 
     PlayerStateManager states;
-    public DamageColliderHandler.DamageType damageType;
+    public DamageType damageType;
     public DamageColliderHandler.DCtype dcType;
     public float delay;
 

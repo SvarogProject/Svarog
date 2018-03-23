@@ -61,7 +61,7 @@ public class CameraManager : MonoBehaviour {
         var destination = new Vector3
         (
             (Players[0].position.x + Players[1].position.x) / 2,
-            (Players[0].position.y + Players[1].position.y) / 2 + 0.5f,
+            (Players[0].position.y + Players[1].position.y) / 2 + 5.0f,
             CameraHolder.transform.position.z
         );
 
