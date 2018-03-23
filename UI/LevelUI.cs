@@ -3,30 +3,31 @@ using UnityEngine.UI;
 using System.Collections;
 
 public class LevelUI : MonoBehaviour {
-
     public Text AnnouncerTextLine1;
     public Text AnnouncerTextLine2;
     public Text LevelTimer;
 
-    public Slider[] healthSliders;
+    public Slider[] HealthSliders;
 
-    public GameObject[] winIndicatorGrids;
-    public GameObject winIndicator;
+    public GameObject[] WinIndicatorGrids;
+    public GameObject WinIndicator;
 
-    public static LevelUI instance;
-    public static LevelUI GetInstance()
-    {
-        return instance;
+    #region Singleton
+    
+    private static LevelUI _instance;
+
+    public static LevelUI GetInstance() {
+        return _instance;
     }
 
-    void Awake()
-    {
-        instance = this;
+    public void Awake() {
+        _instance = this;
     }
+    #endregion
 
-    public void AddWinIndicator(int player)
-    {
-        GameObject go = Instantiate(winIndicator, transform.position, Quaternion.identity) as GameObject;
-        go.transform.SetParent(winIndicatorGrids[player].transform);
+    public void AddWinIndicator(int player) {
+        var go = Instantiate(WinIndicator, transform.position, Quaternion.identity) as GameObject;
+        if (go != null) 
+            go.transform.SetParent(WinIndicatorGrids[player].transform);
     }
 }

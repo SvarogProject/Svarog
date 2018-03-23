@@ -11,10 +11,39 @@ public class PlayerAnimationHandler : MonoBehaviour {
     }
 
     public void FixedUpdate() {
-
-        //_states.Moveable = !Animator.GetBool("DontMove");
         Animator.SetBool("Dead", _states.Dead);
+        HandleHurt();     
+        Animator.SetBool("Crouch", _states.Crouch);
+        HandleJump();
+        HandleMove();     
+        HandleAttacks();
+    }
 
+    private void HandleMove() {
+        if (_states.LookRight) {
+            DoMoveForward(_states.RightDouble, _states.Right);
+            DoMoveBack(_states.LeftDouble, _states.Left);       
+        } else {
+            DoMoveForward(_states.LeftDouble, _states.Left);
+            DoMoveBack(_states.RightDouble, _states.Right);
+        }
+    }
+
+    private void HandleJump() {
+        if (_states.Jump) {
+            DoJumpAnim();
+        }
+
+        if (_states.JumpHigh) {
+            DoJumpHighAnim();
+        }
+
+        if (_states.JumpDouble) {
+            DoJumpDoubleAnim();
+        }
+    }
+
+    private void HandleHurt() {
         if (_states.IsGettingHurtSmall) {
             Animator.SetTrigger("HurtSmall");
         }
@@ -28,68 +57,6 @@ public class PlayerAnimationHandler : MonoBehaviour {
             Animator.SetTrigger("HurtLarge");
             Animator.SetBool("Jump", true);
         }
-
-        Animator.SetBool("Crouch", _states.Crouch);
-
-        if (_states.Jump) {
-            JumpAnim();
-        }
-
-        if (_states.JumpHigh) {
-            JumpHighAnim();
-        }
-
-        if (_states.JumpDouble) {
-            JumpDoubleAnim();
-        }
-        
-        if (_states.LookRight) {
-            if (_states.RightDouble) {
-                if (_states.OnGround) {
-                    Animator.SetBool("Run", true);
-                } else {
-                    if (!Animator.GetBool(AnimatorBool.IS_SPURTING) && _states.CanSpurtOrRetreatOnAir) {
-                        Animator.SetTrigger("SpurtOnAir");
-                    }
-                }
-            } else {
-                Animator.SetBool("Run", false);
-                Animator.SetBool("WalkForward", _states.Right);
-            }
-
-            if (_states.LeftDouble) {
-                if (!Animator.GetBool(AnimatorBool.IS_RETREATING) &&
-                    (_states.OnGround || _states.CanSpurtOrRetreatOnAir)) {
-                    Animator.SetTrigger("Retreat");
-                }
-            } else {
-                Animator.SetBool("WalkBack", _states.Left);
-            }
-        } else {
-            if (_states.LeftDouble) {
-                if (_states.OnGround) {
-                    Animator.SetBool("Run", true);
-                } else {
-                    if (!Animator.GetBool(AnimatorBool.IS_SPURTING) && _states.CanSpurtOrRetreatOnAir) {
-                        Animator.SetTrigger("SpurtOnAir");
-                    }
-                }
-            } else {
-                Animator.SetBool("Run", false);
-                Animator.SetBool("WalkForward", _states.Left);
-            }
-
-            if (_states.RightDouble) {
-                if (!Animator.GetBool(AnimatorBool.IS_RETREATING) &&
-                    (_states.OnGround || _states.CanSpurtOrRetreatOnAir)) {
-                    Animator.SetTrigger("Retreat");
-                }
-            } else {
-                Animator.SetBool("WalkBack", _states.Right);
-            }
-        }
-
-        HandleAttacks();
     }
 
     private void HandleAttacks() {
@@ -98,23 +65,52 @@ public class PlayerAnimationHandler : MonoBehaviour {
         }
     }
 
-    private void JumpAnim() {
+    private void DoMoveForward(bool doubleClick, bool forward) {
+        if (doubleClick) {
+            if (_states.OnGround) {
+                Animator.SetBool("Run", true);
+            } else {
+                if (!Animator.GetBool(AnimatorBool.IS_SPURTING) && _states.CanSpurtOrRetreatOnAir) {
+                    Animator.SetTrigger("SpurtOnAir");
+                }
+            }
+        } else {
+            Animator.SetBool("Run", false);
+            Animator.SetBool("WalkForward", forward);
+        }      
+    }
+
+    private void DoMoveBack(bool doubleClick, bool back) {
+        if (doubleClick) {
+            if (!Animator.GetBool(AnimatorBool.IS_RETREATING) &&
+                (_states.OnGround || _states.CanSpurtOrRetreatOnAir)) {
+                Animator.SetTrigger("Retreat");
+            }
+        } else {
+            Animator.SetBool("WalkBack", back);
+        }
+    }
+
+    private void DoJumpAnim() {
         Animator.ResetTrigger("SpurtOnAir");
         Animator.ResetTrigger("Retreat");
         Animator.SetBool("Jump", true);
+        HandleLookBack();
     }
 
-    private void JumpDoubleAnim() {
+    private void DoJumpDoubleAnim() {
         Animator.ResetTrigger("SpurtOnAir");
         Animator.ResetTrigger("Retreat");
         Animator.SetTrigger("JumpDouble");
+        HandleLookBack();
     }
 
-    private void JumpHighAnim() {
+    private void DoJumpHighAnim() {
         Animator.ResetTrigger("SpurtOnAir");
         Animator.ResetTrigger("Retreat");
         Animator.SetBool("Jump", true);
         Animator.SetBool("JumpHigh", true);
+        HandleLookBack();
     }
 
     public void CloseJumpAnim() {
@@ -124,11 +120,20 @@ public class PlayerAnimationHandler : MonoBehaviour {
         Animator.ResetTrigger("JumpDouble");
         Animator.ResetTrigger("SpurtOnAir");
         Animator.ResetTrigger("Retreat");
+        HandleLookBack();
     }
+
 
     private IEnumerator CloseBoolInAnim(string animName, float time) {
         yield return new WaitForSeconds(time);
 
         Animator.SetBool(animName, false);
+    }
+    
+    private void HandleLookBack() {
+        if (_states.ShouldLookBack) {
+            _states.LookRight = !_states.LookRight;
+            _states.ShouldLookBack = false;
+        }
     }
 }

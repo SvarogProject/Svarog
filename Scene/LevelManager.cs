@@ -48,36 +48,23 @@ public class LevelManager : MonoBehaviour {
 
     public void FixedUpdate() {
         // 控制角色朝向
-        if (_characterManager.Players[0].PlayerStates.transform.position.x <
-            _characterManager.Players[1].PlayerStates.transform.position.x) {
+        var player1IsLeft = _characterManager.Players[0].PlayerStates.transform.position.x <
+                            _characterManager.Players[1].PlayerStates.transform.position.x;
 
-            // 这些状态不转头
-            if (!_characterManager.Players[0].PlayerStates.GetComponentInChildren<Animator>()
-                .GetBool(AnimatorBool.IS_SPURTING)) {
-                _characterManager.Players[0].PlayerStates.LookRight = true;
-            }
-
-            if (!_characterManager.Players[1].PlayerStates.GetComponentInChildren<Animator>()
-                .GetBool(AnimatorBool.IS_SPURTING)) {
-                _characterManager.Players[1].PlayerStates.LookRight = false;
-            }
-
-        } else {
-            // 开局没初始化的时候为空
-            if (_characterManager.Players[0].PlayerStates.AnimationHandler.Animator != null) {
-                // 这些状态不转头
-                if (!_characterManager.Players[0].PlayerStates.AnimationHandler.Animator
-                    .GetBool(AnimatorBool.IS_SPURTING)) {
-                    _characterManager.Players[0].PlayerStates.LookRight = false;
-                }
-
-                if (!_characterManager.Players[1].PlayerStates.AnimationHandler.Animator
-                    .GetBool(AnimatorBool.IS_SPURTING)) {
-                    _characterManager.Players[1].PlayerStates.LookRight = true;
+        for (var i = 0; i < 2; i++) {
+            if (_characterManager.Players[i].PlayerStates.GetComponentInChildren<Animator>()
+                .GetBool(AnimatorBool.CAN_LOOK_BACK)) {
+                _characterManager.Players[i].PlayerStates.LookRight =
+                    i == 0 && player1IsLeft || i == 1 && !player1IsLeft;
+                _characterManager.Players[i].PlayerStates.ShouldLookBack = false; // 主动转了就清除通知
+            } else {
+                if (_characterManager.Players[i].PlayerStates.LookRight !=
+                    (i == 0 && player1IsLeft || i == 1 && !player1IsLeft)) {
+                    _characterManager.Players[i].PlayerStates.ShouldLookBack = true; // 通知需要回头
                 }
             }
-
         }
+
     }
 
     public void Update() {
@@ -136,9 +123,17 @@ public class LevelManager : MonoBehaviour {
                 _characterManager.Players[i].PlayerStates =
                     player.GetComponent<PlayerStateManager>(); // TODO 这个为什么不在选人的时候就绑定好？
 
-            _characterManager.Players[i].PlayerStates.HealthSlider = _levelUi.healthSliders[i]; // 绑定血条
+            _characterManager.Players[i].PlayerStates.HealthSlider = _levelUi.HealthSliders[i]; // 绑定血条
 
-            if (player != null) _cameraManager.Players.Add(player.transform); // 给摄像机控制添加角色
+
+            if (player != null) {
+                foreach (var tran in player.GetComponentsInChildren<Transform>()) { // 设置不同的层级
+                    tran.gameObject.layer = 9 + i;
+                }
+
+                _cameraManager.Players.Add(player.transform); // 给摄像机控制添加角色
+            }
+
         }
 
         yield return null;

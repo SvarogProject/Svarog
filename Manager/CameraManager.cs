@@ -61,7 +61,7 @@ public class CameraManager : MonoBehaviour {
         var destination = new Vector3
         (
             (Players[0].position.x + Players[1].position.x) / 2,
-            (Players[0].position.y + Players[1].position.y) / 2 + 5.0f,
+            (Players[0].position.y + Players[1].position.y) / 2 + 4.0f, // 这个4.0是因为角色锚点在脚下，镜头向上移
             CameraHolder.transform.position.z
         );
 

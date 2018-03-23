@@ -92,6 +92,7 @@ public class MovementHandler : MonoBehaviour {
             EndRunTime = 0; // 清除刹车的效果
 
             if (_states.OnGround) {
+                
                 transform.Translate(Vector2.left * Time.deltaTime * RetreatSpeed);
 
                 return true;
@@ -133,6 +134,7 @@ public class MovementHandler : MonoBehaviour {
 
     private void Jump() {
         if (_states.Jump && _states.OnGround) {
+            
             if (_states.Right) {
                 _states.JumpRight = true;
             } else if (_states.Left) {
@@ -144,10 +146,8 @@ public class MovementHandler : MonoBehaviour {
             }
 
             if (_states.JumpHigh) {
-                //_animation.JumpHighAnim();
                 Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, HighJumpSpeed);
             } else {
-                //_animation.JumpAnim();
                 Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, JumpSpeed);
             }
 
@@ -158,7 +158,7 @@ public class MovementHandler : MonoBehaviour {
         }
 
         if (_states.JumpDouble) { // 二段跳
-            //_animation.JumpDoubleAnim();
+            
             _states.ResetAttacks();
             Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, JumpSpeed);
         }
@@ -222,6 +222,6 @@ public class MovementHandler : MonoBehaviour {
         Rigidbody.gravityScale = _gravityScale;
         Rigidbody.AddForce(new Vector2(0, -Rigidbody.gravityScale));
 
-
     }
+   
 }

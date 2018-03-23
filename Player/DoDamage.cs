@@ -7,12 +7,12 @@ public class DoDamage : MonoBehaviour {
     private PlayerStateManager _states;
     private PlayerAnimationHandler _animation;
 
-    void Start() {
+    public void Start() {
         _states = GetComponentInParent<PlayerStateManager>();
         _animation = GetComponentInParent<PlayerAnimationHandler>();
     }
 
-    void OnTriggerEnter2D(Collider2D other) {
+    public void OnTriggerEnter2D(Collider2D other) {
         if (other.GetComponentInParent<PlayerStateManager>() && other.CompareTag("HurtCollider")) {
             var otherState = other.GetComponentInParent<PlayerStateManager>();
 

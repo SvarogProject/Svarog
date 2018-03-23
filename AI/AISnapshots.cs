@@ -3,31 +3,25 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class AISnapshots : MonoBehaviour {
-
     public List<AIStats> ai_stats = new List<AIStats>();
 
-    void Start()
-    {
-        if(ai_stats.Count < 1)
-        {
+    public void Start() {
+        if (ai_stats.Count < 1) {
             ai_stats.Add(new AIStats());
         }
     }
 
-    public void RequestAISnapshot(AICharacter t)
-    {
+    public void RequestAISnapshot(AICharacter t) {
         int index = GameSceneManager.GetInstance().NextProgressionIndex;
 
-        if (index > ai_stats.Count-1)
-        {
+        if (index > ai_stats.Count - 1) {
             index = ai_stats.Count - 1;
         }
 
         SetAIStats(index, t);
     }
 
-    public void SetAIStats(int i , AICharacter t)
-    {
+    public void SetAIStats(int i, AICharacter t) {
         AIStats a = ai_stats[i];
         t.changeStateTolerance = Ran(a.changeStateTolerance_min, a.changeStateTolerance_max);
         t.normalRate = Ran(a.normalRate_min, a.normalRate_max);
@@ -36,27 +30,24 @@ public class AISnapshots : MonoBehaviour {
         t.aiStateLife = Ran(a.aiStateLife_min, a.aiStateLife_max);
         t.JumpRate = Ran(a.JumpRate_min, a.JumpRate_max);
     }
-	
-    float Ran(float min, float max)
-    {
+
+    float Ran(float min, float max) {
         return Random.Range(min, max);
     }
 
-    public static AISnapshots instance;
-    public static AISnapshots GetInstance()
-    {
-        return instance;
+    private static AISnapshots _instance;
+
+    public static AISnapshots GetInstance() {
+        return _instance;
     }
 
-    void Awake()
-    {
-        instance = this;
+    public void Awake() {
+        _instance = this;
     }
 }
 
 [System.Serializable]
-public class AIStats
-{
+public class AIStats {
     public float changeStateTolerance_max = 3;
     public float changeStateTolerance_min = 2;
     public float normalRate_max = 1;
