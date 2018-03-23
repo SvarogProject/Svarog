@@ -5,10 +5,10 @@ using System.Collections;
 using System.Linq;
 
 public class PlayerStateManager : MonoBehaviour {
-    
     public int Health = 100;
 
     #region Action Params
+
     public AttacksBase[] Attacks;
     public bool Crouch;
     public bool Jump;
@@ -29,6 +29,7 @@ public class PlayerStateManager : MonoBehaviour {
     public bool Dead;
     public bool ShouldLookBack; // 需要回头，但是还没回
     public bool CanSpurtOrRetreatOnAir;
+
     #endregion
 
     public BoxCollider2D MovementCollider;
@@ -39,15 +40,9 @@ public class PlayerStateManager : MonoBehaviour {
     [HideInInspector] public PlayerAnimationHandler AnimationHandler;
     private MovementHandler _movementHandler;
 
-    private SpriteRenderer _spriteRenderer;
-
-    // ParticleSystem blood;
-
     public void Start() {
         AnimationHandler = GetComponent<PlayerAnimationHandler>();
         _movementHandler = GetComponent<MovementHandler>();
-        _spriteRenderer = GetComponentInChildren<SpriteRenderer>();
-        // blood = GetComponentInChildren<ParticleSystem>();
     }
 
     public void FixedUpdate() {
@@ -55,7 +50,7 @@ public class PlayerStateManager : MonoBehaviour {
 
         OnGround = IsOnGround();
 
-        //HandleOnAnotherPlayer();
+        HandleOnAnotherPlayer();
 
         if (HealthSlider != null) {
             HealthSlider.value = Health * 0.01f;
@@ -67,52 +62,71 @@ public class PlayerStateManager : MonoBehaviour {
         }
     }
 
-    /*
-    private void OnCollisionEnter2D(Collision2D other) {
-        if (other.collider.CompareTag("MovementCollider")) {
-        
-            // 得到碰撞位置（世界坐标）
-            var contact = other.contacts[0];
-            var rot = Quaternion.FromToRotation(Vector3.up, contact.normal);
-            Vector3 pos = contact.point;
-            
-            Debug.Log("pos: " + pos);
-            Debug.Log("size: " + ((BoxCollider2D)other.collider).size);
-            
-            if (Math.Abs(pos.y - other.transform.position.y + ((BoxCollider2D)other.collider).size.y) < 0.1f) { // 如果在上方
-                if (LookRight) { // 说明自己的中轴线在对手的左边，就往左边移动一点
-                    transform.Translate(Vector3.left * MovementCollider.size.x);
-                } else {
-                    transform.Translate(Vector3.right * MovementCollider.size.x);
-                }
-            }
-        }
-    }*/
-
     private void HandleOnAnotherPlayer() {
-        //TODO 射线不行，碰撞的时候中点不一定挨着了，斜射线呢？
-        
+
         LayerMask pLayerLayer;
-        if (gameObject.layer == 9) {
-            pLayerLayer = 1 << 10;
+
+        if (gameObject.layer == LayerMask.NameToLayer("Player")) {
+            pLayerLayer = 1 << LayerMask.NameToLayer("MovementCollider2");
         } else {
-            pLayerLayer = 1 << 9;
+            pLayerLayer = 1 << LayerMask.NameToLayer("MovementCollider");
         }
 
-        Debug.DrawRay(MovementCollider.transform.position, Vector2.down * 0.01f, Color.green);
-        var hit = Physics2D.Raycast(MovementCollider.transform.position, Vector2.down, 0.01f, pLayerLayer);
+        Debug.DrawRay(MovementCollider.transform.position, Vector2.down * 0.1f, Color.green);
+
+        Debug.DrawRay(MovementCollider.transform.position
+                      + new Vector3(MovementCollider.offset.x * (LookRight ? 1 : -1), 0, 0)
+                      + Vector3.left * MovementCollider.size.x / 2,
+            Vector2.down * 0.1f, Color.red);
+
+        Debug.DrawRay(MovementCollider.transform.position
+                      + new Vector3(MovementCollider.offset.x * (LookRight ? 1 : -1), 0, 0)
+                      + Vector3.right * MovementCollider.size.x / 2,
+            Vector2.down * 0.1f, Color.red);
+
+        var hitRight = Physics2D.Raycast(MovementCollider.transform.position
+                                         + new Vector3(MovementCollider.offset.x * (LookRight ? 1 : -1), 0, 0)
+                                         + Vector3.right * MovementCollider.size.x / 2 ,
+            Vector2.down, 0.1f, pLayerLayer);
+
+        var hitCenter = Physics2D.Raycast(MovementCollider.transform.position, Vector2.down, 0.1f, pLayerLayer);
+
+        var hitLeft = Physics2D.Raycast(MovementCollider.transform.position
+                                        + new Vector3(MovementCollider.offset.x * (LookRight ? 1 : -1), 0, 0)
+                                        + Vector3.left * MovementCollider.size.x / 2,
+            Vector2.down, 0.1f, pLayerLayer);
+
+        if (hitLeft) {
+            Debug.Log("Left: " + hitLeft + ", Tag: " + hitLeft.collider.tag);
+        }
 
         // Debug.Log(gameObject.layer);
-        
-        if (hit) {
-            // 如果射线碰撞的角色不是自己的话，说明对手在自己脚下，调整自己的位置
-            if (LookRight) { // 说明自己的中轴线在对手的左边，就往左边移动一点
-                transform.Translate(Vector3.left * MovementCollider.size.x);
-            } else {
-                transform.Translate(Vector3.right * MovementCollider.size.x);
-            }
-        }
 
+        if (AnimationHandler.Animator.GetBool(AnimatorBool.JUMP) 
+            && !AnimationHandler.Animator.GetBool(AnimatorBool.IS_SPURTING) 
+            && !AnimationHandler.Animator.GetBool(AnimatorBool.IS_RETREATING)) { // 但当前角色在跳跃而且不再冲刺的时候才判断
+
+            if (hitLeft) {
+                Debug.Log(hitLeft.transform.position.y + ", " + MovementCollider.transform.position.y + ", " + ((BoxCollider2D)hitLeft.collider).size.y);
+            }
+            
+            // 如果在下面重叠不采取措施，可能是回退等操作造成的
+            if (hitLeft && hitLeft.transform.position.y < MovementCollider.transform.position.y - ((BoxCollider2D)hitLeft.collider).size.y) {                              
+
+                transform.Translate(Vector3.right * (MovementCollider.size.x + MovementCollider.offset.x) / 2 * (LookRight ? 1 : -1));
+                
+            } else if (hitRight && hitRight.transform.position.y < MovementCollider.transform.position.y - ((BoxCollider2D)hitRight.collider).size.y) {
+                transform.Translate(Vector3.left * (MovementCollider.size.x + MovementCollider.offset.x) / 2 * (LookRight ? 1 : -1));
+
+            } else if (hitCenter && hitCenter.transform.position.y < MovementCollider.transform.position.y - ((BoxCollider2D)hitCenter.collider).size.y) {
+                // 如果射线碰撞的角色不是自己的话，说明对手在自己脚下，调整自己的位置          
+                if (hitCenter.transform.position.x > transform.position.x) { // 说明自己的中轴线在对手的左边，就往左边移动一点
+                    transform.Translate(Vector3.left * MovementCollider.size.x / 2);
+                } else {
+                    transform.Translate(Vector3.right * MovementCollider.size.x / 2);
+                }
+            }
+        }    
     }
 
     private bool IsOnGround() {
@@ -120,7 +134,7 @@ public class PlayerStateManager : MonoBehaviour {
         // LayerMask layer = ~(1 << gameObject.layer); // 除了角色自己这层
         // bool retVal = Physics2D.Raycast(transform.position, Vector2.down, 0.1f, layer);
 
-        LayerMask groundLayer = 1 << 11; // 只检测地板这层
+        LayerMask groundLayer = 1 << LayerMask.NameToLayer("Ground"); // 只检测地板这层
         //Debug.DrawRay(MovementCollider.transform.position, Vector2.down, Color.green);
         // TODO 现在跳跃的时候脚超出了锚点，所以0.4f来修正，之后图变了再改
         bool retVal = Physics2D.Raycast(MovementCollider.transform.position, Vector2.down, 0.5f, groundLayer);

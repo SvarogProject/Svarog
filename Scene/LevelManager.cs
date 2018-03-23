@@ -127,8 +127,11 @@ public class LevelManager : MonoBehaviour {
 
 
             if (player != null) {
-                foreach (var tran in player.GetComponentsInChildren<Transform>()) { // 设置不同的层级
-                    tran.gameObject.layer = 9 + i;
+                player.layer = LayerMask.NameToLayer("Player") + i; // 角色分层
+                foreach (var c in player.GetComponentsInChildren<BoxCollider2D>()) { 
+                    if (c.CompareTag("MovementCollider")) {
+                        c.gameObject.layer = LayerMask.NameToLayer("MovementCollider") + i; // 碰撞体设置不同的层级
+                    }                
                 }
 
                 _cameraManager.Players.Add(player.transform); // 给摄像机控制添加角色
