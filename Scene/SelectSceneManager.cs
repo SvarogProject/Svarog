@@ -203,7 +203,7 @@ public class SelectSceneManager : MonoBehaviour {
                 // 让玩家2转向
                 if (!string.Equals(playerChoose.PlayerBase.PlayerId, _charManager.Players[0].PlayerId)) {
                     if (playerChoose.CreatedCharacter != null) {
-                        playerChoose.CreatedCharacter.GetComponentInChildren<SpriteRenderer>().transform.rotation = Quaternion.Euler(0, 0, 0);
+                        playerChoose.CreatedCharacter.GetComponentInChildren<SpriteRenderer>().transform.rotation = Quaternion.Euler(0, 180, 0);
                     }
                 }
             }

@@ -72,53 +72,44 @@ public class PlayerStateManager : MonoBehaviour {
             pLayerLayer = 1 << LayerMask.NameToLayer("MovementCollider");
         }
 
-        Debug.DrawRay(MovementCollider.transform.position, Vector2.down * 0.1f, Color.green);
+        Debug.DrawRay(MovementCollider.transform.position, Vector2.down * 0.3f, Color.green);
 
         Debug.DrawRay(MovementCollider.transform.position
                       + new Vector3(MovementCollider.offset.x * (LookRight ? 1 : -1), 0, 0)
                       + Vector3.left * MovementCollider.size.x / 2,
-            Vector2.down * 0.1f, Color.red);
+            Vector2.down * 0.3f, Color.red);
 
         Debug.DrawRay(MovementCollider.transform.position
                       + new Vector3(MovementCollider.offset.x * (LookRight ? 1 : -1), 0, 0)
                       + Vector3.right * MovementCollider.size.x / 2,
-            Vector2.down * 0.1f, Color.red);
+            Vector2.down * 0.3f, Color.red);
 
         var hitRight = Physics2D.Raycast(MovementCollider.transform.position
                                          + new Vector3(MovementCollider.offset.x * (LookRight ? 1 : -1), 0, 0)
                                          + Vector3.right * MovementCollider.size.x / 2 ,
-            Vector2.down, 0.1f, pLayerLayer);
+            Vector2.down, 0.3f, pLayerLayer);
 
-        var hitCenter = Physics2D.Raycast(MovementCollider.transform.position, Vector2.down, 0.1f, pLayerLayer);
+        var hitCenter = Physics2D.Raycast(MovementCollider.transform.position, Vector2.down, 0.3f, pLayerLayer);
 
         var hitLeft = Physics2D.Raycast(MovementCollider.transform.position
                                         + new Vector3(MovementCollider.offset.x * (LookRight ? 1 : -1), 0, 0)
                                         + Vector3.left * MovementCollider.size.x / 2,
-            Vector2.down, 0.1f, pLayerLayer);
-
-        if (hitLeft) {
-            Debug.Log("Left: " + hitLeft + ", Tag: " + hitLeft.collider.tag);
-        }
+            Vector2.down, 0.3f, pLayerLayer);
 
         // Debug.Log(gameObject.layer);
 
         if (AnimationHandler.Animator.GetBool(AnimatorBool.JUMP) 
             && !AnimationHandler.Animator.GetBool(AnimatorBool.IS_SPURTING) 
             && !AnimationHandler.Animator.GetBool(AnimatorBool.IS_RETREATING)) { // 但当前角色在跳跃而且不再冲刺的时候才判断
-
-            if (hitLeft) {
-                Debug.Log(hitLeft.transform.position.y + ", " + MovementCollider.transform.position.y + ", " + ((BoxCollider2D)hitLeft.collider).size.y);
-            }
-            
             // 如果在下面重叠不采取措施，可能是回退等操作造成的
-            if (hitLeft && hitLeft.transform.position.y < MovementCollider.transform.position.y - ((BoxCollider2D)hitLeft.collider).size.y) {                              
+            if (hitLeft && hitLeft.transform.position.y < MovementCollider.transform.position.y - ((BoxCollider2D) hitLeft.collider).size.y) {                              
 
                 transform.Translate(Vector3.right * (MovementCollider.size.x + MovementCollider.offset.x) / 2 * (LookRight ? 1 : -1));
                 
-            } else if (hitRight && hitRight.transform.position.y < MovementCollider.transform.position.y - ((BoxCollider2D)hitRight.collider).size.y) {
+            } else if (hitRight && hitRight.transform.position.y < MovementCollider.transform.position.y - ((BoxCollider2D) hitRight.collider).size.y) {
                 transform.Translate(Vector3.left * (MovementCollider.size.x + MovementCollider.offset.x) / 2 * (LookRight ? 1 : -1));
 
-            } else if (hitCenter && hitCenter.transform.position.y < MovementCollider.transform.position.y - ((BoxCollider2D)hitCenter.collider).size.y) {
+            } else if (hitCenter && hitCenter.transform.position.y < MovementCollider.transform.position.y - ((BoxCollider2D) hitCenter.collider).size.y) {
                 // 如果射线碰撞的角色不是自己的话，说明对手在自己脚下，调整自己的位置          
                 if (hitCenter.transform.position.x > transform.position.x) { // 说明自己的中轴线在对手的左边，就往左边移动一点
                     transform.Translate(Vector3.left * MovementCollider.size.x / 2);

@@ -61,6 +61,8 @@ public class LevelManager : MonoBehaviour {
                 if (_characterManager.Players[i].PlayerStates.LookRight !=
                     (i == 0 && player1IsLeft || i == 1 && !player1IsLeft)) {
                     _characterManager.Players[i].PlayerStates.ShouldLookBack = true; // 通知需要回头
+                } else {
+                    _characterManager.Players[i].PlayerStates.ShouldLookBack = false;
                 }
             }
         }
