@@ -50,6 +50,9 @@ public class ColliderShower : MonoBehaviour {
                 _material.color = new Color32(0, 100, 255, 100);
 
                 break;
+            case "DefenseCollider":
+                _material.color = new Color32(0, 100, 255, 100);
+                break;
         }
 
     }
@@ -63,7 +66,7 @@ public class ColliderShower : MonoBehaviour {
         //transform.position = Collider.transform.position;
         //transform.localScale = Collider.transform.localScale;
 
-        if (Collider.gameObject.activeSelf) {         
+        if (Collider.gameObject.activeSelf && Collider.enabled) {         
         
             _meshFilter.mesh.Clear();
             _meshFilter.mesh = new Mesh {

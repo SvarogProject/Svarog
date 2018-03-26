@@ -5,7 +5,6 @@ public class AICharacter : MonoBehaviour {
     #region Variables
 
     //Our stored Components
-    PlayerStateManager states;
     public PlayerStateManager EnemyStates;
 
     public float changeStateTolerance = 3; //How close is considered close combat
@@ -45,6 +44,8 @@ public class AICharacter : MonoBehaviour {
     float jRate;
     bool jump;
     float jtimer;
+    
+    private PlayerStateManager _states;
 
     #endregion
 
@@ -60,7 +61,7 @@ public class AICharacter : MonoBehaviour {
     public AIState aiState;
 
     void Start() {
-        states = GetComponent<PlayerStateManager>();
+        _states = GetComponent<PlayerStateManager>();
 
         AISnapshots.GetInstance().RequestAISnapshot(this);
     }
@@ -179,23 +180,23 @@ public class AICharacter : MonoBehaviour {
         if (storeRandom < 90) {
             if (EnemyStates.transform.position.x < transform.position.x) {
                 //states.horizontal = -1;
-                states.Left = true;
-                states.Right = false;
+                _states.Left = true;
+                _states.Right = false;
             }
             else {
-                states.Left = false;
-                states.Right = true;
+                _states.Left = false;
+                _states.Right = true;
             }
         }
         else //..or away from him
         {
             if (EnemyStates.transform.position.x < transform.position.x) {
-                states.Left = false;
-                states.Right = true;
+                _states.Left = false;
+                _states.Right = true;
             }
             else {
-                states.Left = true;
-                states.Right = false;
+                _states.Left = true;
+                _states.Right = false;
             }
         }
 
@@ -208,10 +209,10 @@ public class AICharacter : MonoBehaviour {
 
         if (aiTimer > aiStateLife) {
             initiateAI = false;
-            states.Right = false;
-            states.Left = false;
-            states.Jump = false;
-            states.Crouch = false;
+            _states.Right = false;
+            _states.Left = false;
+            _states.Jump = false;
+            _states.Crouch = false;
 
             aiTimer = 0;
 
@@ -270,7 +271,7 @@ public class AICharacter : MonoBehaviour {
     //Our Blocking Logic goes here
     void Blocking() {
         //If we are about to recieve damage
-        if (states.IsGettingHurtSmall) {
+        if (_states.IsGettingHurtSmall) {
             //..get the random value
             if (!gotRandom) {
                 storeRandom = ReturnRandom();
@@ -280,7 +281,7 @@ public class AICharacter : MonoBehaviour {
             //...there's 50% chances of us blocking
             if (storeRandom < 50) {
                 blocking = true;
-                states.IsGettingHurtSmall = false;
+                _states.IsGettingHurtSmall = false;
                 //states.blocking = true;
             }
         }
@@ -329,15 +330,15 @@ public class AICharacter : MonoBehaviour {
 
         if (jump) {
             //then add to vertical input
-            states.Right = true;
-            states.Left = false;
+            _states.Right = true;
+            _states.Left = false;
             jRate = ReturnRandom();
             jump = false; //we don't want to keep jumping
         }
         else {
             //we still need to reset the vertical input otherwise it will be always jumping
-            states.Left = true;
-            states.Right = false;
+            _states.Left = true;
+            _states.Right = false;
         }
 
         //Our jump timer determines on how many secs it will run a check if he wants to jump or not

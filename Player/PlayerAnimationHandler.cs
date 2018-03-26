@@ -57,6 +57,12 @@ public class PlayerAnimationHandler : MonoBehaviour {
             Animator.SetTrigger("HurtLarge");
             Animator.SetBool("Jump", true);
         }
+
+        if (_states.IsGettingHurtDefense) {
+            Animator.SetBool("Defense", true);
+        } else {
+            Animator.SetBool("Defense", false);
+        }
     }
 
     private void HandleAttacks() {
