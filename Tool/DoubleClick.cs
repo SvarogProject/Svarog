@@ -118,9 +118,13 @@ public class DoubleClick {
                         onFirstDown();
                     }
                 }
-            } else {
-                _clickCount = ClickCount.ZeroTime; // 按下了别的键应重置
             }
+            /*
+            else {
+                //TODO 这里有问题，是玩家x的其他键盘，别的玩家按下其他键没问题
+                _clickCount = ClickCount.ZeroTime; // 按下了别的键应重置 
+            }
+            */
         }
 
 

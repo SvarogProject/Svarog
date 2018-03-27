@@ -23,10 +23,6 @@ public class InputHandler : MonoBehaviour {
 
     public void FixedUpdate() {
         
-        // TODO 按住（下左），K I 键无效
-        Debug.Log("K:" + Input.GetButtonDown("K"));
-        Debug.Log("K-key:" + Input.GetKeyDown(KeyCode.K));
-
         /*
         if (_input == null) {
             _input = new JoystickInputHandler(this);

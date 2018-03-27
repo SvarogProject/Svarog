@@ -77,33 +77,67 @@ public class PlayerStateManager : MonoBehaviour {
         var hitRight = Physics2D.Raycast(MovementCollider.transform.position
                                          + new Vector3(MovementCollider.offset.x * (LookRight ? 1 : -1), 0, 0)
                                          + Vector3.right *
-                                         (MovementCollider.size.x / 2 + 0.1f), // 0.1f为了防止正好落在中心，位移到边缘卡住
+                                         (MovementCollider.size.x / 2), // 0.1f为了防止正好落在中心，位移到边缘卡住
             Vector2.down, 0.5f, pLayerLayer);
 
-        var hitCenter = Physics2D.Raycast(MovementCollider.transform.position, Vector2.down, 0.5f, pLayerLayer);
+        //var hitCenter = Physics2D.Raycast(MovementCollider.transform.position, Vector2.down, 0.5f, pLayerLayer);
 
         var hitLeft = Physics2D.Raycast(MovementCollider.transform.position
                                         + new Vector3(MovementCollider.offset.x * (LookRight ? 1 : -1), 0, 0)
-                                        + Vector3.left * (MovementCollider.size.x / 2 + 0.1f),
+                                        + Vector3.left * (MovementCollider.size.x / 2),
             Vector2.down, 0.5f, pLayerLayer);
 
 
         if (AnimationHandler.Animator.GetBool(AnimatorBool.JUMP)
             && !AnimationHandler.Animator.GetBool(AnimatorBool.IS_SPURTING)
             && !AnimationHandler.Animator.GetBool(AnimatorBool.IS_RETREATING)) { // 但当前角色在跳跃而且不再冲刺的时候才判断
-            // 如果在下面重叠不采取措施，可能是回退等操作造成的
-            if (hitLeft && hitLeft.transform.position.y <
-                MovementCollider.transform.position.y - ((BoxCollider2D) hitLeft.collider).size.y) {
+            
+            if (hitLeft) { 
 
-                transform.Translate(Vector3.right * (MovementCollider.size.x + MovementCollider.offset.x) / 2 *
+                var hitUpY = hitLeft.transform.position.y + ((BoxCollider2D) hitLeft.collider).offset.y +
+                               ((BoxCollider2D) hitLeft.collider).size.y / 2;
+                
+                var hitDownY = hitLeft.transform.position.y + ((BoxCollider2D) hitLeft.collider).offset.y -
+                               ((BoxCollider2D) hitLeft.collider).size.y / 2;
+
+                var thisDownY = MovementCollider.transform.position.y + MovementCollider.offset.y -
+                                  MovementCollider.size.y / 2;
+                
+                if (hitDownY > 0.1f) { // 玩家2也是跳跃的不位移
+                    return;
+                }
+
+                if (thisDownY < hitUpY) { // 如果在下面重叠不采取措施，可能是回退等操作造成的
+                    return;
+                }
+
+                transform.Translate(Vector3.right * (MovementCollider.size.x / 2 + MovementCollider.offset.x + 0.1f) *
                                     (LookRight ? 1 : -1));
 
-            } else if (hitRight && hitRight.transform.position.y <
-                       MovementCollider.transform.position.y - ((BoxCollider2D) hitRight.collider).size.y) {
-                transform.Translate(Vector3.left * (MovementCollider.size.x + MovementCollider.offset.x) / 2 *
+            } else if (hitRight) {
+                
+                var hitUpY = hitRight.transform.position.y + ((BoxCollider2D) hitRight.collider).offset.y +
+                             ((BoxCollider2D) hitRight.collider).size.y / 2;
+                
+                var hitDownY = hitRight.transform.position.y + ((BoxCollider2D) hitRight.collider).offset.y -
+                               ((BoxCollider2D) hitRight.collider).size.y / 2;
+
+                var thisDownY = MovementCollider.transform.position.y + MovementCollider.offset.y -
+                                MovementCollider.size.y / 2;
+                
+                                
+                if (hitDownY > 0.1f) { // 玩家2也是跳跃的不位移
+                    return;
+                }
+
+                if (thisDownY < hitUpY) { // 如果在下面重叠不采取措施，可能是回退等操作造成的
+                    return;
+                }
+                
+                transform.Translate(Vector3.left * (MovementCollider.size.x / 2 + MovementCollider.offset.x + 0.1f) *
                                     (LookRight ? 1 : -1));
 
-            } else if (hitCenter && hitCenter.transform.position.y <
+            } /*else if (hitCenter && hitCenter.transform.position.y <
                        MovementCollider.transform.position.y - ((BoxCollider2D) hitCenter.collider).size.y) {
                 // 如果射线碰撞的角色不是自己的话，说明对手在自己脚下，调整自己的位置          
                 if (hitCenter.transform.position.x > transform.position.x) { // 说明自己的中轴线在对手的左边，就往左边移动一点
@@ -111,7 +145,7 @@ public class PlayerStateManager : MonoBehaviour {
                 } else {
                     transform.Translate(Vector3.right * (MovementCollider.size.x / 2 + 0.1f));
                 }
-            }
+            }*/
         }
     }
 

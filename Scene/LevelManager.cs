@@ -256,7 +256,7 @@ public class LevelManager : MonoBehaviour {
         Debug.Log("EndTurnFunction(" + timeOut + ")");
 
         EnableCountdown = false;
-        _levelUi.LevelTimer.text = "0";
+        //_levelUi.LevelTimer.text = "0";
 
         if (timeOut) {
             _levelUi.AnnouncerTextLine1.gameObject.SetActive(true);
