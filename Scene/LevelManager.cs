@@ -10,7 +10,7 @@ public class LevelManager : MonoBehaviour {
 
     private readonly WaitForSeconds _oneSec = new WaitForSeconds(1); // 重复利用等一秒
 
-    private CameraManager _cameraManager;
+    private CameraMoveManager _cameraManager;
     private CharacterManager _characterManager;
     private LevelUI _levelUi;       // 保存UI元素，方便调用
     private int _currentRounds = 1; // 当前回合
@@ -38,7 +38,7 @@ public class LevelManager : MonoBehaviour {
     public void Start() {
         _characterManager = CharacterManager.GetInstance();
         _levelUi = LevelUI.GetInstance();
-        _cameraManager = CameraManager.GetInstance();
+        _cameraManager = CameraMoveManager.GetInstance();
 
         _levelUi.AnnouncerTextLine1.gameObject.SetActive(false);
         _levelUi.AnnouncerTextLine2.gameObject.SetActive(false);
@@ -136,7 +136,8 @@ public class LevelManager : MonoBehaviour {
                     }                
                 }
 
-                _cameraManager.Players.Add(player.transform); // 给摄像机控制添加角色
+                _cameraManager.Players.Add(player.gameObject); // 给摄像机控制添加角色
+                _cameraManager.Initial();
             }
 
         }

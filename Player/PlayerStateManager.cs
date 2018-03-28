@@ -64,14 +64,15 @@ public class PlayerStateManager : MonoBehaviour {
     }
 
     // TODO 这一段是否应该把判断搬到CharactorManager中，移动放到MovementHandler中
+    // TODO 边角的时候应该考虑让对手移动
     private void HandleOnAnotherPlayer() {
 
         LayerMask pLayerLayer;
 
-        if (gameObject.layer == LayerMask.NameToLayer("Player")) {
-            pLayerLayer = 1 << LayerMask.NameToLayer("MovementCollider2");
+        if (gameObject.layer == LayerMask.NameToLayer(LayerName.PLAYER)) {
+            pLayerLayer = 1 << LayerMask.NameToLayer(LayerName.MOVEMENT_COLLIDER_2);
         } else {
-            pLayerLayer = 1 << LayerMask.NameToLayer("MovementCollider");
+            pLayerLayer = 1 << LayerMask.NameToLayer(LayerName.MOVEMENT_COLLIDER);
         }
 
         var hitRight = Physics2D.Raycast(MovementCollider.transform.position
@@ -151,7 +152,7 @@ public class PlayerStateManager : MonoBehaviour {
 
     private bool IsOnGround() {
 
-        LayerMask groundLayer = 1 << LayerMask.NameToLayer("Ground"); // 只检测地板这层
+        LayerMask groundLayer = 1 << LayerMask.NameToLayer(LayerName.GROUND); // 只检测地板这层
         //Debug.DrawRay(MovementCollider.transform.position, Vector2.down, Color.green);
         bool retVal = Physics2D.Raycast(MovementCollider.transform.position, Vector2.down, 0.5f, groundLayer);
 
