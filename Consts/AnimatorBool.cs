@@ -7,7 +7,10 @@
     public const string IS_SPURTING = "IsSpurting";
     public const string USED_JUMP_DOUBLE = "UsedJumpDouble";
     public const string JUMP = "Jump";
+    public const string CROUCH = "Crouch";
     public const string HIGH_JUMPABLE = "HighJumpable";
     public const string IS_FIRE_PUNCH = "IsFirePunch";
     public const string CAN_LOOK_BACK = "CanLookBack";
+    public const string ATTACK_HS = "AttackHS";
+    public const string IS_HEAVY_ATTACK = "IsHeavyAttack";
 }

@@ -5,7 +5,7 @@ using System.Collections;
 using System.Linq;
 
 public class PlayerStateManager : MonoBehaviour {
-    public int Health = 100;
+    public float Health = 100;
 
     #region Action Params
 
@@ -197,41 +197,49 @@ public class PlayerStateManager : MonoBehaviour {
         MovementColliders[index].SetActive(true);
     }
 
-    public void TakeDamage(int damage, DamageType damageType) {
+    public void TakeDamage(float damage, DamageType damageType) {
         if (IsGettingHurtSmall || IsGettinghurtLarge) return;
 
         switch (damageType) {
             case DamageType.Light:
-                IsGettingHurtSmall = true;
-                //if (!OnGround) {
-                //    _movementHandler.AddVelocityOnCharacter(
-                //        (!LookRight ? Vector2.right * 1 : Vector2.right * -1) + Vector2.up, 0.5f);
-                //}
-                StartCoroutine(CloseImmortality(0.1f));
+
+                if (!IsGettingHurtSmall) {
+                    IsGettingHurtSmall = true;
+
+                    StartCoroutine(CloseImmortality(0.1f));
+                }
 
                 break;
             case DamageType.Heavy:
 
-                IsGettinghurtLarge = true;
+                if (!IsGettinghurtLarge) {
+                    IsGettinghurtLarge = true;
 
-                _movementHandler.AddVelocityOnCharacter(
-                    (!LookRight ? Vector2.right * 1 : Vector2.right * -1) + Vector2.up, 0.5f);
+                    _movementHandler.AddVelocityOnCharacter(
+                        (LookRight ? Vector2.left : Vector2.right) + Vector2.up, 0.2f);
 
-                StartCoroutine(CloseImmortality(0.5f));
+                    StartCoroutine(CloseImmortality(0.2f));
+                }      
 
                 break;
 
             case DamageType.FirePunch:
-                IsGettingFriePunch = true;
-                _movementHandler.AddVelocityOnCharacter(Vector2.up * 18, 0.01f);
 
-                StartCoroutine(CloseImmortality(0.5f));
+                if (!IsGettingFriePunch) {
+                    IsGettingFriePunch = true;
+                    _movementHandler.AddVelocityOnCharacter(Vector2.up * 18, 0.01f);
+
+                    StartCoroutine(CloseImmortality(0.5f));
+                }
 
                 break;
             case DamageType.Defensed:
-                IsGettingHurtDefense = true;
+
+                if (!IsGettingHurtDefense) {
+                    IsGettingHurtDefense = true;
                 
-                StartCoroutine(CloseImmortality(0.5f));
+                    StartCoroutine(CloseImmortality(0.5f));
+                }           
                 
                 break;
             default:

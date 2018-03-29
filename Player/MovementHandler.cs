@@ -78,10 +78,10 @@ public class MovementHandler : MonoBehaviour {
         } else if (_states.JumpLeft) {
             transform.Translate((_states.LookRight ? Vector2.left : Vector2.right) * Time.deltaTime * RunSpeed * 0.8f);
 
-        } else if (_states.Right && _states.OnGround) {
+        } else if (_states.Right && _states.OnGround && !_animation.Animator.GetBool(AnimatorBool.CROUCH)) {
             transform.Translate((_states.LookRight ? Vector2.right : Vector2.left) * Time.deltaTime * WalkForwardSpeed);
 
-        } else if (_states.Left && _states.OnGround) {
+        } else if (_states.Left && _states.OnGround  && !_animation.Animator.GetBool(AnimatorBool.CROUCH)) {
             transform.Translate((_states.LookRight ? Vector2.left : Vector2.right) * Time.deltaTime * WalkBackSpeed);
 
         }

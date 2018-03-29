@@ -6,6 +6,8 @@ public class PlayerAnimationHandler : MonoBehaviour {
 
     private PlayerStateManager _states;
 
+    private float _defenseTimer;
+
     public void Start() {
         _states = GetComponent<PlayerStateManager>();
     }
@@ -60,8 +62,14 @@ public class PlayerAnimationHandler : MonoBehaviour {
 
         if (_states.IsGettingHurtDefense) {
             Animator.SetBool("Defense", true);
+            _defenseTimer = 0.2f;
         } else {
-            Animator.SetBool("Defense", false);
+            if (_defenseTimer < 0) {
+                Animator.SetBool("Defense", false);
+            } else {
+                _defenseTimer -= Time.deltaTime;
+            }
+            
         }
     }
 
@@ -100,6 +108,7 @@ public class PlayerAnimationHandler : MonoBehaviour {
     private void DoJumpAnim() {
         Animator.ResetTrigger("SpurtOnAir");
         Animator.ResetTrigger("Retreat");
+        Animator.SetBool("Defense", false);
         Animator.SetBool("Jump", true);
         HandleLookBack();
     }
@@ -107,6 +116,7 @@ public class PlayerAnimationHandler : MonoBehaviour {
     private void DoJumpDoubleAnim() {
         Animator.ResetTrigger("SpurtOnAir");
         Animator.ResetTrigger("Retreat");
+        Animator.SetBool("Defense", false);
         Animator.SetTrigger("JumpDouble");
         HandleLookBack();
     }
@@ -114,6 +124,7 @@ public class PlayerAnimationHandler : MonoBehaviour {
     private void DoJumpHighAnim() {
         Animator.ResetTrigger("SpurtOnAir");
         Animator.ResetTrigger("Retreat");
+        Animator.SetBool("Defense", false);
         Animator.SetBool("Jump", true);
         Animator.SetBool("JumpHigh", true);
         HandleLookBack();
@@ -123,6 +134,7 @@ public class PlayerAnimationHandler : MonoBehaviour {
         Animator.SetBool("Jump", false);
         Animator.SetBool("JumpHigh", false);
         Animator.SetBool("HurtOnAir", false);
+        Animator.SetBool("Defense", false);
         Animator.ResetTrigger("JumpDouble");
         Animator.ResetTrigger("SpurtOnAir");
         Animator.ResetTrigger("Retreat");

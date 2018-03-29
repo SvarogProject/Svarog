@@ -58,6 +58,7 @@ public class CameraMoveManager : MonoBehaviour {
 
     private void Start() {
         _camera = GetComponent<Camera>();
+        Initial();
     }
 
     private void FixedUpdate() {

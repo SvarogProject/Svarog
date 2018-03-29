@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 
 public class DamageHandler : MonoBehaviour {
     public DamageType DamageType;
@@ -65,15 +66,9 @@ public class DamageHandler : MonoBehaviour {
         
         if (other.GetComponentInParent<PlayerStateManager>() && other.CompareTag("HurtCollider")) {
             var otherState = other.GetComponentInParent<PlayerStateManager>();
-
-            if (otherState != _states) {
-
-                if (_onTriggerTimer < 0) { // 一段时间能的首次碰撞
-                    _onTriggerTimer = 0.01f;
-                }
-
+            if (otherState != _states) {                  
                 _hurtColliders.Add(other);
-            }
+            }        
         }
 
         if (other.GetComponentInParent<PlayerStateManager>() && other.CompareTag("DefenseCollider")) {
@@ -81,10 +76,18 @@ public class DamageHandler : MonoBehaviour {
             var otherState = other.GetComponentInParent<PlayerStateManager>();
 
             if (otherState != _states) {
-                if (_onTriggerTimer < 0) { // 一段时间能的首次碰撞
-                    _onTriggerTimer = 0.01f;
+
+                if (!otherState.Attacks.Any(attack => attack.Attack)) { // 对方没有攻击才可以防御成功
+                    if (_onTriggerTimer < 0) {                          // 一段时间能的首次碰撞
+                        _onTriggerTimer = 0.01f;
+                    }
+
+                    if (_onTriggerTimer < 0) { // 一段时间能的首次碰撞
+                        _onTriggerTimer = 0.01f;
+                    }
+
+                    _defenseCollider = other;
                 }
-                _defenseCollider = other;
             }
         }
     }
@@ -95,11 +98,14 @@ public class DamageHandler : MonoBehaviour {
         var otherState = collider.GetComponentInParent<PlayerStateManager>();
 
             if (collider.CompareTag("DefenseCollider")) {
-                otherState.TakeDamage(1, DamageType.Defensed);
-            } else if (_animation.Animator.GetBool(AnimatorBool.IS_FIRE_PUNCH)) {
+                otherState.TakeDamage(0.01f, DamageType.Defensed);
+            } 
+            else if (_animation.Animator.GetBool(AnimatorBool.IS_FIRE_PUNCH)) {
                 otherState.TakeDamage(6, DamageType.FirePunch);
+            } else if (_animation.Animator.GetBool(AnimatorBool.IS_HEAVY_ATTACK)) {
+                otherState.TakeDamage(5, DamageType.Heavy);
             } else {
-                otherState.TakeDamage(5, DamageType);
+                otherState.TakeDamage(3, DamageType);
             }
         
             

@@ -38,16 +38,11 @@ public class InputHandler : MonoBehaviour {
         Attack();
         Move();
         Jump();
+        Crouch();      
+    }
 
+    private void Crouch() {
         _states.Crouch = Input.GetButton("Crouch" + PlayerInputId);
-
-        if (Input.GetKey(KeyCode.P)) {
-            _animator.SetTrigger("HurtSmall"); // TODO TEST
-        }
-
-        if (Input.GetKey(KeyCode.O)) {
-            _animator.SetBool("Defense", !_animator.GetBool("Defense")); // TODO TEST
-        }
     }
 
     private void Move() {
