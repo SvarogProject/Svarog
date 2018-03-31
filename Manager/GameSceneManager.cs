@@ -36,6 +36,12 @@ public class GameSceneManager : MonoBehaviour {
         _characterManager = CharacterManager.GetInstance();
     }
 
+    private void Update() {
+        if (Input.GetKeyDown(KeyCode.Escape)) {
+            RequestLevelLoad(SceneType.Main, SceneName.INTRO);
+        }
+    }
+
     public void CreateProgression() {
         Progressions.Clear();
         NextProgressionIndex = 0;
