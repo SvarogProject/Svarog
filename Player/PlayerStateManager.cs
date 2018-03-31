@@ -30,6 +30,8 @@ public class PlayerStateManager : MonoBehaviour {
     public bool Dead;
     public bool ShouldLookBack; // 需要回头，但是还没回
     public bool CanSpurtOrRetreatOnAir;
+    public bool DefenseLeft;
+    public bool DefenseRight;
 
     #endregion
 

@@ -2,6 +2,7 @@
 using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using BehaviorDesigner.Runtime;
 using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour {
@@ -198,11 +199,14 @@ public class LevelManager : MonoBehaviour {
                     break;
                 // AI控制
                 case PlayerBase.PlayerType.Ai:
-                    var ai = player.PlayerStates.gameObject.GetComponent<AICharacter>();
-                    ai.enabled = true;
+                    var ai = player.PlayerStates.gameObject.GetComponent<AIParams>();
+                    //ai.enabled = true;
 
                     // 给AI设置敌人
                     ai.EnemyStates = _characterManager.GetOppositePlayer(player).PlayerStates;
+
+                    var behaviour = player.PlayerStates.gameObject.GetComponent<BehaviorTree>();
+                    behaviour.enabled = true;
 
                     break;
                 // 网络控制
@@ -237,7 +241,7 @@ public class LevelManager : MonoBehaviour {
 
                     break;
                 case PlayerBase.PlayerType.Ai:
-                    player.PlayerStates.GetComponent<AICharacter>().enabled = false;
+                    player.PlayerStates.GetComponent<BehaviorTree>().enabled = false;
 
                     break;
                 case PlayerBase.PlayerType.Simulation:

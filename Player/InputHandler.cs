@@ -38,7 +38,13 @@ public class InputHandler : MonoBehaviour {
         Attack();
         Move();
         Jump();
-        Crouch();      
+        Crouch();
+        Defense();
+    }
+
+    private void Defense() {
+        _states.DefenseLeft = Input.GetButton("Left" + PlayerInputId);
+        _states.DefenseRight = Input.GetButton("Right" + PlayerInputId);
     }
 
     private void Crouch() {

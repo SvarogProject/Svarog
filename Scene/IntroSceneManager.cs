@@ -28,8 +28,7 @@ public class IntroSceneManager : MonoBehaviour {
                 StartText.SetActive(!StartText.activeInHierarchy);
             }
 
-            // 点击进入 (这里用Down的话会快速触发下一次直接进入游戏，为什么Up就不会)
-            if (Input.GetKeyUp(KeyCode.Space)) {
+            if (Input.anyKeyDown) {
                 _init = true;
                 StartText.SetActive(false);
                 MenuObj.SetActive(true);
@@ -40,20 +39,20 @@ public class IntroSceneManager : MonoBehaviour {
                 MenuOptions[ActiveElement].Selected = true;
 
                 // 选择菜单
-                if (Input.GetKeyUp(KeyCode.UpArrow) || Input.GetButtonUp("Jump")) {
+                if (Input.GetKeyDown(KeyCode.UpArrow) || Input.GetButtonDown("Jump")) {
                     MenuOptions[ActiveElement].Selected = false;
 
                     ActiveElement = (ActiveElement + MenuOptions.Length - 1) % MenuOptions.Length;
                 }
 
-                if (Input.GetKeyUp(KeyCode.DownArrow) || Input.GetButtonUp("Crouch")) {
+                if (Input.GetKeyDown(KeyCode.DownArrow) || Input.GetButtonDown("Crouch")) {
                     MenuOptions[ActiveElement].Selected = false;
 
                     ActiveElement = (ActiveElement + 1) % MenuOptions.Length;
                 }
 
                 // 再次空格进入游戏
-                if (Input.GetKeyUp(KeyCode.Space)) {
+                if (Input.GetButtonDown("P")) {
                     _loadingLevel = true;
                     StartCoroutine("LoadLevel");
                     // 让选中的菜单放大一下…… TODO 之后用Animator做
