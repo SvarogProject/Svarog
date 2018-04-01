@@ -6,6 +6,11 @@ using BehaviorDesigner.Runtime;
 using UnityEngine.SceneManagement;
 
 public class LevelManager : MonoBehaviour {
+    // Mobile
+    public ETCJoystick Joystick;
+    public ETCButton ButtonAttackP;
+    
+    
     public Transform[] SpawnPositions; // 角色出生点（在游戏布局中设定好）
     public int MaxRounds = 2;          // 回合数
 
@@ -169,21 +174,6 @@ public class LevelManager : MonoBehaviour {
         yield return _oneSec;
         yield return _oneSec;
 
-        _levelUi.AnnouncerTextLine1.text = "Three";
-        _levelUi.AnnouncerTextLine1.color = Color.white;
-
-        yield return _oneSec;
-
-        _levelUi.AnnouncerTextLine1.text = "Two";
-        _levelUi.AnnouncerTextLine1.color = Color.white;
-
-        yield return _oneSec;
-
-        _levelUi.AnnouncerTextLine1.text = "One";
-        _levelUi.AnnouncerTextLine1.color = Color.white;
-
-        yield return _oneSec;
-
         _levelUi.AnnouncerTextLine1.color = Color.white;
         _levelUi.AnnouncerTextLine1.text = "FIGHT!";
 
@@ -192,9 +182,15 @@ public class LevelManager : MonoBehaviour {
             switch (player.Type) {
                 // 玩家控制
                 case PlayerBase.PlayerType.User:
-                    var inputHandler = player.PlayerStates.gameObject.GetComponent<InputHandler>();
-                    inputHandler.PlayerInputId = player.InputId;
-                    inputHandler.enabled = true;
+
+                    if (MobileManager.IsMobile) {
+                        var inputHandler = player.PlayerStates.gameObject.GetComponent<MobilePlayerInputManager>();
+                        inputHandler.enabled = true;
+                    } else {
+                        var inputHandler = player.PlayerStates.gameObject.GetComponent<InputHandler>();
+                        inputHandler.PlayerInputId = player.InputId;
+                        inputHandler.enabled = true;
+                    }
 
                     break;
                 // AI控制
@@ -238,6 +234,10 @@ public class LevelManager : MonoBehaviour {
             switch (player.Type) {
                 case PlayerBase.PlayerType.User:
                     player.PlayerStates.GetComponent<InputHandler>().enabled = false;
+
+                    if (MobileManager.IsMobile) {
+                        player.PlayerStates.GetComponent<MobilePlayerInputManager>().enabled = false;
+                    }
 
                     break;
                 case PlayerBase.PlayerType.Ai:

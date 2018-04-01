@@ -1,9 +1,11 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿
+using UnityEngine;
 
-public class InputHandler : MonoBehaviour {
-    public string PlayerInputId;
-
+public class MobilePlayerInputManager : MonoBehaviour {
+    public ETCJoystick Joystick;
+    public ETCButton ButtonAttackP;
+    
+        
     private PlayerStateManager _states;
     private Animator _animator;
     private AttacksBase[] _attacks;
@@ -13,28 +15,18 @@ public class InputHandler : MonoBehaviour {
     private readonly DoubleClick _rightDoubleClick = new DoubleClick();
     private readonly DoubleClick _leftDoubleClick = new DoubleClick();
 
-    private IInputHandler _input;
-
+    private bool _isAttack = false;
+    
     public void Start() {
         _states = GetComponent<PlayerStateManager>();
         _animator = GetComponent<PlayerAnimationHandler>().Animator;
         _attacks = _states.Attacks;
+        Joystick = LevelManager.GetInstance().Joystick;
+        ButtonAttackP = LevelManager.GetInstance().ButtonAttackP;   
     }
 
     public void FixedUpdate() {
-        
-        /*
-        if (_input == null) {
-            _input = new JoystickInputHandler(this);
-        } else {
-            // joystick
-            _input.HandleAttack();
-            _input.HandleMove();
-            _input.HandleCrouch();
-            _input.HandleJump();
-        }
-        */
-
+       
         Attack();
         Move();
         Jump();
@@ -43,21 +35,21 @@ public class InputHandler : MonoBehaviour {
     }
 
     private void Defense() {
-        _states.DefenseLeft = Input.GetButton("Left" + PlayerInputId);
-        _states.DefenseRight = Input.GetButton("Right" + PlayerInputId);
+        _states.DefenseLeft = Joystick.axisX.axisState == ETCAxis.AxisState.PressLeft;
+        _states.DefenseRight = Joystick.axisX.axisState == ETCAxis.AxisState.PressRight;
     }
 
     private void Crouch() {
-        _states.Crouch = Input.GetButton("Crouch" + PlayerInputId);
+        _states.Crouch = Joystick.axisY.axisState == ETCAxis.AxisState.PressDown;
     }
 
     private void Move() {
         if (_animator.GetBool(AnimatorBool.MOVEABLE)) {
-            _states.Right = Input.GetButton("Right" + PlayerInputId);
-            _states.Left = Input.GetButton("Left" + PlayerInputId);
+            _states.Right = Joystick.axisX.axisState == ETCAxis.AxisState.PressRight;
+            _states.Left = Joystick.axisX.axisState == ETCAxis.AxisState.PressLeft;
 
-            _leftDoubleClick.HandleDoubleClick("Left" + PlayerInputId, () => { _states.LeftDouble = true; });
-            _rightDoubleClick.HandleDoubleClick("Right" + PlayerInputId, () => { _states.RightDouble = true; });
+            //_leftDoubleClick.HandleDoubleClick("Left" + PlayerInputId, () => { _states.LeftDouble = true; });
+            //_rightDoubleClick.HandleDoubleClick("Right" + PlayerInputId, () => { _states.RightDouble = true; });
 
             if (!_states.Right) {
                 _states.RightDouble = false;
@@ -78,31 +70,25 @@ public class InputHandler : MonoBehaviour {
 
     private void Attack() {
         if (_states.Attackable) {
-            // TODO 这里应该做一个树的优先级
-            foreach (var attack in _attacks) {
-                if (attack.AttackAnimName == "FirePunch") {
-                    attack.Do(PlayerInputId, _states.LookRight, () => {
-                        _animator.SetBool("Jump", true);
-
-                        GetComponent<Rigidbody2D>().velocity = new Vector3(GetComponent<Rigidbody2D>().velocity.x,
-                            GetComponent<MovementHandler>().JumpSpeed);
-                    });
-                } else {
-                    attack.Do(PlayerInputId, _states.LookRight);
-                }
-
+            Debug.Log(ButtonAttackP.axis.axisState);
+            if (ButtonAttackP.axis.axisState == ETCAxis.AxisState.Press) {
+                _attacks[0].Attack = !_isAttack;
+            } else {
+                 _isAttack = false;                
+                _attacks[0].Attack = false;
             }
         } else {
+            _isAttack = false;
             foreach (var attack in _attacks) {
                 attack.Reset();
             }
-        }
+        }   
     }
 
     private void Jump() {
         // 普通跳
         if (_animator.GetBool(AnimatorBool.JUMPABLE)) {
-            if (Input.GetButtonDown("Jump" + PlayerInputId)) {
+            if (Joystick.axisY.axisState == ETCAxis.AxisState.DownUp) {
                 _states.Jump = true;
             }
 
@@ -122,9 +108,9 @@ public class InputHandler : MonoBehaviour {
         // 二段跳
         if (_animator.GetBool(AnimatorBool.JUMP) && !_animator.GetBool(AnimatorBool.USED_JUMP_DOUBLE)) {
             if (!_jumpButtonUp) {
-                _jumpButtonUp = Input.GetButtonUp("Jump" + PlayerInputId); // 检测是否松开
+                _jumpButtonUp = Joystick.axisY.axisState == ETCAxis.AxisState.DownDown; // 检测是否松开
             } else {
-                if (Input.GetButtonDown("Jump" + PlayerInputId)) {
+                if (Joystick.axisY.axisState == ETCAxis.AxisState.DownUp) {
                     _states.JumpDouble = true;
                 }
 
@@ -136,8 +122,8 @@ public class InputHandler : MonoBehaviour {
                     _rightDoubleClick.Reset();
                     _rightDoubleClick.Reset();
 
-                    _states.JumpLeft = Input.GetButton("Left" + PlayerInputId);
-                    _states.JumpRight = Input.GetButton("Right" + PlayerInputId);
+                    _states.JumpLeft = Joystick.axisX.axisState == ETCAxis.AxisState.PressLeft;
+                    _states.JumpRight = Joystick.axisX.axisState == ETCAxis.AxisState.PressRight;
 
                     _jumpButtonUp = false;
                 }
@@ -148,7 +134,7 @@ public class InputHandler : MonoBehaviour {
 
         // 高跳
         if (_animator.GetBool(AnimatorBool.HIGH_JUMPABLE)) {
-            if (Input.GetButtonDown("Jump" + PlayerInputId)) {
+            if (Joystick.axisY.axisState == ETCAxis.AxisState.DownUp) {
                 _states.Jump = true;
             }
 

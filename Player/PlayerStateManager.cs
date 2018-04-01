@@ -208,6 +208,9 @@ public class PlayerStateManager : MonoBehaviour {
                 if (!IsGettingHurtSmall) {
                     IsGettingHurtSmall = true;
 
+                    _movementHandler.AddVelocityOnCharacter(
+                        (LookRight ? Vector2.left : Vector2.right) * 2, 0.2f);
+                    
                     StartCoroutine(CloseImmortality(0.1f));
                 }
 
@@ -218,7 +221,7 @@ public class PlayerStateManager : MonoBehaviour {
                     IsGettinghurtLarge = true;
 
                     _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) + Vector2.up, 0.2f);
+                        (LookRight ? Vector2.left : Vector2.right) * 2 + Vector2.up * 6, 0.2f);
 
                     StartCoroutine(CloseImmortality(0.2f));
                 }      
@@ -229,7 +232,7 @@ public class PlayerStateManager : MonoBehaviour {
 
                 if (!IsGettingFriePunch) {
                     IsGettingFriePunch = true;
-                    _movementHandler.AddVelocityOnCharacter(Vector2.up * 18, 0.01f);
+                    _movementHandler.AddVelocityOnCharacter(Vector2.up * _movementHandler.JumpSpeed, 0.01f);
 
                     StartCoroutine(CloseImmortality(0.5f));
                 }
@@ -239,6 +242,9 @@ public class PlayerStateManager : MonoBehaviour {
 
                 if (!IsGettingHurtDefense) {
                     IsGettingHurtDefense = true;
+                    
+                    _movementHandler.AddVelocityOnCharacter(
+                        (LookRight ? Vector2.left : Vector2.right) * 2, 0.2f);
                 
                     StartCoroutine(CloseImmortality(0.5f));
                 }           

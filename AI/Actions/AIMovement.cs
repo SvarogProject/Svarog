@@ -143,7 +143,21 @@ public class AIMovement : Action {
 
 
     }
-    
+
+    public override void OnBehaviorComplete() {
+        
+        if (!_enemyStates || !_states) {
+            return;
+        }
+        
+        _states.LeftDouble = false;
+        _states.RightDouble = false;
+        _states.Right = false;
+        _states.Left = false;
+        _states.DefenseLeft = false;
+        _states.DefenseRight = false;
+    }
+
     private IEnumerator CloseJump(float time) {
         yield return new WaitForSeconds(time);
 
