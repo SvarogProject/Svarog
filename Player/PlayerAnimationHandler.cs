@@ -154,4 +154,21 @@ public class PlayerAnimationHandler : MonoBehaviour {
             _states.ShouldLookBack = false;
         }
     }
+
+    public void Stop(float time) {
+        Animator.speed = 0f;
+        //Invoke("AnimPlay", time);
+        StartCoroutine(AnimPlay(time));
+    }
+    
+    private IEnumerator AnimPlay(float time) {
+        yield return new WaitForSeconds(time);
+
+        Animator.speed = 1;
+    }
+    
+    private void AnimPlay() {
+        Animator.speed = 1;
+        
+    }
 }

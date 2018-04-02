@@ -25,9 +25,6 @@ public class DamageHandler : MonoBehaviour {
     private void Update() {
 
         if (_onTriggerTimer <= 0) { // 一次碰撞完成，list中包含这次碰撞的所有碰撞体
-            //foreach (var c in _hurtColliders) {
-            //    Debug.Log(c.name);    
-            //}
 
             if (_defenseCollider != null && _hurtColliders.Count > 0) {
                 StartDamage(_defenseCollider);
@@ -110,16 +107,15 @@ public class DamageHandler : MonoBehaviour {
         
             
         // 顿帧
-        _animation.Animator.speed = 0f;
         //gameObject.GetComponent<BoxCollider2D>().enabled = false;
         _doDamage = false;
 
-        Invoke("AnimPlay", 0.1f);
+        _animation.Stop(0.2f);
+        Invoke("ResetDoDamage", 0.2f);
     }
+    
+    private void ResetDoDamage() {
 
-    private void AnimPlay() {
-        //gameObject.GetComponent<BoxCollider2D>().enabled = true;
-        _animation.Animator.speed = 1;
         _doDamage = true;
     }
 }

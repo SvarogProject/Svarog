@@ -120,7 +120,7 @@ public class AIMovement : Action {
                 }
 
                 _states.Jump = true;
-                StartCoroutine(CloseJump(1));
+                StartCoroutine(CloseJump(0.2f));
                 _states.LeftDouble = false;
                 _states.RightDouble = false;
                 _states.DefenseLeft = false;
@@ -128,12 +128,18 @@ public class AIMovement : Action {
                 break;
                 
             case AIMovementType.Crouch:
-                _states.Crouch = true;
-                StartCoroutine(CloseCrouch(1));
-                _states.LeftDouble = false;
-                _states.RightDouble = false;
-                _states.DefenseLeft = false;
-                _states.DefenseRight = false;
+
+                if (_states.OnGround) {
+                    _states.Crouch = true;
+                    StartCoroutine(CloseCrouch(1));
+                    _states.LeftDouble = false;
+                    _states.RightDouble = false;
+                    _states.DefenseLeft = false;
+                    _states.DefenseRight = false;
+                } else {
+                    _states.Crouch = false;
+                }
+                
                 break;
             default:
 

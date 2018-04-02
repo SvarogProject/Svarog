@@ -9,6 +9,10 @@ public class LevelManager : MonoBehaviour {
     // Mobile
     public ETCJoystick Joystick;
     public ETCButton ButtonAttackP;
+    public ETCButton ButtonAttackK;
+    public ETCButton ButtonAttackS;
+    public ETCButton ButtonAttackHS;
+    public ETCButton ButtonJump;
     
     
     public Transform[] SpawnPositions; // 角色出生点（在游戏布局中设定好）
@@ -101,7 +105,13 @@ public class LevelManager : MonoBehaviour {
         Debug.Log("StartGame");
 
         yield return CreatePlayers();
+        yield return ShowPlayersPoster();
         yield return InitRound();
+    }
+
+    private IEnumerator ShowPlayersPoster() {
+        yield return _levelUi.ShowPlayersPoster(_characterManager.GetCharacterByPrefab(_characterManager.Players[0].PlayerPrefab), 
+            _characterManager.GetCharacterByPrefab(_characterManager.Players[1].PlayerPrefab));    
     }
 
     private IEnumerator InitRound() {
@@ -124,8 +134,7 @@ public class LevelManager : MonoBehaviour {
             var player = Instantiate(
                     _characterManager.Players[i].PlayerPrefab,
                     SpawnPositions[i].position,
-                    Quaternion.identity)
-                as GameObject;
+                    Quaternion.identity);
 
             if (player != null)
                 _characterManager.Players[i].PlayerStates =
@@ -300,7 +309,7 @@ public class LevelManager : MonoBehaviour {
 
         // 完美胜利
         if (vPlayer != null) {
-            if (vPlayer.PlayerStates.Health == 100) {
+            if (Math.Abs(vPlayer.PlayerStates.Health - 100) < 0.01f) {
                 _levelUi.AnnouncerTextLine2.gameObject.SetActive(true);
                 _levelUi.AnnouncerTextLine2.text = "Flawless Victory!";
             }
@@ -350,7 +359,7 @@ public class LevelManager : MonoBehaviour {
 
     private PlayerBase FindWinningPlayer() {
         // 血量相等则平手，返回null
-        if (_characterManager.Players[0].PlayerStates.Health == _characterManager.Players[1].PlayerStates.Health)
+        if (Math.Abs(_characterManager.Players[0].PlayerStates.Health - _characterManager.Players[1].PlayerStates.Health) < 0.01f)
             return null;
 
         PlayerStateManager targetPlayerState;

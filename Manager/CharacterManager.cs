@@ -23,6 +23,18 @@ public class CharacterManager : MonoBehaviour {
     }
     #endregion
 
+    public CharacterBase GetCharacterByPrefab(GameObject prefab) {
+        CharacterBase retVal = null;
+
+        foreach (var character in CharacterList) {
+            if (character.Prefab != prefab) continue;
+            retVal = character;
+            break;
+        }
+
+        return retVal;
+    }
+
     public CharacterBase GetCharacterById(string id) {
         CharacterBase retVal = null;
 

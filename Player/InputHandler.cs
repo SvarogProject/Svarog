@@ -82,10 +82,7 @@ public class InputHandler : MonoBehaviour {
             foreach (var attack in _attacks) {
                 if (attack.AttackAnimName == "FirePunch") {
                     attack.Do(PlayerInputId, _states.LookRight, () => {
-                        _animator.SetBool("Jump", true);
-
-                        GetComponent<Rigidbody2D>().velocity = new Vector3(GetComponent<Rigidbody2D>().velocity.x,
-                            GetComponent<MovementHandler>().JumpSpeed);
+                        
                     });
                 } else {
                     attack.Do(PlayerInputId, _states.LookRight);

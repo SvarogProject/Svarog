@@ -2,6 +2,7 @@
 using UnityEngine.UI;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Events;
 
 public class SelectSceneManager : MonoBehaviour {
     public int NumberOfPlayers = 1;
@@ -38,6 +39,15 @@ public class SelectSceneManager : MonoBehaviour {
     }
 
     private void Update() {
+        // Mobile
+        if (MobileManager.IsMobile) {
+            // 如果是移动端就先不选择
+            foreach (var playerChoose in PlayerChooseList) {
+                playerChoose.ActiveX = -1;
+                playerChoose.ActiveY = -1;
+            }
+        }
+
         if (!_isLoadLevel) {
             for (var i = 0; i < PlayerChooseList.Count; i++) {
                 if (i < NumberOfPlayers) {
@@ -94,6 +104,11 @@ public class SelectSceneManager : MonoBehaviour {
             potraitInfo.PositionY = y;
             _potraitList.Add(potraitInfo);
 
+            // Mobile
+            if (MobileManager.IsMobile) {
+                potraitInfo.gameObject.GetComponent<Button>().onClick.AddListener(delegate { OnClick(potraitInfo); });
+            }
+
             if (x < _maxRow - 1) {
                 x++;
             } else {
@@ -130,7 +145,7 @@ public class SelectSceneManager : MonoBehaviour {
         // 按P攻击选择角色
         if (Input.GetButtonUp("P" + playerId)) {
             // TODO 给角色一个选中的动作
-            pl.CreatedCharacter.GetComponentInChildren<Animator>().Play("Idle");
+            pl.CreatedCharacter.GetComponentInChildren<Animator>().Play("AttackP");
 
             // 拿到选中角色的prefab
             pl.PlayerBase.PlayerPrefab =
@@ -196,14 +211,15 @@ public class SelectSceneManager : MonoBehaviour {
                 // 播放一个跳下来的动作
                 playerObject.GetComponentInChildren<Animator>().SetBool("Jump", true);
                 playerObject.GetComponentInChildren<Animator>().Play("JumpNormal", 0, 0.6f);
-                
+
                 playerChoose.CreatedCharacter = playerObject;
                 playerChoose.PreviewPotrait = playerChoose.ActivePotrait;
 
                 // 让玩家2转向
                 if (!string.Equals(playerChoose.PlayerBase.PlayerId, _charManager.Players[0].PlayerId)) {
                     if (playerChoose.CreatedCharacter != null) {
-                        playerChoose.CreatedCharacter.GetComponentInChildren<SpriteRenderer>().transform.rotation = Quaternion.Euler(0, 180, 0);
+                        playerChoose.CreatedCharacter.GetComponentInChildren<SpriteRenderer>().transform.rotation =
+                            Quaternion.Euler(0, 180, 0);
                     }
                 }
             }
@@ -221,5 +237,34 @@ public class SelectSceneManager : MonoBehaviour {
         }
 
         return returnValue;
+    }
+
+    // Mobile
+    private void OnClick(PotraitInfo potraitInfo) {
+
+        if (!_charManager.Players[0].HasCharacter) { // 玩家1没选择,给玩家一选角色
+            PlayerChooseList[0].ActiveX = potraitInfo.PositionX;
+            PlayerChooseList[0].ActiveY = potraitInfo.PositionY;
+            PlayerChooseList[0].ActivePotrait = ReturnPotrait(potraitInfo.PositionX, potraitInfo.PositionY);
+            PlayerChooseList[0].Selector.SetActive(true);
+            PlayerChooseList[0].CreatedCharacter.GetComponentInChildren<Animator>().Play("AttackP");
+
+            PlayerChooseList[0].PlayerBase.PlayerPrefab =
+                _charManager.GetCharacterById(PlayerChooseList[0].ActivePotrait.CharacterId).Prefab;
+
+            PlayerChooseList[0].PlayerBase.HasCharacter = true;
+        } else if (!_charManager.Players[1].HasCharacter) {
+            PlayerChooseList[1].ActiveX = potraitInfo.PositionX;
+            PlayerChooseList[1].ActiveY = potraitInfo.PositionY;
+            PlayerChooseList[1].ActivePotrait = ReturnPotrait(potraitInfo.PositionX, potraitInfo.PositionY);
+            PlayerChooseList[1].Selector.SetActive(true);
+            PlayerChooseList[1].CreatedCharacter.GetComponentInChildren<Animator>().Play("AttackP");
+
+            PlayerChooseList[1].PlayerBase.PlayerPrefab =
+                _charManager.GetCharacterById(PlayerChooseList[0].ActivePotrait.CharacterId).Prefab;
+
+            PlayerChooseList[1].PlayerBase.HasCharacter = true;
+        }
+
     }
 }

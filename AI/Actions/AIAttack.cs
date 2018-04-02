@@ -32,8 +32,6 @@ public class AIAttack : Action {
             }
         }
         return TaskStatus.Success;
-
-
     }
    
 }

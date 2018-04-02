@@ -54,7 +54,7 @@ public class IntroSceneManager : MonoBehaviour {
                 // 再次空格进入游戏
                 if (Input.GetButtonDown("P")) {
                     _loadingLevel = true;
-                    StartCoroutine("LoadLevel");
+                    StartCoroutine(LoadLevel());
                     // 让选中的菜单放大一下…… TODO 之后用Animator做
                     MenuOptions[ActiveElement].transform.localScale *= 1.2f;
                 }
@@ -86,5 +86,32 @@ public class IntroSceneManager : MonoBehaviour {
 
         GameSceneManager.GetInstance().RequestLevelLoad(SceneType.Main, SceneName.SELECT);
 
+    }
+    
+    // mobile
+    public void OnSingleButtonClick() {
+        if (ActiveElement == 0) {
+            _loadingLevel = true;
+            StartCoroutine(LoadLevel());
+            // 让选中的菜单放大一下…… TODO 之后用Animator做
+            MenuOptions[ActiveElement].transform.localScale *= 1.2f;
+        } else {
+            ActiveElement = 0;
+            MenuOptions[0].Selected = true;
+            MenuOptions[1].Selected = false;
+        }       
+    }
+
+    public void OnPlayerButtonClick() {
+        if (ActiveElement == 1) {
+            _loadingLevel = true;
+            StartCoroutine(LoadLevel());
+            // 让选中的菜单放大一下…… TODO 之后用Animator做
+            MenuOptions[ActiveElement].transform.localScale *= 1.2f;
+        } else {
+            ActiveElement = 1;
+            MenuOptions[1].Selected = true;
+            MenuOptions[0].Selected = false;
+        }   
     }
 }

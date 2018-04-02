@@ -209,7 +209,7 @@ public class PlayerStateManager : MonoBehaviour {
                     IsGettingHurtSmall = true;
 
                     _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) * 2, 0.2f);
+                        (LookRight ? Vector2.left : Vector2.right) * 4, 0.2f);
                     
                     StartCoroutine(CloseImmortality(0.1f));
                 }
@@ -221,7 +221,7 @@ public class PlayerStateManager : MonoBehaviour {
                     IsGettinghurtLarge = true;
 
                     _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) * 2 + Vector2.up * 6, 0.2f);
+                        (LookRight ? Vector2.left : Vector2.right) * 4 + Vector2.up * 4, 0.2f);
 
                     StartCoroutine(CloseImmortality(0.2f));
                 }      
@@ -232,7 +232,7 @@ public class PlayerStateManager : MonoBehaviour {
 
                 if (!IsGettingFriePunch) {
                     IsGettingFriePunch = true;
-                    _movementHandler.AddVelocityOnCharacter(Vector2.up * _movementHandler.JumpSpeed, 0.01f);
+                    _movementHandler.AddVelocityOnCharacter(Vector2.up * _movementHandler.JumpSpeed * 1.2f, 0.01f);
 
                     StartCoroutine(CloseImmortality(0.5f));
                 }
@@ -244,7 +244,7 @@ public class PlayerStateManager : MonoBehaviour {
                     IsGettingHurtDefense = true;
                     
                     _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) * 2, 0.2f);
+                        (LookRight ? Vector2.left : Vector2.right) * 4, 0.2f);
                 
                     StartCoroutine(CloseImmortality(0.5f));
                 }           
@@ -254,6 +254,8 @@ public class PlayerStateManager : MonoBehaviour {
 
                 throw new ArgumentOutOfRangeException("damageType", damageType, null);
         }
+        
+        AnimationHandler.Stop(0.2f);
 
         Health -= damage;
     }

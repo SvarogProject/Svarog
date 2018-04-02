@@ -4,6 +4,10 @@ using UnityEngine;
 public class MobilePlayerInputManager : MonoBehaviour {
     public ETCJoystick Joystick;
     public ETCButton ButtonAttackP;
+    public ETCButton ButtonAttackK;
+    public ETCButton ButtonAttackS;
+    public ETCButton ButtonAttackHS;
+    public ETCButton ButtonJump;
     
         
     private PlayerStateManager _states;
@@ -22,7 +26,11 @@ public class MobilePlayerInputManager : MonoBehaviour {
         _animator = GetComponent<PlayerAnimationHandler>().Animator;
         _attacks = _states.Attacks;
         Joystick = LevelManager.GetInstance().Joystick;
-        ButtonAttackP = LevelManager.GetInstance().ButtonAttackP;   
+        ButtonAttackP = LevelManager.GetInstance().ButtonAttackP;
+        ButtonAttackK = LevelManager.GetInstance().ButtonAttackK;
+        ButtonAttackS = LevelManager.GetInstance().ButtonAttackS;
+        ButtonAttackHS = LevelManager.GetInstance().ButtonAttackHS;
+        ButtonJump = LevelManager.GetInstance().ButtonJump;   
     }
 
     public void FixedUpdate() {
@@ -70,12 +78,29 @@ public class MobilePlayerInputManager : MonoBehaviour {
 
     private void Attack() {
         if (_states.Attackable) {
-            Debug.Log(ButtonAttackP.axis.axisState);
             if (ButtonAttackP.axis.axisState == ETCAxis.AxisState.Press) {
                 _attacks[0].Attack = !_isAttack;
             } else {
                  _isAttack = false;                
                 _attacks[0].Attack = false;
+            }
+            if (ButtonAttackK.axis.axisState == ETCAxis.AxisState.Press) {
+                _attacks[1].Attack = !_isAttack;
+            } else {
+                _isAttack = false;                
+                _attacks[1].Attack = false;
+            }
+            if (ButtonAttackS.axis.axisState == ETCAxis.AxisState.Press) {
+                _attacks[2].Attack = !_isAttack;
+            } else {
+                _isAttack = false;                
+                _attacks[2].Attack = false;
+            }
+            if (ButtonAttackHS.axis.axisState == ETCAxis.AxisState.Press) {
+                _attacks[3].Attack = !_isAttack;
+            } else {
+                _isAttack = false;                
+                _attacks[3].Attack = false;
             }
         } else {
             _isAttack = false;
@@ -88,7 +113,7 @@ public class MobilePlayerInputManager : MonoBehaviour {
     private void Jump() {
         // 普通跳
         if (_animator.GetBool(AnimatorBool.JUMPABLE)) {
-            if (Joystick.axisY.axisState == ETCAxis.AxisState.DownUp) {
+            if (Joystick.axisY.axisState == ETCAxis.AxisState.DownUp || ButtonJump.axis.axisState == ETCAxis.AxisState.Press) {
                 _states.Jump = true;
             }
 

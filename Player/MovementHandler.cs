@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Linq;
 
 public class MovementHandler : MonoBehaviour {
     public float JumpSpeed;
@@ -23,6 +24,8 @@ public class MovementHandler : MonoBehaviour {
     private bool _isRetreatingOnAir;
     private bool _isSpurtingOnAir;
 
+    private bool _usedFirestOnGroundInFirePunch;
+
     private float _gravityScale;
 
     public void Start() {
@@ -34,8 +37,24 @@ public class MovementHandler : MonoBehaviour {
     }
 
     public void FixedUpdate() {
+        SpecialAttack();
         HorizontalMovement();
         Jump();
+    }
+
+    private void SpecialAttack() {
+        if (_animation.Animator.GetBool(AnimatorBool.IS_FIRE_PUNCH)) {
+            if (!_usedFirestOnGroundInFirePunch) {
+                if (_states.OnGround) { // 起跳
+                    GetComponent<Rigidbody2D>().velocity = new Vector3(GetComponent<Rigidbody2D>().velocity.x,
+                        GetComponent<MovementHandler>().JumpSpeed);
+                } else { // 空中
+                    _usedFirestOnGroundInFirePunch = true;
+                }
+            }      
+        } else {
+            _usedFirestOnGroundInFirePunch = false;
+        }
     }
 
     private void HorizontalMovement() {
