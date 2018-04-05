@@ -10,6 +10,7 @@ public class SelectSceneManager : MonoBehaviour {
     public GameObject PotraitCanvas; // 放头像的画布
     public bool BothPlayersSelected;
     public GameObject PotraitPrefab;
+    public GameObject LoadingCanvas;
 
     private int _maxRow;
     private int _maxCollumn;
@@ -169,13 +170,15 @@ public class SelectSceneManager : MonoBehaviour {
             }
         }*/
 
-        yield return new WaitForSeconds(0.2f);
+        yield return new WaitForSeconds(0.1f);
         // TODO 都准备好了的动作
+        /*
         for (var i = 0; i < PlayerChooseList.Count; i++) {
             if (i < NumberOfPlayers) {
                 PlayerChooseList[i].CreatedCharacter.GetComponentInChildren<Animator>().Play("AttackHS");
             }
-        }
+        }*/
+        LoadingCanvas.SetActive(true);
         yield return new WaitForSeconds(0.3f);
 
         if (_charManager.IsSolo) {

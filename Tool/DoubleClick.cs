@@ -15,7 +15,7 @@ public delegate void OnSeconed();
 public class DoubleClick {
     private ClickCount _clickCount = ClickCount.ZeroTime;
     private float _timer;
-    private float _waitTime = 0.5f;
+    private float _waitTime = 1f;
 
     public DoubleClick() { }
 
