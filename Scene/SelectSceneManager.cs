@@ -169,7 +169,14 @@ public class SelectSceneManager : MonoBehaviour {
             }
         }*/
 
-        yield return new WaitForSeconds(2);
+        yield return new WaitForSeconds(0.2f);
+        // TODO 都准备好了的动作
+        for (var i = 0; i < PlayerChooseList.Count; i++) {
+            if (i < NumberOfPlayers) {
+                PlayerChooseList[i].CreatedCharacter.GetComponentInChildren<Animator>().Play("AttackHS");
+            }
+        }
+        yield return new WaitForSeconds(0.3f);
 
         if (_charManager.IsSolo) {
             GameSceneManager.GetInstance().CreateProgression();

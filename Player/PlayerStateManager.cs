@@ -191,14 +191,6 @@ public class PlayerStateManager : MonoBehaviour {
         LeftDouble = false;
     }
 
-    public void CloseMovementCollider(int index) {
-        MovementColliders[index].SetActive(false);
-    }
-
-    public void OpenMovementCollider(int index) {
-        MovementColliders[index].SetActive(true);
-    }
-
     public void TakeDamage(float damage, DamageType damageType) {
         if (IsGettingHurtSmall || IsGettinghurtLarge) return;
 
@@ -232,9 +224,10 @@ public class PlayerStateManager : MonoBehaviour {
 
                 if (!IsGettingFriePunch) {
                     IsGettingFriePunch = true;
+                    
                     _movementHandler.AddVelocityOnCharacter(Vector2.up * _movementHandler.JumpSpeed * 1.2f, 0.01f);
-
-                    StartCoroutine(CloseImmortality(0.5f));
+                    // TODO 这个位移只生效一次
+                    StartCoroutine(CloseImmortality(0.8f));
                 }
 
                 break;

@@ -1,8 +1,11 @@
-﻿using UnityEngine;
-using System.Collections;
+﻿using System.Collections;
+using System.Collections.Generic;
+using UnityEngine;
+using UnityEngine.Networking;
 
-public class InputHandler : MonoBehaviour {
-    public string PlayerInputId;
+public class NetInputHandler : NetworkBehaviour {
+
+	public string PlayerInputId;
 
     private PlayerStateManager _states;
     private Animator _animator;
@@ -22,19 +25,10 @@ public class InputHandler : MonoBehaviour {
     }
 
     public void FixedUpdate() {
-        
-        /*
-        if (_input == null) {
-            _input = new JoystickInputHandler(this);
-        } else {
-            // joystick
-            _input.HandleAttack();
-            _input.HandleMove();
-            _input.HandleCrouch();
-            _input.HandleJump();
+        if (!isLocalPlayer) { // 非本地用户不控制
+            return;
         }
-        */
-
+ 
         Attack();
         Move();
         Jump();
@@ -80,14 +74,13 @@ public class InputHandler : MonoBehaviour {
         if (_states.Attackable) {
             // TODO 这里应该做一个树的优先级
             foreach (var attack in _attacks) {
-                /*
                 if (attack.AttackAnimName == "FirePunch") {
                     attack.Do(PlayerInputId, _states.LookRight, () => {
                         
                     });
-                } else {*/
-                attack.Do(PlayerInputId, _states.LookRight);
-                //}
+                } else {
+                    attack.Do(PlayerInputId, _states.LookRight);
+                }
 
             }
         } else {

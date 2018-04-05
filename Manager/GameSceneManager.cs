@@ -37,6 +37,7 @@ public class GameSceneManager : MonoBehaviour {
     }
 
     private void Update() {
+        // TODO 这里按ESC都可以退回到主页
         if (Input.GetKeyDown(KeyCode.Escape)) {
             RequestLevelLoad(SceneType.Main, SceneName.INTRO);
         }
