@@ -1,22 +1,22 @@
 ﻿Shader "Sprites/MasaShader" {
 
-	Properties{
-		[PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
-		_Color ("Tint", Color) = (1,1,1,1)
-		[MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
-		
-		// 斗篷红
-		_KeyColor01("Key Color #1", Color) = (0.8039, 0.3098, 0.3921, 1)
-		_TargetColor01("Target Color #1", Color) = (0.3176, 0.7451, 0.8039, 1)
+    Properties {
+        [PerRendererData] _MainTex ("Sprite Texture", 2D) = "white" {}
+        _Color ("Tint", Color) = (1,1,1,1)
+        [MaterialToggle] PixelSnap ("Pixel snap", Float) = 0
+        
+        // 斗篷红
+        _KeyColor01("Key Color #1", Color) = (0.8039, 0.3098, 0.3921, 1)
+        _TargetColor01("Target Color #1", Color) = (0.3176, 0.7451, 0.8039, 1)
         // 斗篷红线
-		_KeyColor02("Key Color #2", Color) = (0.3411, 0.003, 0.003, 1)
-		_TargetColor02("Target Color #2", Color) = (0, 0, 0 ,1)
-		// 斗篷红中间色
-		_KeyColor03("Key Color #1", Color) = (0.7843, 0.3215, 0.4, 1)
-		_TargetColor03("Target Color #1", Color) = (0.3176, 0.7451, 0.8039, 1)
-		
-		_Threshold("Threshold", Float) = 0.01
-	}
+        _KeyColor02("Key Color #2", Color) = (0.3411, 0.003, 0.003, 1)
+        _TargetColor02("Target Color #2", Color) = (0, 0, 0 ,1)
+        // 斗篷红中间色
+        _KeyColor03("Key Color #1", Color) = (0.7843, 0.3215, 0.4, 1)
+        _TargetColor03("Target Color #1", Color) = (0.3176, 0.7451, 0.8039, 1)
+        
+        _Threshold("Threshold", Float) = 0.01
+    }
 	
     SubShader {
 
