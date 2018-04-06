@@ -17,25 +17,25 @@
         
         _Threshold("Threshold", Float) = 0.01
     }
-	
+    
     SubShader {
-
+    
         Tags { 
-			"Queue"="Transparent" 
-			"IgnoreProjector"="True" 
-			"RenderType"="Transparent" 
-			"PreviewType"="Plane"
-			"CanUseSpriteAtlas"="True"
-		}
-
-		Cull Off
-		Lighting Off
-		ZWrite Off
-		Blend SrcAlpha OneMinusSrcAlpha
-		
+            "Queue"="Transparent" 
+            "IgnoreProjector"="True" 
+            "RenderType"="Transparent" 
+            "PreviewType"="Plane"
+            "CanUseSpriteAtlas"="True"
+        }
+        
+        Cull Off
+        Lighting Off
+        ZWrite Off
+        Blend SrcAlpha OneMinusSrcAlpha
+        		
         Pass {
         CGPROGRAM
-        
+                
             #pragma vertex vert
             #pragma fragment frag
             #pragma multi_compile _ PIXELSNAP_ON
@@ -43,26 +43,26 @@
             //  =============================================
             //        IO structures
             //  =============================================
-    
-			struct appdata_t {
-				float4 vertex   : POSITION;
-				float4 color    : COLOR;
-				float2 texcoord : TEXCOORD0;
-			};
-            
-			struct v2f {
-				float4 vertex   : SV_POSITION;
-				fixed4 color    : COLOR;
-				half2 texcoord  : TEXCOORD0;
-			};
+               
+            struct appdata_t {
+                float4 vertex   : POSITION;
+                float4 color    : COLOR;
+                float2 texcoord : TEXCOORD0;
+            };
+                       
+            struct v2f {
+                float4 vertex   : SV_POSITION;
+                fixed4 color    : COLOR;
+                half2 texcoord  : TEXCOORD0;
+            };
             //  =============================================
             //        uniforms / varyings
             //  =============================================
-        
+                   
             sampler2D _MainTex;
             sampler2D _AlphaTex;
             fixed4 _Color;
-			float _AlphaSplitEnabled;
+            float _AlphaSplitEnabled;
             float4 _KeyColor01;
             float4 _TargetColor01;
             float4 _KeyColor02;
@@ -70,7 +70,7 @@
             float4 _KeyColor03;
             float4 _TargetColor03;
             float  _Threshold;
-
+            
             //  =============================================
             //        vertex shader
             //  =============================================
@@ -79,21 +79,21 @@
                 o.vertex = UnityObjectToClipPos(i.vertex);
                 o.texcoord = i.texcoord;
                 o.color = i.color * _Color;
-				#ifdef PIXELSNAP_ON
-				o.vertex = UnityPixelSnap (o.vertex);
-				#endif
-				
+                #ifdef PIXELSNAP_ON
+                o.vertex = UnityPixelSnap (o.vertex);
+                #endif
+                
                 return o;
             }
-        
+            
             //  =============================================
             //        pixel shader
             //  =============================================
-        
+            
             float4 frag(v2f i) : SV_Target {
                 // fetch pixel color from texture
                 float4 texColor = tex2D(_MainTex, i.texcoord);
-        
+                
                 if (abs(_KeyColor01.r - texColor.r) < _Threshold && abs(_KeyColor01.g - texColor.g) < _Threshold && abs(_KeyColor01.b - texColor.b) < _Threshold) {
                     float4 newColor = float4(_TargetColor01.rgb, 1.0);
                     float alpha = texColor.a * 2.0;
@@ -113,9 +113,9 @@
                     return float4(texColor.rgb, texColor.a);
                 }
             }
-    
+            
         ENDCG
         }
-	}
+    }
     FallBack "Sprites/Default"
 }
