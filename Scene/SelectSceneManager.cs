@@ -96,6 +96,7 @@ public class SelectSceneManager : MonoBehaviour {
 
             var potraitPrefab = Instantiate(PotraitPrefab);
             potraitPrefab.transform.SetParent(PotraitCanvas.transform);
+            potraitPrefab.transform.localScale = Vector3.one;
 
             var potraitInfo = potraitPrefab.GetComponent<PotraitInfo>();
 

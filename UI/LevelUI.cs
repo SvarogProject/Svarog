@@ -43,9 +43,11 @@ public class LevelUI : MonoBehaviour {
     }
 
     public void AddWinIndicator(int player) {
-        var go = Instantiate(WinIndicator, transform.position, Quaternion.identity) as GameObject;
-        if (go != null) 
+        var go = Instantiate(WinIndicator, Vector3.zero, Quaternion.identity);
+        if (go != null) {
             go.transform.SetParent(WinIndicatorGrids[player].transform);
+            go.transform.localScale = Vector3.one;
+        }
     }
 
     public IEnumerator ShowPlayersPoster(CharacterBase character1, CharacterBase character2) {

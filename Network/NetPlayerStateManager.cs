@@ -1,37 +1,126 @@
 ﻿using System;
-using UnityEngine;
-using UnityEngine.UI;
 using System.Collections;
-using System.Linq;
+using UnityEngine;
+using UnityEngine.Networking;
+using UnityEngine.UI;
 
-public class PlayerStateManager : MonoBehaviour {
-    public float Health = 100;
-
-    #region Action Params
-
+public class NetPlayerStateManager : NetworkBehaviour {
+    
+    #region Sync Params
+    
+    [SyncVar] public float Health = 100;
     public AttacksBase[] Attacks;
-    public bool Crouch;
-    public bool Jump;
-    public bool Left;
-    public bool Right;
-    public bool LeftDouble;
-    public bool RightDouble;
-    public bool JumpDouble;
-    public bool JumpHigh;
-    public bool JumpRight;
-    public bool JumpLeft;
-    public bool Attackable; // TODO 这个变量根本……没有写入
-    public bool IsGettingHurtSmall;
-    public bool IsGettingHurtLarge;
-    public bool IsGettingFriePunch;
-    public bool IsGettingHurtDefense;
-    public bool OnGround;
-    public bool LookRight;
-    public bool Dead;
-    public bool ShouldLookBack; // 需要回头，但是还没回
-    public bool CanSpurtOrRetreatOnAir;
-    public bool DefenseLeft;
-    public bool DefenseRight;
+    [SyncVar] public bool Crouch;
+    [SyncVar] public bool Jump;
+    [SyncVar] public bool Left;
+    [SyncVar] public bool Right;
+    [SyncVar] public bool LeftDouble;
+    [SyncVar] public bool RightDouble;
+    [SyncVar] public bool JumpDouble;
+    [SyncVar] public bool JumpHigh;
+    [SyncVar] public bool JumpRight;
+    [SyncVar] public bool JumpLeft;
+    [SyncVar] public bool Attackable;
+    [SyncVar] public bool IsGettingHurtSmall;
+    [SyncVar] public bool IsGettingHurtLarge;
+    [SyncVar] public bool IsGettingFriePunch;
+    [SyncVar] public bool IsGettingHurtDefense;
+    [SyncVar] public bool OnGround;
+    [SyncVar] public bool LookRight;
+    [SyncVar] public bool Dead;
+    [SyncVar] public bool ShouldLookBack; // 需要回头，但是还没回
+    [SyncVar] public bool CanSpurtOrRetreatOnAir;
+    [SyncVar] public bool DefenseLeft;
+    [SyncVar] public bool DefenseRight;
+
+    #endregion
+    
+    #region command
+    
+    [Command]
+    public void CmdCanSpurtOrRetreatOnAir(bool canSpurtOrRetreatOnAir) {
+        CanSpurtOrRetreatOnAir = canSpurtOrRetreatOnAir;
+    }
+    [Command]
+    public void CmdShouldLookBack(bool shouldLookBack) {
+        ShouldLookBack = shouldLookBack;
+    }
+    [Command]
+    public void CmdDead(bool dead) {
+        Dead = dead;
+    }
+    [Command]
+    public void CmdLookRight(bool lookRight) {
+        LookRight = lookRight;
+    }
+    [Command]
+    public void CmdOnGround(bool onGround) {
+        OnGround = onGround;
+    }
+    [Command]
+    public void CmdIsGettingFriePunch(bool isGettingFriePunch) {
+        IsGettingFriePunch = isGettingFriePunch;
+    }
+    [Command]
+    public void CmdIsGettingHurtDefense(bool isGettingHurtDefense) {
+        IsGettingHurtDefense = isGettingHurtDefense;
+    }
+    [Command]
+    public void CmdIsGettingHurtLarge(bool isGettingHurtLarge) {
+        IsGettingHurtLarge = isGettingHurtLarge;
+    }
+    [Command]
+    public void CmdIsGettingHurtSmall(bool isGettingHurtSmall) {
+        IsGettingHurtSmall = isGettingHurtSmall;
+    }
+    [Command]
+    public void CmdJumpRight(bool jumpRight) {
+        JumpRight = jumpRight;
+    }
+    [Command]
+    public void CmdJumpLeft(bool jumpLeft) {
+        JumpLeft = jumpLeft;
+    }    
+    [Command]
+    public void CmdJumpHigh(bool jumpHigh) {
+        JumpHigh = jumpHigh;
+    }   
+    [Command]
+    public void CmdJumpDouble(bool jumpDouble) {
+        JumpDouble = jumpDouble;
+    }
+    [Command]
+    public void CmdJump(bool jump) {
+        Jump = jump;
+    }    
+    [Command]
+    public void CmdRightDouble(bool rightDouble) {
+        RightDouble = rightDouble;
+    }   
+    [Command]
+    public void CmdLeftDouble(bool leftDouble) {
+        LeftDouble = leftDouble;
+    }    
+    [Command]
+    public void CmdRight(bool right) {
+        Right = right;
+    }   
+    [Command]
+    public void CmdLeft(bool left) {
+        Left = left;
+    }
+    [Command]
+    public void CmdDefenseLeft(bool defenseLeft) {
+        DefenseLeft = defenseLeft;
+    }   
+    [Command]
+    public void CmdDefenseRight(bool defenseRight) {
+        DefenseRight = defenseRight;
+    }    
+    [Command]
+    public void CmdCouch(bool crouch) {
+        Crouch = crouch;
+    }
 
     #endregion
 
@@ -40,28 +129,36 @@ public class PlayerStateManager : MonoBehaviour {
     public Slider HealthSlider;
     public GameObject[] MovementColliders;
 
-    [HideInInspector] public PlayerAnimationHandler AnimationHandler;
-    private MovementHandler _movementHandler;
+    [HideInInspector] public NetAnimationHandler AnimationHandler;
+    private NetMovementHandler _movementHandler;
 
     public void Start() {
-        AnimationHandler = GetComponent<PlayerAnimationHandler>();
-        _movementHandler = GetComponent<MovementHandler>();
+        AnimationHandler = GetComponent<NetAnimationHandler>();
+        _movementHandler = GetComponent<NetMovementHandler>();
     }
 
     public void FixedUpdate() {
-        GetComponent<Transform>().localRotation = Quaternion.Euler(0, LookRight ? 0 : 180, 0);
-
-        OnGround = IsOnGround();
+        GetComponent<Transform>().localRotation = Quaternion.Euler(0, LookRight ? 0 : 180, 0);  
+        
+        if (isLocalPlayer) {
+            CmdOnGround(IsOnGround());
+        }
+        
 
         HandleOnAnotherPlayer();
 
+        if (Health <= 0 && NetLevelManger.GetInstance().EnableCountdown) {
+            NetLevelManger.GetInstance().EndRoundFunction();
+
+            if (isLocalPlayer) {
+                CmdDead(true);
+            }          
+        }
+    }
+
+    private void HealthChange() {
         if (HealthSlider != null) {
             HealthSlider.value = Health * 0.01f;
-        }
-
-        if (Health <= 0 && LevelManager.GetInstance().EnableCountdown) {
-            LevelManager.GetInstance().EndRoundFunction();
-            Dead = true;
         }
     }
 
@@ -160,10 +257,10 @@ public class PlayerStateManager : MonoBehaviour {
 
         if (retVal && AnimationHandler.Animator.GetBool("Jump") && _movementHandler.Rigidbody.velocity.y <= 0) {
             // 跳跃落地进行一系列处理
-            JumpRight = false;
-            JumpLeft = false;
+            CmdJumpRight(false);
+            CmdJumpLeft(false);
             ResetAttacks();
-            AnimationHandler.CloseJumpAnim();
+            AnimationHandler.CmdCloseJumpAnim();
         }
 
         return retVal;
@@ -177,29 +274,30 @@ public class PlayerStateManager : MonoBehaviour {
 
     public void ResetPlayer() {
         ResetAttacks();
-        Dead = false;
-        Jump = false;
-        Crouch = false;
-        Right = false;
-        Left = false;
-        IsGettingHurtSmall = false;
-        IsGettingHurtLarge = false;
-        IsGettingFriePunch = false;
-        IsGettingHurtDefense = false;
-        JumpRight = false;
-        JumpLeft = false;
-        RightDouble = false;
-        LeftDouble = false;
+        CmdDead(false);
+        CmdJump(false);
+        CmdCouch(false);
+        CmdRight(false);
+        CmdLeft(false);
+        CmdIsGettingHurtSmall(false);
+        CmdIsGettingHurtLarge(false);
+        CmdIsGettingHurtDefense(false);
+        CmdIsGettingFriePunch(false);
+        CmdJumpRight(false);
+        CmdJumpLeft(false);
+        CmdRightDouble(false);
+        CmdLeftDouble(false);
     }
 
     public void TakeDamage(float damage, DamageType damageType) {
+        if (!isLocalPlayer) return;
         if (IsGettingHurtSmall || IsGettingHurtLarge) return;
 
         switch (damageType) {
             case DamageType.Light:
 
                 if (!IsGettingHurtSmall) {
-                    IsGettingHurtSmall = true;
+                    CmdIsGettingHurtSmall(true);
 
                     _movementHandler.AddVelocityOnCharacter(
                         (LookRight ? Vector2.left : Vector2.right) * 4, 0.2f);
@@ -211,7 +309,7 @@ public class PlayerStateManager : MonoBehaviour {
             case DamageType.Heavy:
 
                 if (!IsGettingHurtLarge) {
-                    IsGettingHurtLarge = true;
+                    CmdIsGettingHurtLarge(true);
 
                     _movementHandler.AddVelocityOnCharacter(
                         (LookRight ? Vector2.left : Vector2.right) * 4 + Vector2.up * 4, 0.2f);
@@ -224,7 +322,7 @@ public class PlayerStateManager : MonoBehaviour {
             case DamageType.FirePunch:
 
                 if (!IsGettingFriePunch) {
-                    IsGettingFriePunch = true;
+                    CmdIsGettingFriePunch(true);
                     
                     _movementHandler.AddVelocityOnCharacter(Vector2.up * _movementHandler.JumpSpeed * 1.2f, 0.01f);
                     // TODO 这个位移只生效一次
@@ -235,7 +333,7 @@ public class PlayerStateManager : MonoBehaviour {
             case DamageType.Defensed:
 
                 if (!IsGettingHurtDefense) {
-                    IsGettingHurtDefense = true;
+                    CmdIsGettingHurtDefense(true);
                     
                     _movementHandler.AddVelocityOnCharacter(
                         (LookRight ? Vector2.left : Vector2.right) * 4, 0.2f);
@@ -244,9 +342,6 @@ public class PlayerStateManager : MonoBehaviour {
                 }           
                 
                 break;
-            default:
-
-                throw new ArgumentOutOfRangeException("damageType", damageType, null);
         }
         
         AnimationHandler.Stop(0.2f);
@@ -257,9 +352,10 @@ public class PlayerStateManager : MonoBehaviour {
     private IEnumerator CloseImmortality(float timer) {
         yield return new WaitForSeconds(timer);
 
-        IsGettingHurtSmall = false;
-        IsGettingHurtLarge = false;
-        IsGettingFriePunch = false;
-        IsGettingHurtDefense = false;
+        CmdIsGettingHurtSmall(false);
+        CmdIsGettingHurtLarge(false);
+        CmdIsGettingHurtDefense(false);
+        CmdIsGettingFriePunch(false);
     }
+    
 }

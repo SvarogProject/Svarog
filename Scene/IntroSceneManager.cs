@@ -51,12 +51,16 @@ public class IntroSceneManager : MonoBehaviour {
                     ActiveElement = (ActiveElement + 1) % MenuOptions.Length;
                 }
 
-                // 再次空格进入游戏
+                // P进入游戏
                 if (Input.GetButtonDown("P")) {
-                    _loadingLevel = true;
-                    StartCoroutine(LoadLevel());
-                    // 让选中的菜单放大一下…… TODO 之后用Animator做
-                    MenuOptions[ActiveElement].transform.localScale *= 1.2f;
+                    if (ActiveElement == 2) { // Exit
+                        Application.Quit();
+                    } else {
+                        _loadingLevel = true;
+                        StartCoroutine(LoadLevel());
+                        // 让选中的菜单放大一下…… TODO 之后用Animator做
+                        MenuOptions[ActiveElement].transform.localScale *= 1.2f;
+                    }
                 }
             }
         }
@@ -99,6 +103,7 @@ public class IntroSceneManager : MonoBehaviour {
             ActiveElement = 0;
             MenuOptions[0].Selected = true;
             MenuOptions[1].Selected = false;
+            MenuOptions[2].Selected = false;
         }       
     }
 
@@ -111,6 +116,20 @@ public class IntroSceneManager : MonoBehaviour {
         } else {
             ActiveElement = 1;
             MenuOptions[1].Selected = true;
+            MenuOptions[0].Selected = false;
+            MenuOptions[2].Selected = false;
+        }   
+    }
+
+    public void OnExitButtonClick() {
+        if (ActiveElement == 2) {
+            Application.Quit();
+            // 让选中的菜单放大一下…… TODO 之后用Animator做
+            MenuOptions[ActiveElement].transform.localScale *= 1.2f;
+        } else {
+            ActiveElement = 1;
+            MenuOptions[2].Selected = true;
+            MenuOptions[1].Selected = false;
             MenuOptions[0].Selected = false;
         }   
     }
