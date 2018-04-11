@@ -47,6 +47,7 @@ public class LevelUI : MonoBehaviour {
         if (go != null) {
             go.transform.SetParent(WinIndicatorGrids[player].transform);
             go.transform.localScale = Vector3.one;
+            go.transform.localPosition = new Vector3(0, 0, -10); // 不然会给个随机的z轴
         }
     }
 

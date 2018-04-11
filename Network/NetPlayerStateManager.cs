@@ -32,11 +32,16 @@ public class NetPlayerStateManager : NetworkBehaviour {
     [SyncVar] public bool CanSpurtOrRetreatOnAir;
     [SyncVar] public bool DefenseLeft;
     [SyncVar] public bool DefenseRight;
+    [SyncVar] public bool Stop; // 顿帧
 
     #endregion
     
     #region command
     
+    [Command]
+    public void CmdChangeHealth(float health) {
+        Health = health;
+    }
     [Command]
     public void CmdCanSpurtOrRetreatOnAir(bool canSpurtOrRetreatOnAir) {
         CanSpurtOrRetreatOnAir = canSpurtOrRetreatOnAir;
@@ -127,7 +132,6 @@ public class NetPlayerStateManager : NetworkBehaviour {
     public BoxCollider2D MovementCollider;
 
     public Slider HealthSlider;
-    public GameObject[] MovementColliders;
 
     [HideInInspector] public NetAnimationHandler AnimationHandler;
     private NetMovementHandler _movementHandler;
@@ -138,6 +142,8 @@ public class NetPlayerStateManager : NetworkBehaviour {
     }
 
     public void FixedUpdate() {
+        if (Stop) return; // 顿帧中
+        
         GetComponent<Transform>().localRotation = Quaternion.Euler(0, LookRight ? 0 : 180, 0);  
         
         if (isLocalPlayer) {
@@ -300,7 +306,7 @@ public class NetPlayerStateManager : NetworkBehaviour {
                     CmdIsGettingHurtSmall(true);
 
                     _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) * 4, 0.2f);
+                        (LookRight ? Vector2.left : Vector2.right) * 2, 0.2f);
                     
                     StartCoroutine(CloseImmortality(0.1f));
                 }
@@ -336,7 +342,7 @@ public class NetPlayerStateManager : NetworkBehaviour {
                     CmdIsGettingHurtDefense(true);
                     
                     _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) * 4, 0.2f);
+                        (LookRight ? Vector2.left : Vector2.right) * 2, 0.2f);
                 
                     StartCoroutine(CloseImmortality(0.5f));
                 }           
@@ -344,9 +350,10 @@ public class NetPlayerStateManager : NetworkBehaviour {
                 break;
         }
         
-        AnimationHandler.Stop(0.2f);
+        //AnimationHandler.Stop(0.2f);
+        StateStop(0.2f);
 
-        Health -= damage;
+        CmdChangeHealth(Health - damage);
     }
 
     private IEnumerator CloseImmortality(float timer) {
@@ -356,6 +363,20 @@ public class NetPlayerStateManager : NetworkBehaviour {
         CmdIsGettingHurtLarge(false);
         CmdIsGettingHurtDefense(false);
         CmdIsGettingFriePunch(false);
+    }
+    
+    // 顿帧
+    public void StateStop(float time) {
+        AnimationHandler.Stop(time);
+        Stop = true;
+        //Invoke("AnimPlay", time);
+        StartCoroutine(StatePlay(time));
+    }
+    
+    private IEnumerator StatePlay(float time) {
+        yield return new WaitForSeconds(time);
+
+        Stop = false;
     }
     
 }

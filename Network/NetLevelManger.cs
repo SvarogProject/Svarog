@@ -1,10 +1,8 @@
-﻿using System;
-using System.Collections;
+﻿using System.Collections;
 using System.Linq;
-using BehaviorDesigner.Runtime.Tasks.Basic.UnityGameObject;
 using UnityEngine;
 using UnityEngine.Networking;
-using Find = BehaviorDesigner.Runtime.Tasks.Basic.UnityTransform.Find;
+using Vuforia;
 
 public class NetLevelManger : NetworkBehaviour {
     public Transform[] SpawnPositions; // 角色出生点（在游戏布局中设定好）
@@ -12,10 +10,10 @@ public class NetLevelManger : NetworkBehaviour {
 
     private readonly WaitForSeconds _oneSec = new WaitForSeconds(1); // 重复利用等一秒
 
-    private CameraMoveManager _cameraManager;
+    private NetCameraMoveManager _cameraManager;
     //private CharacterManager _characterManager;
 
-    private NetPlayerStateManager[] _players = new NetPlayerStateManager[2];
+    public NetPlayerStateManager[] Players = new NetPlayerStateManager[2];
     
     private LevelUI _levelUi;       // 保存UI元素，方便调用
     private int _currentRounds = 1; // 当前回合
@@ -47,7 +45,7 @@ public class NetLevelManger : NetworkBehaviour {
     public void Start() {
         //_characterManager = CharacterManager.GetInstance();
         _levelUi = LevelUI.GetInstance();
-        _cameraManager = CameraMoveManager.GetInstance();
+        _cameraManager = NetCameraMoveManager.GetInstance();
 
         _levelUi.AnnouncerTextLine1.gameObject.SetActive(false);
         _levelUi.AnnouncerTextLine2.gameObject.SetActive(false);
@@ -60,9 +58,9 @@ public class NetLevelManger : NetworkBehaviour {
         
         if (NetworkManager.singleton.numPlayers > _createdPlayerNum && _createdPlayerNum < 2) {
             if (_createdPlayerNum == 0) {
-                _players[0] = GameObject.FindGameObjectWithTag("Player").GetComponent<NetPlayerStateManager>();
+                Players[0] = GameObject.FindGameObjectWithTag("Player").GetComponent<NetPlayerStateManager>();
             } else {
-                _players[1] = GameObject.FindGameObjectsWithTag("Player").Last().GetComponent<NetPlayerStateManager>();
+                Players[1] = GameObject.FindGameObjectsWithTag("Player").Last().GetComponent<NetPlayerStateManager>();
             }
             _createdPlayerNum++;
         }
@@ -73,18 +71,18 @@ public class NetLevelManger : NetworkBehaviour {
                 _isStarted = true;
             }
             // 控制角色朝向
-            var player1IsLeft = _players[0].transform.position.x < _players[1].transform.position.x;
+            var player1IsLeft = Players[0].transform.position.x < Players[1].transform.position.x;
 
             for (var i = 0; i < 2; i++) {
-                if (_players[i].GetComponentInChildren<Animator>()
-                    .GetBool(AnimatorBool.CAN_LOOK_BACK)) {
-                    _players[i].CmdLookRight(i == 0 && player1IsLeft || i == 1 && !player1IsLeft);
-                    _players[i].CmdShouldLookBack(false); // 主动转了就清除通知
+                
+                if (Players[i].AnimationHandler.Animator.GetBool(AnimatorBool.CAN_LOOK_BACK)) {
+                    Players[i].CmdLookRight(i == 0 && player1IsLeft || i == 1 && !player1IsLeft);
+                    Players[i].CmdShouldLookBack(false); // 主动转了就清除通知
                 } else {
-                    if (_players[i].LookRight != (i == 0 && player1IsLeft || i == 1 && !player1IsLeft)) {
-                        _players[i].CmdShouldLookBack(true); // 通知需要回头
+                    if (Players[i].LookRight != (i == 0 && player1IsLeft || i == 1 && !player1IsLeft)) {
+                        Players[i].CmdShouldLookBack(true); // 通知需要回头
                     } else {
-                        _players[i].CmdShouldLookBack(false);
+                        Players[i].CmdShouldLookBack(false);
                     }
                 }
             }
@@ -139,18 +137,18 @@ public class NetLevelManger : NetworkBehaviour {
 
         for (var i = 0; i < 2; i++) {
 
-            _players[i].HealthSlider = _levelUi.HealthSliders[i]; // 绑定血条
+            Players[i].HealthSlider = _levelUi.HealthSliders[i]; // 绑定血条
 
 
-            if (_players[i] != null) {
-                _players[i].gameObject.layer = LayerMask.NameToLayer("Player") + i; // 角色分层
-                foreach (var c in _players[i].GetComponentsInChildren<BoxCollider2D>()) { 
+            if (Players[i] != null) {
+                Players[i].gameObject.layer = LayerMask.NameToLayer("Player") + i; // 角色分层
+                foreach (var c in Players[i].GetComponentsInChildren<BoxCollider2D>()) { 
                     if (c.CompareTag("MovementCollider")) {
                         c.gameObject.layer = LayerMask.NameToLayer("MovementCollider") + i; // 碰撞体设置不同的层级
                     }                
                 }
 
-                _cameraManager.Players.Add(_players[i].gameObject); // 给摄像机控制添加角色
+                _cameraManager.Players.Add(Players[i].gameObject); // 给摄像机控制添加角色
                 _cameraManager.Initial();
             }
         }
@@ -162,9 +160,9 @@ public class NetLevelManger : NetworkBehaviour {
         Debug.Log("InitPlayers");
 
         for (var i = 0; i < 2; i++) {
-            _players[i].Health = 100;
-            _players[i].ResetPlayer();
-            _players[i].AnimationHandler.Animator.Play("Idle");
+            Players[i].Health = 100;
+            Players[i].ResetPlayer();
+            Players[i].AnimationHandler.Animator.Play("Idle");
         }
 
         yield return null;
@@ -184,7 +182,7 @@ public class NetLevelManger : NetworkBehaviour {
         _levelUi.AnnouncerTextLine1.text = "FIGHT!";
 
         // 开启角色控制
-        foreach (var player in _players) {
+        foreach (var player in Players) {
             player.gameObject.GetComponent<NetInputHandler>().enabled = true;
         }
 
@@ -198,7 +196,7 @@ public class NetLevelManger : NetworkBehaviour {
     private void DisableControl() {
         Debug.Log("DisableControl");
 
-        foreach (var player in _players) {
+        foreach (var player in Players) {
             player.ResetPlayer(); // 先重置角色状态
 
             player.gameObject.GetComponent<NetInputHandler>().enabled = false;

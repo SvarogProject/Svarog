@@ -3,6 +3,7 @@ using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
 using System.Linq;
+using UnityEditorInternal;
 
 public class PlayerStateManager : MonoBehaviour {
     public float Health = 100;
@@ -32,13 +33,13 @@ public class PlayerStateManager : MonoBehaviour {
     public bool CanSpurtOrRetreatOnAir;
     public bool DefenseLeft;
     public bool DefenseRight;
+    public bool Stop; // 顿帧
 
     #endregion
 
     public BoxCollider2D MovementCollider;
 
     public Slider HealthSlider;
-    public GameObject[] MovementColliders;
 
     [HideInInspector] public PlayerAnimationHandler AnimationHandler;
     private MovementHandler _movementHandler;
@@ -49,6 +50,8 @@ public class PlayerStateManager : MonoBehaviour {
     }
 
     public void FixedUpdate() {
+        if (Stop) return; // 顿帧中
+        
         GetComponent<Transform>().localRotation = Quaternion.Euler(0, LookRight ? 0 : 180, 0);
 
         OnGround = IsOnGround();
@@ -63,6 +66,7 @@ public class PlayerStateManager : MonoBehaviour {
             LevelManager.GetInstance().EndRoundFunction();
             Dead = true;
         }
+
     }
 
     // TODO 这一段是否应该把判断搬到CharactorManager中，移动放到MovementHandler中
@@ -202,7 +206,7 @@ public class PlayerStateManager : MonoBehaviour {
                     IsGettingHurtSmall = true;
 
                     _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) * 4, 0.2f);
+                        (LookRight ? Vector2.left : Vector2.right) * 2, 0.2f);
                     
                     StartCoroutine(CloseImmortality(0.1f));
                 }
@@ -238,7 +242,7 @@ public class PlayerStateManager : MonoBehaviour {
                     IsGettingHurtDefense = true;
                     
                     _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) * 4, 0.2f);
+                        (LookRight ? Vector2.left : Vector2.right) * 2, 0.2f);
                 
                     StartCoroutine(CloseImmortality(0.5f));
                 }           
@@ -249,17 +253,33 @@ public class PlayerStateManager : MonoBehaviour {
                 throw new ArgumentOutOfRangeException("damageType", damageType, null);
         }
         
-        AnimationHandler.Stop(0.2f);
+        //AnimationHandler.Stop(0.2f);
+        StateStop(0.2f);
 
         Health -= damage;
     }
 
     private IEnumerator CloseImmortality(float timer) {
+
         yield return new WaitForSeconds(timer);
 
         IsGettingHurtSmall = false;
         IsGettingHurtLarge = false;
         IsGettingFriePunch = false;
         IsGettingHurtDefense = false;
+    }
+    
+    // 顿帧
+    public void StateStop(float time) {
+        AnimationHandler.Stop(time);
+        Stop = true;
+        //Invoke("AnimPlay", time);
+        StartCoroutine(StatePlay(time));
+    }
+    
+    private IEnumerator StatePlay(float time) {
+        yield return new WaitForSeconds(time);
+
+        Stop = false;
     }
 }

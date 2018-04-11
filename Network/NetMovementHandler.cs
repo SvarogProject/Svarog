@@ -28,13 +28,28 @@ public class NetMovementHandler : NetworkBehaviour {
     private bool _usedFirestOnGroundInFirePunch;
 
     private float _gravityScale;
+    
+    private Vector2 _saveVelocity;   // 顿帧保存的力
+    private bool _needResetVelocity; // 是否需要重设力  
 
     public void Start() {
-        Rigidbody = GetComponent<Rigidbody2D>();
-        _states = GetComponent<NetPlayerStateManager>();
-        _animation = GetComponent<NetAnimationHandler>();
-        Rigidbody.freezeRotation = true;
-        _gravityScale = Rigidbody.gravityScale;
+        if (_states.Stop) { // 顿帧中不能移动，保存一下力
+            _saveVelocity += Rigidbody.velocity;
+            Rigidbody.velocity = Vector2.zero; // 清空力
+            Rigidbody.gravityScale = 0;
+            _needResetVelocity = true;
+        } else {
+            if (_needResetVelocity) {
+                Rigidbody.velocity = _saveVelocity;
+                Rigidbody.gravityScale = _gravityScale;
+                _needResetVelocity = false;
+                _saveVelocity = Vector2.zero;
+            }
+            
+            SpecialAttack();
+            HorizontalMovement();
+            Jump();
+        }
     }
 
     public void FixedUpdate() {
@@ -47,8 +62,7 @@ public class NetMovementHandler : NetworkBehaviour {
         if (_animation.Animator.GetBool(AnimatorBool.IS_FIRE_PUNCH)) {
             if (!_usedFirestOnGroundInFirePunch) {
                 if (_states.OnGround) { // 起跳
-                    GetComponent<Rigidbody2D>().velocity = new Vector3(GetComponent<Rigidbody2D>().velocity.x,
-                        GetComponent<MovementHandler>().JumpSpeed);
+                    DoJump(true);
                 } else { // 空中
                     _usedFirestOnGroundInFirePunch = true;
                 }
@@ -164,23 +178,26 @@ public class NetMovementHandler : NetworkBehaviour {
             } else if (_endRunTimer > 0 && !_states.LookRight) {
                 _states.CmdJumpLeft(true);
             }
-
+            
             if (_states.JumpHigh) {
-                Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, HighJumpSpeed);
+                //Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, HighJumpSpeed);
+                DoJump(false);
             } else {
-                Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, JumpSpeed);
+                //Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, JumpSpeed);
+                DoJump(true);
             }
 
             _states.ResetAttacks();
 
             // 初始化空中冲刺或者急退
-            _states.CmdCanSpurtOrRetreatOnAir(true);
+            _states.CanSpurtOrRetreatOnAir = true;
         }
 
         if (_states.JumpDouble) { // 二段跳
             
             _states.ResetAttacks();
-            Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, JumpSpeed);
+            //Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, JumpSpeed);
+            DoJump(true);
         }
     }
 
@@ -192,11 +209,32 @@ public class NetMovementHandler : NetworkBehaviour {
         float t = 0;
 
         while (t < timer) {
-            t += Time.deltaTime;
-
-            Rigidbody.velocity = direction;
+            
+            if (_states.Stop) {
+                _saveVelocity += new Vector2(direction.x, direction.y);
+            } else {
+                t += Time.deltaTime;
+                Rigidbody.velocity = direction;
+            }
 
             yield return null;
+        }
+    }
+
+    private void DoJump(bool normal) {
+        if (_states.Stop) { // 顿帧中
+            if (normal) {
+                _saveVelocity += new Vector2(Rigidbody.velocity.x, JumpSpeed);
+            } else {
+                _saveVelocity += new Vector2(Rigidbody.velocity.x, HighJumpSpeed);
+            }
+            
+        } else {
+            if (normal) {
+                Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, JumpSpeed);
+            } else {
+                Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, HighJumpSpeed);
+            }
         }
     }
 

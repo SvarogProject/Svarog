@@ -110,7 +110,8 @@ public class DamageHandler : MonoBehaviour {
         //gameObject.GetComponent<BoxCollider2D>().enabled = false;
         _doDamage = false;
 
-        _animation.Stop(0.2f);
+        // _animation.Stop(0.2f);
+        _states.StateStop(0.2f);
         Invoke("ResetDoDamage", 0.2f);
     }
     
