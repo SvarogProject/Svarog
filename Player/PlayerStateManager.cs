@@ -2,8 +2,6 @@
 using UnityEngine;
 using UnityEngine.UI;
 using System.Collections;
-using System.Linq;
-using UnityEditorInternal;
 
 public class PlayerStateManager : MonoBehaviour {
     public float Health = 100;

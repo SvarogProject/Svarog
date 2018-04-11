@@ -2,10 +2,12 @@
 using System.Collections.Generic;
 using System.Linq;
 using UnityEngine;
-using Vuforia;
+using UnityEngine.Networking;
 
-public class NetCameraMoveManager : MonoBehaviour  {
-    public List<GameObject> Players = new List<GameObject>();
+public class NetCameraMoveManager : NetworkBehaviour  {
+
+    public GameObject Player1;
+    public GameObject Player2;
 
     public SpriteRenderer Background;
     public float FollowSpeed;
@@ -47,8 +49,13 @@ public class NetCameraMoveManager : MonoBehaviour  {
     }
 
     private void FixedUpdate() {
+
+        while (Player1 == null || Player2 == null) { // 不停的自己找
+            Initial();
+        }
+
         // 必须要levelmanager设置了两个玩家之后才能使用
-        if (Players.Count == 2) {
+        if (Player1 != null && Player2 != null) {
             ChangeCameraSize();
             LimitCameraPosition();
             MoveCamera();
@@ -56,28 +63,34 @@ public class NetCameraMoveManager : MonoBehaviour  {
     }
 
     public void Initial() {
-        if (Players.Count == 2) {
-            _playerBox = Players[0].GetComponentsInChildren<BoxCollider2D>()
+ 
+        Player1 = GameObject.FindGameObjectWithTag("Player").GetComponent<NetPlayerStateManager>().gameObject;
+
+        Player2 = GameObject.FindGameObjectsWithTag("Player").Last().GetComponent<NetPlayerStateManager>().gameObject;
+
+
+        if (Player1 != null && Player2 != null) {
+            _playerBox = Player1.GetComponentsInChildren<BoxCollider2D>()
                 .First(c => c.CompareTag("MovementCollider"));
 
-            _player2Box = Players[1].GetComponentsInChildren<BoxCollider2D>()
+            _player2Box = Player2.GetComponentsInChildren<BoxCollider2D>()
                 .First(c => c.CompareTag("MovementCollider"));
 
-            _playerAnimation = Players[0].GetComponentsInChildren<Animator>().First(c => c.name == "SpriteRenderer");
-            _playerAnimation2 = Players[1].GetComponentsInChildren<Animator>().First(c => c.name == "SpriteRenderer");
-            _playerHeadBox = Players[0].GetComponentsInChildren<BoxCollider2D>().First(c => c.name == "Head");
-            _playerHeadBox2 = Players[1].GetComponentsInChildren<BoxCollider2D>().First(c => c.name == "Head");
+            _playerAnimation = Player1.GetComponentsInChildren<Animator>().First(c => c.name == "SpriteRenderer");
+            _playerAnimation2 = Player2.GetComponentsInChildren<Animator>().First(c => c.name == "SpriteRenderer");
+            _playerHeadBox = Player1.GetComponentsInChildren<BoxCollider2D>().First(c => c.name == "Head");
+            _playerHeadBox2 = Player2.GetComponentsInChildren<BoxCollider2D>().First(c => c.name == "Head");
         }
     }
 
     private void MoveCamera() {
-        var higherHeadBox = Players[0].transform.position.y > Players[1].transform.position.y
+        var higherHeadBox = Player1.transform.position.y > Player2.transform.position.y
             ? _playerHeadBox
             : _playerHeadBox2;
 
         var destination = new Vector3
         (
-            Mathf.Clamp((Players[0].transform.position.x + Players[1].transform.position.x) / 2, _minX, _maxX),
+            Mathf.Clamp((Player1.transform.position.x + Player2.transform.position.x) / 2, _minX, _maxX),
             Mathf.Clamp(higherHeadBox.transform.position.y + higherHeadBox.offset.y + higherHeadBox.size.y / 2
                         - _camera.orthographicSize + 0.5f, _minY, _maxY), // 0.5f 因为跳起头会少一点
             transform.position.z
@@ -173,7 +186,7 @@ public class NetCameraMoveManager : MonoBehaviour  {
      * 得到两个角色的最大宽度，距离+玩家边框一半
      */
     private float GetPlayersMaxWidth() {
-        var distence = Mathf.Abs(Players[0].transform.position.x - Players[1].transform.position.x);
+        var distence = Mathf.Abs(Player1.transform.position.x - Player2.transform.position.x);
 
         var playersWidth = distence + _playerBox.bounds.extents.x + _player2Box.bounds.extents.x;
 

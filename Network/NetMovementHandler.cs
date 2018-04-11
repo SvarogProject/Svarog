@@ -28,11 +28,20 @@ public class NetMovementHandler : NetworkBehaviour {
     private bool _usedFirestOnGroundInFirePunch;
 
     private float _gravityScale;
-    
-    private Vector2 _saveVelocity;   // 顿帧保存的力
+
+   private Vector2 _saveVelocity;   // 顿帧保存的力
     private bool _needResetVelocity; // 是否需要重设力  
 
     public void Start() {
+        Rigidbody = GetComponent<Rigidbody2D>();
+        _states = GetComponent<NetPlayerStateManager>();
+        _animation = GetComponent<NetAnimationHandler>();
+        Rigidbody.freezeRotation = true;
+        _gravityScale = Rigidbody.gravityScale;
+    }
+
+    public void FixedUpdate() {
+        
         if (_states.Stop) { // 顿帧中不能移动，保存一下力
             _saveVelocity += Rigidbody.velocity;
             Rigidbody.velocity = Vector2.zero; // 清空力
@@ -52,17 +61,13 @@ public class NetMovementHandler : NetworkBehaviour {
         }
     }
 
-    public void FixedUpdate() {
-        SpecialAttack();
-        HorizontalMovement();
-        Jump();
-    }
-
     private void SpecialAttack() {
         if (_animation.Animator.GetBool(AnimatorBool.IS_FIRE_PUNCH)) {
             if (!_usedFirestOnGroundInFirePunch) {
                 if (_states.OnGround) { // 起跳
+                    
                     DoJump(true);
+                    
                 } else { // 空中
                     _usedFirestOnGroundInFirePunch = true;
                 }
@@ -170,15 +175,15 @@ public class NetMovementHandler : NetworkBehaviour {
         if (_states.Jump && _states.OnGround) {
             
             if (_states.Right) {
-                _states.CmdJumpRight(true);
+                _states.JumpRight = true;
             } else if (_states.Left) {
-                _states.CmdJumpLeft(true);
+                _states.JumpLeft = true;
             } else if (_endRunTimer > 0 && _states.LookRight) { // 除了正按着前进还有一种可能是跑步的刹车中起跳
-                _states.CmdJumpRight(true);
+                _states.JumpRight = true;
             } else if (_endRunTimer > 0 && !_states.LookRight) {
-                _states.CmdJumpLeft(true);
+                _states.JumpLeft = true;
             }
-            
+
             if (_states.JumpHigh) {
                 //Rigidbody.velocity = new Vector3(Rigidbody.velocity.x, HighJumpSpeed);
                 DoJump(false);
@@ -239,17 +244,17 @@ public class NetMovementHandler : NetworkBehaviour {
     }
 
     private IEnumerator DoSpurtingOnAir() {
-        _states.CmdCanSpurtOrRetreatOnAir(false);
+        _states.CanSpurtOrRetreatOnAir = false;
         _isSpurtingOnAir = true;
         Rigidbody.velocity = Vector2.zero;
         Rigidbody.gravityScale = 0;
 
         if (_states.LookRight) {
-            _states.CmdJumpRight(true);
-            _states.CmdJumpLeft(false);
+            _states.JumpRight = true;
+            _states.JumpLeft = false;
         } else {
-            _states.CmdJumpLeft(true);
-            _states.CmdJumpRight(false);
+            _states.JumpLeft = true;
+            _states.JumpRight = false;
         }
 
         yield return new WaitForSeconds(SpurtOnAirTime);
@@ -261,17 +266,17 @@ public class NetMovementHandler : NetworkBehaviour {
     }
 
     private IEnumerator DoRetreatingOnAir() {
-        _states.CmdCanSpurtOrRetreatOnAir(false);
+        _states.CanSpurtOrRetreatOnAir = false;
         _isRetreatingOnAir = true;
         Rigidbody.velocity = Vector2.zero;
         Rigidbody.gravityScale = 0;
 
         if (_states.LookRight) {
-            _states.CmdJumpLeft(true);
-            _states.CmdJumpRight(false);
+            _states.JumpLeft = true;
+            _states.JumpRight = false;
         } else {
-            _states.CmdJumpRight(true);
-            _states.CmdJumpLeft(false);
+            _states.JumpRight = true;
+            _states.JumpLeft = false;
         }
 
         yield return new WaitForSeconds(RetreatOnAirTime);

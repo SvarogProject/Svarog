@@ -2,7 +2,6 @@
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
-using Vuforia;
 
 public class NetLevelManger : NetworkBehaviour {
     public Transform[] SpawnPositions; // 角色出生点（在游戏布局中设定好）
@@ -15,7 +14,7 @@ public class NetLevelManger : NetworkBehaviour {
 
     public NetPlayerStateManager[] Players = new NetPlayerStateManager[2];
     
-    private LevelUI _levelUi;       // 保存UI元素，方便调用
+    private NetLevelUI _levelUi;       // 保存UI元素，方便调用
     private int _currentRounds = 1; // 当前回合
 
     // 倒计时参数
@@ -44,7 +43,7 @@ public class NetLevelManger : NetworkBehaviour {
 
     public void Start() {
         //_characterManager = CharacterManager.GetInstance();
-        _levelUi = LevelUI.GetInstance();
+        _levelUi = NetLevelUI.GetInstance();
         _cameraManager = NetCameraMoveManager.GetInstance();
 
         _levelUi.AnnouncerTextLine1.gameObject.SetActive(false);
@@ -134,10 +133,10 @@ public class NetLevelManger : NetworkBehaviour {
     
     private IEnumerator CreatePlayers() {
         Debug.Log("CreatePlayers");
-
+    
         for (var i = 0; i < 2; i++) {
 
-            Players[i].HealthSlider = _levelUi.HealthSliders[i]; // 绑定血条
+            Players[i].CmdHealthSlider(_levelUi.HealthSliders[i].gameObject); // 绑定血条
 
 
             if (Players[i] != null) {
@@ -147,11 +146,10 @@ public class NetLevelManger : NetworkBehaviour {
                         c.gameObject.layer = LayerMask.NameToLayer("MovementCollider") + i; // 碰撞体设置不同的层级
                     }                
                 }
-
-                _cameraManager.Players.Add(Players[i].gameObject); // 给摄像机控制添加角色
-                _cameraManager.Initial();
             }
         }
+
+        _cameraManager.Initial(); // 这里只有服务端执行，客户端没有初始化camera
 
         yield return null;
     }

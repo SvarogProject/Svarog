@@ -36,8 +36,12 @@ public class NetPlayerStateManager : NetworkBehaviour {
 
     #endregion
     
-    #region command
-    
+    #region Commands
+
+    [Command]
+    public void CmdHealthSlider(GameObject heathSlider) {
+        HealthSlider = heathSlider;
+    }
     [Command]
     public void CmdChangeHealth(float health) {
         Health = health;
@@ -131,7 +135,7 @@ public class NetPlayerStateManager : NetworkBehaviour {
 
     public BoxCollider2D MovementCollider;
 
-    public Slider HealthSlider;
+    [SyncVar] public GameObject HealthSlider;
 
     [HideInInspector] public NetAnimationHandler AnimationHandler;
     private NetMovementHandler _movementHandler;
@@ -160,11 +164,29 @@ public class NetPlayerStateManager : NetworkBehaviour {
                 CmdDead(true);
             }          
         }
+
+        OnChangeHealth(Health);
     }
 
-    private void HealthChange() {
+    /*
+    public override bool OnSerialize(NetworkWriter writer, bool forceAll) {
+        if (HealthSlider == null) {
+            return false;
+        }
+        writer.Write(HealthSlider.gameObject);
+        return true;
+    }
+
+    public override void OnDeserialize(NetworkReader reader, bool initialState) {
+        if (HealthSlider != null && reader.ReadGameObject().GetComponent<Slider>() == null) {
+            return;
+        }
+        HealthSlider = reader.ReadGameObject().GetComponent<Slider>();
+    }*/
+
+    private void OnChangeHealth(float health) {
         if (HealthSlider != null) {
-            HealthSlider.value = Health * 0.01f;
+            HealthSlider.GetComponent<Slider>().value = health / 100;
         }
     }
 
@@ -296,7 +318,7 @@ public class NetPlayerStateManager : NetworkBehaviour {
     }
 
     public void TakeDamage(float damage, DamageType damageType) {
-        if (!isLocalPlayer) return;
+        if (!isServer) return; // 伤害的计算只能服务器控制
         if (IsGettingHurtSmall || IsGettingHurtLarge) return;
 
         switch (damageType) {
@@ -353,7 +375,7 @@ public class NetPlayerStateManager : NetworkBehaviour {
         //AnimationHandler.Stop(0.2f);
         StateStop(0.2f);
 
-        CmdChangeHealth(Health - damage);
+        Health -= damage;
     }
 
     private IEnumerator CloseImmortality(float timer) {
