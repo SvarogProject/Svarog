@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Linq;
 using UnityEngine;
 using UnityEngine.Networking;
@@ -14,7 +15,7 @@ public class NetLevelManger : NetworkBehaviour {
 
     public NetPlayerStateManager[] Players = new NetPlayerStateManager[2];
     
-    private NetLevelUI _levelUi;       // 保存UI元素，方便调用
+    private NetLevelUI _levelUi;    // 保存UI元素，方便调用
     private int _currentRounds = 1; // 当前回合
 
     // 倒计时参数
@@ -228,14 +229,13 @@ public class NetLevelManger : NetworkBehaviour {
         yield return _oneSec;
         yield return _oneSec;
 
-        /*
         var vPlayer = FindWinningPlayer();
 
         if (vPlayer == null) {
             _levelUi.AnnouncerTextLine1.text = "Draw"; // 平局
             _levelUi.AnnouncerTextLine1.color = Color.white;
         } else {
-            _levelUi.AnnouncerTextLine1.text = vPlayer.PlayerId + " Wins!";
+            _levelUi.AnnouncerTextLine1.text = vPlayer + " Wins!";
             _levelUi.AnnouncerTextLine1.color = Color.white;
         }
 
@@ -245,7 +245,7 @@ public class NetLevelManger : NetworkBehaviour {
 
         // 完美胜利
         if (vPlayer != null) {
-            if (Math.Abs(vPlayer.PlayerStates.Health - 100) < 0.01f) {
+            if (Math.Abs(vPlayer.Health - 100) < 0.01f) {
                 _levelUi.AnnouncerTextLine2.gameObject.SetActive(true);
                 _levelUi.AnnouncerTextLine2.text = "Flawless Victory!";
             }
@@ -264,45 +264,45 @@ public class NetLevelManger : NetworkBehaviour {
         } else {
             GameSceneManager.GetInstance().RequestLevelLoad(SceneType.Main, "GameOver");
         }
-        */
+        
     }
 
     private bool IsMatchOver() {
         Debug.Log("IsMatchOver");
         var retVal = false;
 
-        /*
-        foreach (var player in _characterManager.Players) {
+        
+        foreach (var player in Players) {
             if (player.Score < MaxRounds) continue;
 
             retVal = true;
 
             break;
-        }*/
+        }
 
         return retVal;
     }
 
-    /*
-    private PlayerBase FindWinningPlayer() {
+    
+    private NetPlayerStateManager FindWinningPlayer() {
         // 血量相等则平手，返回null
-        if (Math.Abs(_characterManager.Players[0].PlayerStates.Health - _characterManager.Players[1].PlayerStates.Health) < 0.01f)
+        if (Math.Abs(Players[0].Health - Players[1].Health) < 0.01f)
             return null;
 
-        PlayerStateManager targetPlayerState;
+        NetPlayerStateManager targetPlayerState;
 
-        if (_characterManager.Players[0].PlayerStates.Health < _characterManager.Players[1].PlayerStates.Health) {
-            _characterManager.Players[1].Score++;
-            targetPlayerState = _characterManager.Players[1].PlayerStates;
+        if (Players[0].Health < Players[1].Health) {
+            Players[1].Score++;
+            targetPlayerState = Players[1];
             _levelUi.AddWinIndicator(1);
         } else {
-            _characterManager.Players[0].Score++;
-            targetPlayerState = _characterManager.Players[0].PlayerStates;
+            Players[0].Score++;
+            targetPlayerState = Players[0];
             _levelUi.AddWinIndicator(0);
         }
 
-        var retVal = _characterManager.GetPlayerByStates(targetPlayerState);
+        var retVal = targetPlayerState;
 
         return retVal;
-    }*/
+    }
 }

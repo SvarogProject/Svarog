@@ -216,7 +216,7 @@ public class PlayerStateManager : MonoBehaviour {
                     IsGettingHurtLarge = true;
 
                     _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) * 4 + Vector2.up * 4, 0.2f);
+                        (LookRight ? Vector2.left : Vector2.right) * 4, 0.2f);
 
                     StartCoroutine(CloseImmortality(0.2f));
                 }      

@@ -41,7 +41,6 @@ public class NetMovementHandler : NetworkBehaviour {
     }
 
     public void FixedUpdate() {
-        
         if (_states.Stop) { // 顿帧中不能移动，保存一下力
             _saveVelocity += Rigidbody.velocity;
             Rigidbody.velocity = Vector2.zero; // 清空力
@@ -175,13 +174,13 @@ public class NetMovementHandler : NetworkBehaviour {
         if (_states.Jump && _states.OnGround) {
             
             if (_states.Right) {
-                _states.JumpRight = true;
+                _states.CmdJumpRight(true);
             } else if (_states.Left) {
-                _states.JumpLeft = true;
+                _states.CmdJumpLeft(true);
             } else if (_endRunTimer > 0 && _states.LookRight) { // 除了正按着前进还有一种可能是跑步的刹车中起跳
-                _states.JumpRight = true;
+                _states.CmdJumpRight(true);
             } else if (_endRunTimer > 0 && !_states.LookRight) {
-                _states.JumpLeft = true;
+                _states.CmdJumpLeft(true);
             }
 
             if (_states.JumpHigh) {
@@ -195,7 +194,7 @@ public class NetMovementHandler : NetworkBehaviour {
             _states.ResetAttacks();
 
             // 初始化空中冲刺或者急退
-            _states.CanSpurtOrRetreatOnAir = true;
+            _states.CmdCanSpurtOrRetreatOnAir(true);
         }
 
         if (_states.JumpDouble) { // 二段跳
@@ -244,17 +243,17 @@ public class NetMovementHandler : NetworkBehaviour {
     }
 
     private IEnumerator DoSpurtingOnAir() {
-        _states.CanSpurtOrRetreatOnAir = false;
+        _states.CmdCanSpurtOrRetreatOnAir(false);
         _isSpurtingOnAir = true;
         Rigidbody.velocity = Vector2.zero;
         Rigidbody.gravityScale = 0;
 
         if (_states.LookRight) {
-            _states.JumpRight = true;
-            _states.JumpLeft = false;
+            _states.CmdJumpRight(true);
+            _states.CmdJumpLeft(false);
         } else {
-            _states.JumpLeft = true;
-            _states.JumpRight = false;
+            _states.CmdJumpLeft(true);
+            _states.CmdJumpRight(false);
         }
 
         yield return new WaitForSeconds(SpurtOnAirTime);
@@ -272,11 +271,11 @@ public class NetMovementHandler : NetworkBehaviour {
         Rigidbody.gravityScale = 0;
 
         if (_states.LookRight) {
-            _states.JumpLeft = true;
-            _states.JumpRight = false;
+            _states.CmdJumpLeft(true);
+            _states.CmdJumpRight(false);
         } else {
-            _states.JumpRight = true;
-            _states.JumpLeft = false;
+            _states.CmdJumpRight(true);
+            _states.CmdJumpLeft(false);
         }
 
         yield return new WaitForSeconds(RetreatOnAirTime);

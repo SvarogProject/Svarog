@@ -107,7 +107,7 @@ public class DamageHandler : MonoBehaviour {
         
             
         // 顿帧
-        //gameObject.GetComponent<BoxCollider2D>().enabled = false;
+        gameObject.GetComponent<BoxCollider2D>().enabled = false;
         _doDamage = false;
 
         // _animation.Stop(0.2f);

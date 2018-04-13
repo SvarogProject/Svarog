@@ -50,7 +50,7 @@ public class NetCameraMoveManager : NetworkBehaviour  {
 
     private void FixedUpdate() {
 
-        while (Player1 == null || Player2 == null) { // 不停的自己找
+        if (Player1 == null || Player2 == null) { // 不停的自己找
             Initial();
         }
 
@@ -63,11 +63,13 @@ public class NetCameraMoveManager : NetworkBehaviour  {
     }
 
     public void Initial() {
- 
-        Player1 = GameObject.FindGameObjectWithTag("Player").GetComponent<NetPlayerStateManager>().gameObject;
 
-        Player2 = GameObject.FindGameObjectsWithTag("Player").Last().GetComponent<NetPlayerStateManager>().gameObject;
+        if (GameObject.FindGameObjectWithTag("Player")) {
+            Player1 = GameObject.FindGameObjectWithTag("Player").GetComponent<NetPlayerStateManager>().gameObject;
 
+            Player2 = GameObject.FindGameObjectsWithTag("Player").Last().GetComponent<NetPlayerStateManager>().gameObject;
+        }
+       
 
         if (Player1 != null && Player2 != null) {
             _playerBox = Player1.GetComponentsInChildren<BoxCollider2D>()

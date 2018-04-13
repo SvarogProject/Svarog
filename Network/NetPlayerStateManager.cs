@@ -4,6 +4,7 @@ using UnityEngine;
 using UnityEngine.Networking;
 using UnityEngine.UI;
 
+[NetworkSettings(channel = 0, sendInterval = 0.1f)]
 public class NetPlayerStateManager : NetworkBehaviour {
     
     #region Sync Params
@@ -33,6 +34,7 @@ public class NetPlayerStateManager : NetworkBehaviour {
     [SyncVar] public bool DefenseLeft;
     [SyncVar] public bool DefenseRight;
     [SyncVar] public bool Stop; // 顿帧
+    [SyncVar] public float Score;
 
     #endregion
     
@@ -160,9 +162,7 @@ public class NetPlayerStateManager : NetworkBehaviour {
         if (Health <= 0 && NetLevelManger.GetInstance().EnableCountdown) {
             NetLevelManger.GetInstance().EndRoundFunction();
 
-            if (isLocalPlayer) {
-                CmdDead(true);
-            }          
+            CmdDead(true);                   
         }
 
         OnChangeHealth(Health);

@@ -186,7 +186,7 @@ public class SelectSceneManager : MonoBehaviour {
             GameSceneManager.GetInstance().CreateProgression();
             GameSceneManager.GetInstance().LoadNextOnProgression();
         } else {
-            GameSceneManager.GetInstance().RequestLevelLoad(SceneType.Proggression, SceneName.LEVEL);
+            GameSceneManager.GetInstance().RequestLevelLoad(SceneType.Proggression, SceneName.BATTLE);
         }
 
     }
