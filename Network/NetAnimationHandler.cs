@@ -14,8 +14,7 @@ public class NetAnimationHandler : NetworkBehaviour {
         _states = GetComponent<NetPlayerStateManager>();
     }
 
-    public void FixedUpdate() {
-
+    public void FixedUpdate() {       
         CmdHandleDead();
         CmdHandleHurt();
         CmdHandleCrouch();

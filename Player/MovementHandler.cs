@@ -126,7 +126,7 @@ public class MovementHandler : MonoBehaviour {
 
     private bool Retreat() {
         if (_animation.Animator.GetBool(AnimatorBool.IS_RETREATING)) {
-            EndRunTime = 0; // 清除刹车的效果
+            _endRunTimer = 0; // 清除刹车的效果
 
             if (_states.OnGround) {
                 

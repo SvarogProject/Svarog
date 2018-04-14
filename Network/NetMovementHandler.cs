@@ -41,6 +41,7 @@ public class NetMovementHandler : NetworkBehaviour {
     }
 
     public void FixedUpdate() {
+        
         if (_states.Stop) { // 顿帧中不能移动，保存一下力
             _saveVelocity += Rigidbody.velocity;
             Rigidbody.velocity = Vector2.zero; // 清空力
@@ -127,7 +128,7 @@ public class NetMovementHandler : NetworkBehaviour {
 
     private bool Retreat() {
         if (_animation.Animator.GetBool(AnimatorBool.IS_RETREATING)) {
-            EndRunTime = 0; // 清除刹车的效果
+            _endRunTimer = 0; // 清除刹车的效果
 
             if (_states.OnGround) {
                 

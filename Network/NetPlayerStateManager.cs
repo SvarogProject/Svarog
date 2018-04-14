@@ -40,96 +40,188 @@ public class NetPlayerStateManager : NetworkBehaviour {
     
     #region Commands
 
-    [Command]
     public void CmdHealthSlider(GameObject heathSlider) {
+        HealthSlider = heathSlider; // 这个修改本地，就不用等服务器会传
+        CmdHealthSlider_Comand(heathSlider); // 这个通知服务器
+    }
+    [Command]
+    public void CmdHealthSlider_Comand(GameObject heathSlider) {
         HealthSlider = heathSlider;
     }
-    [Command]
     public void CmdChangeHealth(float health) {
         Health = health;
+        CmdChangeHealth_Command(health);
     }
     [Command]
+    public void CmdChangeHealth_Command(float health) {
+        Health = health;
+    }
     public void CmdCanSpurtOrRetreatOnAir(bool canSpurtOrRetreatOnAir) {
         CanSpurtOrRetreatOnAir = canSpurtOrRetreatOnAir;
+        CmdCanSpurtOrRetreatOnAir_Command(canSpurtOrRetreatOnAir);
     }
     [Command]
+    public void CmdCanSpurtOrRetreatOnAir_Command(bool canSpurtOrRetreatOnAir) {
+        CanSpurtOrRetreatOnAir = canSpurtOrRetreatOnAir;
+    }
     public void CmdShouldLookBack(bool shouldLookBack) {
         ShouldLookBack = shouldLookBack;
+        CmdShouldLookBack_Command(shouldLookBack);
     }
     [Command]
+    public void CmdShouldLookBack_Command(bool shouldLookBack) {
+        ShouldLookBack = shouldLookBack;
+    }
     public void CmdDead(bool dead) {
         Dead = dead;
+        CmdDead_Command(dead);
     }
     [Command]
+    public void CmdDead_Command(bool dead) {
+        Dead = dead;
+    }
     public void CmdLookRight(bool lookRight) {
         LookRight = lookRight;
+        CmdLookRight_Command(lookRight);
     }
     [Command]
+    public void CmdLookRight_Command(bool lookRight) {
+        LookRight = lookRight;
+    }
     public void CmdOnGround(bool onGround) {
         OnGround = onGround;
+        CmdOnGround_Command(onGround);
     }
     [Command]
+    public void CmdOnGround_Command(bool onGround) {
+        OnGround = onGround;
+    }
     public void CmdIsGettingFriePunch(bool isGettingFriePunch) {
         IsGettingFriePunch = isGettingFriePunch;
+        CmdIsGettingFriePunch_Command(isGettingFriePunch);
     }
     [Command]
+    public void CmdIsGettingFriePunch_Command(bool isGettingFriePunch) {
+        IsGettingFriePunch = isGettingFriePunch;
+    }
     public void CmdIsGettingHurtDefense(bool isGettingHurtDefense) {
         IsGettingHurtDefense = isGettingHurtDefense;
+        CmdIsGettingHurtDefense_Command(isGettingHurtDefense);
     }
     [Command]
+    public void CmdIsGettingHurtDefense_Command(bool isGettingHurtDefense) {
+        IsGettingHurtDefense = isGettingHurtDefense;
+    }
     public void CmdIsGettingHurtLarge(bool isGettingHurtLarge) {
         IsGettingHurtLarge = isGettingHurtLarge;
+        CmdIsGettingHurtLarge_Command(isGettingHurtLarge);
     }
     [Command]
+    public void CmdIsGettingHurtLarge_Command(bool isGettingHurtLarge) {
+        IsGettingHurtLarge = isGettingHurtLarge;
+    }
     public void CmdIsGettingHurtSmall(bool isGettingHurtSmall) {
         IsGettingHurtSmall = isGettingHurtSmall;
+        CmdIsGettingHurtSmall_Command(isGettingHurtSmall);
     }
     [Command]
+    public void CmdIsGettingHurtSmall_Command(bool isGettingHurtSmall) {
+        IsGettingHurtSmall = isGettingHurtSmall;
+    }
     public void CmdJumpRight(bool jumpRight) {
         JumpRight = jumpRight;
+        CmdJumpRight_Command(jumpRight);
     }
     [Command]
+    public void CmdJumpRight_Command(bool jumpRight) {
+        JumpRight = jumpRight;
+    }
     public void CmdJumpLeft(bool jumpLeft) {
         JumpLeft = jumpLeft;
+        CmdJumpLeft_Command(jumpLeft);
     }    
     [Command]
+    public void CmdJumpLeft_Command(bool jumpLeft) {
+        JumpLeft = jumpLeft;
+    }   
     public void CmdJumpHigh(bool jumpHigh) {
         JumpHigh = jumpHigh;
+        CmdJumpHigh_Command(jumpHigh);
     }   
     [Command]
+    public void CmdJumpHigh_Command(bool jumpHigh) {
+        JumpHigh = jumpHigh;
+    }   
     public void CmdJumpDouble(bool jumpDouble) {
         JumpDouble = jumpDouble;
+        CmdJumpDouble_Command(jumpDouble);
     }
     [Command]
+    public void CmdJumpDouble_Command(bool jumpDouble) {
+        JumpDouble = jumpDouble;
+    }
     public void CmdJump(bool jump) {
         Jump = jump;
-    }    
+        CmdJump_Command(jump);
+    }   
     [Command]
+    public void CmdJump_Command(bool jump) {
+        Jump = jump;
+    }    
     public void CmdRightDouble(bool rightDouble) {
         RightDouble = rightDouble;
+        CmdRightDouble_Command(rightDouble);
     }   
     [Command]
+    public void CmdRightDouble_Command(bool rightDouble) {
+        RightDouble = rightDouble;
+    }   
     public void CmdLeftDouble(bool leftDouble) {
         LeftDouble = leftDouble;
+        CmdLeftDouble_Command(leftDouble);
     }    
     [Command]
+    public void CmdLeftDouble_Command(bool leftDouble) {
+        LeftDouble = leftDouble;
+    }    
     public void CmdRight(bool right) {
         Right = right;
+        CmdRight_Command(right);
     }   
     [Command]
+    public void CmdRight_Command(bool right) {
+        Right = right;
+    }   
     public void CmdLeft(bool left) {
         Left = left;
+        CmdLeft_Command(left);
     }
     [Command]
+    public void CmdLeft_Command(bool left) {
+        Left = left;
+    }
     public void CmdDefenseLeft(bool defenseLeft) {
         DefenseLeft = defenseLeft;
+        CmdDefenseLeft_Command(defenseLeft);
     }   
     [Command]
+    public void CmdDefenseLeft_Command(bool defenseLeft) {
+        DefenseLeft = defenseLeft;
+    }   
     public void CmdDefenseRight(bool defenseRight) {
         DefenseRight = defenseRight;
+        CmdDefenseRight_Command(defenseRight);
     }    
     [Command]
+    public void CmdDefenseRight_Command(bool defenseRight) {
+        DefenseRight = defenseRight;
+    }    
     public void CmdCouch(bool crouch) {
+        Crouch = crouch;
+        CmdCouch_Command(crouch);
+    }
+    [Command]
+    public void CmdCouch_Command(bool crouch) {
         Crouch = crouch;
     }
 
@@ -340,7 +432,7 @@ public class NetPlayerStateManager : NetworkBehaviour {
                     CmdIsGettingHurtLarge(true);
 
                     _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) * 4 + Vector2.up * 4, 0.2f);
+                        (LookRight ? Vector2.left : Vector2.right) * 4, 0.2f);
 
                     StartCoroutine(CloseImmortality(0.2f));
                 }      
