@@ -89,12 +89,12 @@ public class DamageHandler : MonoBehaviour {
         }
     }
 
-    private void StartDamage(Collider2D collider) {
-        Debug.Log("Attack-Start:" + collider.name);
+    private void StartDamage(Collider2D other) {
+        Debug.Log("Attack-Start:" + other.name);
         
-        var otherState = collider.GetComponentInParent<PlayerStateManager>();
+        var otherState = other.GetComponentInParent<PlayerStateManager>();
 
-            if (collider.CompareTag("DefenseCollider")) {
+            if (other.CompareTag("DefenseCollider")) {
                 otherState.TakeDamage(0.01f, DamageType.Defensed);
             } 
             else if (_animation.Animator.GetBool(AnimatorBool.IS_FIRE_PUNCH)) {

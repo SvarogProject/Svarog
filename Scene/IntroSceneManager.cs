@@ -53,8 +53,11 @@ public class IntroSceneManager : MonoBehaviour {
 
                 // P进入游戏
                 if (Input.GetButtonDown("P")) {
-                    if (ActiveElement == 2) { // Exit
+                    if (ActiveElement == 3) { // Exit
                         Application.Quit();
+                    } else if (ActiveElement == 2) { // 网络
+                        GameSceneManager.GetInstance().RequestLevelLoad(SceneType.Main, SceneName.NET_LOBBY);
+                        MenuOptions[ActiveElement].transform.localScale *= 1.2f;
                     } else {
                         _loadingLevel = true;
                         StartCoroutine(LoadLevel());
@@ -97,13 +100,13 @@ public class IntroSceneManager : MonoBehaviour {
         if (ActiveElement == 0) {
             _loadingLevel = true;
             StartCoroutine(LoadLevel());
-            // 让选中的菜单放大一下…… TODO 之后用Animator做
             MenuOptions[ActiveElement].transform.localScale *= 1.2f;
         } else {
             ActiveElement = 0;
             MenuOptions[0].Selected = true;
             MenuOptions[1].Selected = false;
             MenuOptions[2].Selected = false;
+            MenuOptions[3].Selected = false;
         }       
     }
 
@@ -111,24 +114,37 @@ public class IntroSceneManager : MonoBehaviour {
         if (ActiveElement == 1) {
             _loadingLevel = true;
             StartCoroutine(LoadLevel());
-            // 让选中的菜单放大一下…… TODO 之后用Animator做
             MenuOptions[ActiveElement].transform.localScale *= 1.2f;
         } else {
             ActiveElement = 1;
             MenuOptions[1].Selected = true;
             MenuOptions[0].Selected = false;
             MenuOptions[2].Selected = false;
+            MenuOptions[3].Selected = false;
         }   
     }
 
-    public void OnExitButtonClick() {
+    public void OnNetButtonClick() {
         if (ActiveElement == 2) {
-            Application.Quit();
-            // 让选中的菜单放大一下…… TODO 之后用Animator做
+            GameSceneManager.GetInstance().RequestLevelLoad(SceneType.Main, SceneName.NET_LOBBY);
             MenuOptions[ActiveElement].transform.localScale *= 1.2f;
         } else {
-            ActiveElement = 1;
+            ActiveElement = 2;
             MenuOptions[2].Selected = true;
+            MenuOptions[1].Selected = false;
+            MenuOptions[0].Selected = false;
+            MenuOptions[3].Selected = false;
+        }   
+    }
+    
+    public void OnExitButtonClick() {
+        if (ActiveElement == 3) {
+            Application.Quit();
+            MenuOptions[ActiveElement].transform.localScale *= 1.2f;
+        } else {
+            ActiveElement = 3;
+            MenuOptions[3].Selected = true;
+            MenuOptions[2].Selected = false;
             MenuOptions[1].Selected = false;
             MenuOptions[0].Selected = false;
         }   

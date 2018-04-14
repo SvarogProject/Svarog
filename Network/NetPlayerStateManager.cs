@@ -40,6 +40,22 @@ public class NetPlayerStateManager : NetworkBehaviour {
     
     #region Commands
 
+    public void CmdScore(float score) {
+        Score = score; 
+        CmdScore_Comand(score); 
+    }
+    [Command]
+    public void CmdScore_Comand(float score) {
+        Score = score;
+    }
+    public void CmdStop(bool stop) {
+        Stop = stop; 
+        CmdStop_Comand(stop); 
+    }
+    [Command]
+    public void CmdStop_Comand(bool stop) {
+        Stop = stop;
+    }
     public void CmdHealthSlider(GameObject heathSlider) {
         HealthSlider = heathSlider; // 这个修改本地，就不用等服务器会传
         CmdHealthSlider_Comand(heathSlider); // 这个通知服务器
@@ -482,7 +498,7 @@ public class NetPlayerStateManager : NetworkBehaviour {
     // 顿帧
     public void StateStop(float time) {
         AnimationHandler.Stop(time);
-        Stop = true;
+        CmdStop(true);
         //Invoke("AnimPlay", time);
         StartCoroutine(StatePlay(time));
     }
@@ -490,7 +506,7 @@ public class NetPlayerStateManager : NetworkBehaviour {
     private IEnumerator StatePlay(float time) {
         yield return new WaitForSeconds(time);
 
-        Stop = false;
+        CmdStop(false);
     }
     
 }

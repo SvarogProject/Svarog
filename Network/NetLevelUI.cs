@@ -4,6 +4,20 @@ using UnityEngine.Networking;
 using UnityEngine.UI;
 
 public class NetLevelUI : NetworkBehaviour {
+
+
+    [SyncVar(hook = "OnAnnouncerText1TextChange")] public string AnnouncerTextLine1Text;
+    [SyncVar(hook = "OnAnnouncerText2TextChange")] public string AnnouncerTextLine2Text;
+    [SyncVar(hook = "OnLevelTimerTextChange")] public string LevelTimerText;
+
+    [SyncVar(hook = "OnAnnouncerText1ActiveChange")] public bool AnnouncerTextLine1Active;
+    [SyncVar(hook = "OnAnnouncerText2ActiveChange")] public bool AnnouncerTextLine2Active;
+    [SyncVar] public int NowWinPlayer;
+    [SyncVar(hook = "OnSpawnWinIndicator")] public GameObject NowSpawnWinIndicator;
+
+    [SyncVar(hook = "OnWaitingCanvasActiveChange")] public bool WaitingCanvasActive;
+    [SyncVar(hook = "OnWaitingTextChange")] public string WaitingTextContent;
+     
     public Text AnnouncerTextLine1;
     public Text AnnouncerTextLine2;
     public Text LevelTimer;
@@ -12,6 +26,9 @@ public class NetLevelUI : NetworkBehaviour {
 
     public GameObject[] WinIndicatorGrids;
     public GameObject WinIndicator;
+
+    public GameObject WaitingCanvas;
+    public Text WaitingText;
 
     #region Singleton
 
@@ -27,11 +44,53 @@ public class NetLevelUI : NetworkBehaviour {
 
     #endregion
 
-    private void Start() {
-
+    private void OnWaitingTextChange(string text) {
+        WaitingTextContent = text;
+        WaitingText.text = text;
     }
 
-    public void AddWinIndicator(int player) {
+    private void OnWaitingCanvasActiveChange(bool active) {
+        WaitingCanvasActive = active;
+        WaitingCanvas.SetActive(active);
+    }
+
+    private void OnSpawnWinIndicator(GameObject indicator) {
+        NowSpawnWinIndicator = indicator;
+        if (indicator != null) {
+            indicator.transform.SetParent(WinIndicatorGrids[NowWinPlayer].transform);
+            indicator.transform.localScale = Vector3.one;
+            indicator.transform.localPosition = new Vector3(0, 0, -10); // 不然会给个随机的z轴
+        }
+    }
+
+    private void OnLevelTimerTextChange(string text) {
+        LevelTimerText = text;
+        LevelTimer.text = text;
+    }
+
+    private void OnAnnouncerText2TextChange(string text) {
+        AnnouncerTextLine2Text = text;
+        AnnouncerTextLine2.text = text;
+    }
+    
+    private void OnAnnouncerText1TextChange(string text) {
+        AnnouncerTextLine1Text = text;
+        AnnouncerTextLine1.text = text;
+    }
+
+    private void OnAnnouncerText1ActiveChange(bool active) {
+        AnnouncerTextLine1Active = active;
+        AnnouncerTextLine1.gameObject.SetActive(active);
+    }
+    
+    private void OnAnnouncerText2ActiveChange(bool active) {
+        AnnouncerTextLine2Active = active;
+        AnnouncerTextLine2.gameObject.SetActive(active);
+    }
+
+    [Command]
+    public void CmdAddWinIndicator(int player) {
+        NowWinPlayer = player;
         var go = Instantiate(WinIndicator, Vector3.zero, Quaternion.identity);
 
         if (go != null) {
@@ -39,5 +98,9 @@ public class NetLevelUI : NetworkBehaviour {
             go.transform.localScale = Vector3.one;
             go.transform.localPosition = new Vector3(0, 0, -10); // 不然会给个随机的z轴
         }
+        
+        NetworkServer.Spawn(go);
+        
+        NowSpawnWinIndicator = go;
     }
 }

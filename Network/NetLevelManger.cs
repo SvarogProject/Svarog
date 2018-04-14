@@ -5,13 +5,11 @@ using UnityEngine;
 using UnityEngine.Networking;
 
 public class NetLevelManger : NetworkBehaviour {
-    public Transform[] SpawnPositions; // 角色出生点（在游戏布局中设定好）
     public int MaxRounds = 2;          // 回合数
 
     private readonly WaitForSeconds _oneSec = new WaitForSeconds(1); // 重复利用等一秒
 
     private NetCameraMoveManager _cameraManager;
-    //private CharacterManager _characterManager;
 
     public NetPlayerStateManager[] Players = new NetPlayerStateManager[2];
     
@@ -26,7 +24,7 @@ public class NetLevelManger : NetworkBehaviour {
 
     private int _createdPlayerNum;
 
-    private bool _isStarted = false;
+    private bool _isStarted;
 
     #region Singleton
 
@@ -43,18 +41,25 @@ public class NetLevelManger : NetworkBehaviour {
     #endregion
 
     public void Start() {
-        //_characterManager = CharacterManager.GetInstance();
         _levelUi = NetLevelUI.GetInstance();
         _cameraManager = NetCameraMoveManager.GetInstance();
-
-        _levelUi.AnnouncerTextLine1.gameObject.SetActive(false);
-        _levelUi.AnnouncerTextLine2.gameObject.SetActive(false);
+        _levelUi.AnnouncerTextLine1Active = false;
+        _levelUi.AnnouncerTextLine2Active = false;
 
     }
 
     public void FixedUpdate() {
 
         Debug.Log(NetworkManager.singleton.numPlayers);
+
+        if (NetworkManager.singleton.numPlayers == 1) {
+            _levelUi.WaitingCanvasActive = true;
+            _levelUi.WaitingTextContent = "Waiting for other players to join...\n\nyour ip is " + Network.player.ipAddress;
+        }
+        
+        if (NetworkManager.singleton.numPlayers < 2 && _createdPlayerNum == 2) {
+            // 有人掉线了
+        }
         
         if (NetworkManager.singleton.numPlayers > _createdPlayerNum && _createdPlayerNum < 2) {
             if (_createdPlayerNum == 0) {
@@ -96,7 +101,7 @@ public class NetLevelManger : NetworkBehaviour {
     }
 
     private void HandleRoundTimer() {
-        _levelUi.LevelTimer.text = _currentTimer.ToString();
+        _levelUi.LevelTimerText = _currentTimer.ToString();
 
         _internalTimer += Time.deltaTime;
 
@@ -114,15 +119,23 @@ public class NetLevelManger : NetworkBehaviour {
     private IEnumerator StartGame() {
         Debug.Log("StartGame");
 
+        _levelUi.WaitingTextContent = "Ready to fight.\n\nLoading...";
+        yield return _oneSec;
+        yield return _oneSec;
+        yield return _oneSec;
+        
         yield return CreatePlayers();
+
+        _levelUi.WaitingCanvasActive = false;
         yield return InitRound();
     }
 
     private IEnumerator InitRound() {
         Debug.Log("InitRound");
-        _levelUi.AnnouncerTextLine1.gameObject.SetActive(false);
-        _levelUi.AnnouncerTextLine2.gameObject.SetActive(false);
-        _levelUi.LevelTimer.text = MaxRoundsTimer.ToString();
+
+        _levelUi.AnnouncerTextLine1Active = false;
+        _levelUi.AnnouncerTextLine2Active = false;
+        _levelUi.LevelTimerText = MaxRoundsTimer.ToString();
 
         _currentTimer = MaxRoundsTimer;
         EnableCountdown = false;
@@ -169,16 +182,17 @@ public class NetLevelManger : NetworkBehaviour {
 
     private IEnumerator EnableControl() {
         Debug.Log("EnableControl");
-        // Round x FIGHT!
-        _levelUi.AnnouncerTextLine1.gameObject.SetActive(true);
-        _levelUi.AnnouncerTextLine1.text = "Round " + _currentRounds;
+
         _levelUi.AnnouncerTextLine1.color = Color.white;
+
+        _levelUi.AnnouncerTextLine1Active = true;
+        _levelUi.AnnouncerTextLine1Text = "Round " + _currentRounds;
 
         yield return _oneSec;
         yield return _oneSec;
 
         _levelUi.AnnouncerTextLine1.color = Color.white;
-        _levelUi.AnnouncerTextLine1.text = "FIGHT!";
+        _levelUi.AnnouncerTextLine1Text = "FIGHT!";
 
         // 开启角色控制
         foreach (var player in Players) {
@@ -188,7 +202,7 @@ public class NetLevelManger : NetworkBehaviour {
         // 过一秒让提示消失
         yield return _oneSec;
 
-        _levelUi.AnnouncerTextLine1.gameObject.SetActive(false);
+        _levelUi.AnnouncerTextLine1Active = false;
         EnableCountdown = true;
     }
 
@@ -206,16 +220,17 @@ public class NetLevelManger : NetworkBehaviour {
         Debug.Log("EndTurnFunction(" + timeOut + ")");
 
         EnableCountdown = false;
-        //_levelUi.LevelTimer.text = "0";
 
         if (timeOut) {
-            _levelUi.AnnouncerTextLine1.gameObject.SetActive(true);
-            _levelUi.AnnouncerTextLine1.text = "Time Out!";
             _levelUi.AnnouncerTextLine1.color = Color.white;
+            
+            _levelUi.AnnouncerTextLine1Active = true;
+            _levelUi.AnnouncerTextLine1Text = "Time Out!";
         } else {
-            _levelUi.AnnouncerTextLine1.gameObject.SetActive(true);
-            _levelUi.AnnouncerTextLine1.text = "K.O.";
             _levelUi.AnnouncerTextLine1.color = Color.white;
+            
+            _levelUi.AnnouncerTextLine1Active = true;
+            _levelUi.AnnouncerTextLine1Text = "K.O.";
         }
 
         DisableControl();
@@ -232,11 +247,13 @@ public class NetLevelManger : NetworkBehaviour {
         var vPlayer = FindWinningPlayer();
 
         if (vPlayer == null) {
-            _levelUi.AnnouncerTextLine1.text = "Draw"; // 平局
             _levelUi.AnnouncerTextLine1.color = Color.white;
+            
+            _levelUi.AnnouncerTextLine1Text = "Draw"; // 平局
         } else {
-            _levelUi.AnnouncerTextLine1.text = vPlayer + " Wins!";
             _levelUi.AnnouncerTextLine1.color = Color.white;
+            
+            _levelUi.AnnouncerTextLine1Text = vPlayer.gameObject.name + " Wins!";
         }
 
         yield return _oneSec;
@@ -246,8 +263,9 @@ public class NetLevelManger : NetworkBehaviour {
         // 完美胜利
         if (vPlayer != null) {
             if (Math.Abs(vPlayer.Health - 100) < 0.01f) {
-                _levelUi.AnnouncerTextLine2.gameObject.SetActive(true);
-                _levelUi.AnnouncerTextLine2.text = "Flawless Victory!";
+
+                _levelUi.AnnouncerTextLine2Active = true;
+                _levelUi.AnnouncerTextLine2Text = "Flawless Victory!";
             }
         }
 
@@ -262,7 +280,9 @@ public class NetLevelManger : NetworkBehaviour {
         if (!matchOver) {
             StartCoroutine(InitRound());
         } else {
-            GameSceneManager.GetInstance().RequestLevelLoad(SceneType.Main, "GameOver");
+            //GameSceneManager.GetInstance().RequestLevelLoad(SceneType.Main, "GameOver");
+            // 退出用户
+            NetworkManager.singleton.StopHost();
         }
         
     }
@@ -270,7 +290,6 @@ public class NetLevelManger : NetworkBehaviour {
     private bool IsMatchOver() {
         Debug.Log("IsMatchOver");
         var retVal = false;
-
         
         foreach (var player in Players) {
             if (player.Score < MaxRounds) continue;
@@ -294,11 +313,11 @@ public class NetLevelManger : NetworkBehaviour {
         if (Players[0].Health < Players[1].Health) {
             Players[1].Score++;
             targetPlayerState = Players[1];
-            _levelUi.AddWinIndicator(1);
+            _levelUi.CmdAddWinIndicator(1);
         } else {
             Players[0].Score++;
             targetPlayerState = Players[0];
-            _levelUi.AddWinIndicator(0);
+            _levelUi.CmdAddWinIndicator(0);
         }
 
         var retVal = targetPlayerState;

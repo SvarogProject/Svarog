@@ -22,19 +22,6 @@ public class InputHandler : MonoBehaviour {
     }
 
     public void FixedUpdate() {
-        
-        /*
-        if (_input == null) {
-            _input = new JoystickInputHandler(this);
-        } else {
-            // joystick
-            _input.HandleAttack();
-            _input.HandleMove();
-            _input.HandleCrouch();
-            _input.HandleJump();
-        }
-        */
-
         Attack();
         Move();
         Jump();
