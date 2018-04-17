@@ -9,6 +9,7 @@ public class NetDamageHandler : NetworkBehaviour {
     
     private NetPlayerStateManager _states;
     private NetAnimationHandler _animation;
+    private NetMovementHandler _movement;
     
     private List<Collider2D> _hurtColliders = new List<Collider2D>();
     private Collider2D _defenseCollider;
@@ -21,6 +22,7 @@ public class NetDamageHandler : NetworkBehaviour {
     public void Start() {
         _states = GetComponentInParent<NetPlayerStateManager>();
         _animation = GetComponentInParent<NetAnimationHandler>();
+        _movement = GetComponentInParent<NetMovementHandler>();
     }
 
     private void Update() {
@@ -90,30 +92,42 @@ public class NetDamageHandler : NetworkBehaviour {
         }
     }
 
-    private void StartDamage(Collider2D collider) {
-        Debug.Log("Attack-Start:" + collider.name);
+    private void StartDamage(Collider2D other) {
+        Debug.Log("Attack-Start:" + other.name);
         
-        var otherState = collider.GetComponentInParent<NetPlayerStateManager>();
-
-            if (collider.CompareTag("DefenseCollider")) {
-                otherState.TakeDamage(0.01f, DamageType.Defensed);
-            } 
-            else if (_animation.Animator.GetBool(AnimatorBool.IS_FIRE_PUNCH)) {
-                otherState.TakeDamage(6, DamageType.FirePunch);
-            } else if (_animation.Animator.GetBool(AnimatorBool.IS_HEAVY_ATTACK)) {
-                otherState.TakeDamage(5, DamageType.Heavy);
-            } else {
-                otherState.TakeDamage(3, DamageType);
-            }
+        var otherState = other.GetComponentInParent<NetPlayerStateManager>();
         
-            
+        if (other.CompareTag("DefenseCollider")) {
+            otherState.TakeDamage(0.01f, DamageType.Defensed);
+            BeatBack(other.GetComponentInParent<NetBorderHandler>().CloseToWall, 2, other);
+        } else if (_animation.Animator.GetBool(AnimatorBool.IS_FIRE_PUNCH)) {
+            otherState.TakeDamage(6, DamageType.FirePunch);
+        } else if (_animation.Animator.GetBool(AnimatorBool.IS_HEAVY_ATTACK)) {
+            otherState.TakeDamage(5, DamageType.Heavy);
+            BeatBack(other.GetComponentInParent<NetBorderHandler>().CloseToWall, 4, other);
+        } else {
+            otherState.TakeDamage(3, DamageType);
+            BeatBack(other.GetComponentInParent<NetBorderHandler>().CloseToWall, 2, other);
+        }
+                   
         // 顿帧
-        //gameObject.GetComponent<BoxCollider2D>().enabled = false;
+        gameObject.GetComponent<BoxCollider2D>().enabled = false;
         _doDamage = false;
 
-        //_animation.Stop(0.2f);
+        // _animation.Stop(0.2f);
         _states.StateStop(0.2f);
         Invoke("ResetDoDamage", 0.2f);
+        
+        // 告诉状态机已经攻击到敌人，可以取消后摇
+        _animation.Animator.SetBool(AnimatorBool.ATTACKED, true);
+    }
+    
+    private void BeatBack(bool hitWall, float force, Collider2D other) {
+        if (hitWall) {
+            _movement.BeBeatBack(force);
+        } else {
+            other.GetComponentInParent<NetMovementHandler>().BeBeatBack(force);
+        }
     }
     
     private void ResetDoDamage() {

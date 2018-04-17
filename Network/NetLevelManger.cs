@@ -59,6 +59,7 @@ public class NetLevelManger : NetworkBehaviour {
         
         if (NetworkManager.singleton.numPlayers < 2 && _createdPlayerNum == 2) {
             // 有人掉线了
+            NetworkManager.singleton.StopHost();
         }
         
         if (NetworkManager.singleton.numPlayers > _createdPlayerNum && _createdPlayerNum < 2) {

@@ -54,7 +54,7 @@ public class PlayerStateManager : MonoBehaviour {
 
         OnGround = IsOnGround();
 
-        HandleOnAnotherPlayer();
+        //HandleOnAnotherPlayer();
 
         if (HealthSlider != null) {
             HealthSlider.value = Health * 0.01f;
@@ -66,94 +66,7 @@ public class PlayerStateManager : MonoBehaviour {
         }
 
     }
-
-    // TODO 这一段是否应该把判断搬到CharactorManager中，移动放到MovementHandler中
-    // TODO 边角的时候应该考虑让对手移动
-    private void HandleOnAnotherPlayer() {
-
-        LayerMask pLayerLayer;
-
-        if (gameObject.layer == LayerMask.NameToLayer(LayerName.PLAYER)) {
-            pLayerLayer = 1 << LayerMask.NameToLayer(LayerName.MOVEMENT_COLLIDER_2);
-        } else {
-            pLayerLayer = 1 << LayerMask.NameToLayer(LayerName.MOVEMENT_COLLIDER);
-        }
-
-        var hitRight = Physics2D.Raycast(MovementCollider.transform.position
-                                         + new Vector3(MovementCollider.offset.x * (LookRight ? 1 : -1), 0, 0)
-                                         + Vector3.right *
-                                         (MovementCollider.size.x / 2), // 0.1f为了防止正好落在中心，位移到边缘卡住
-            Vector2.down, 0.5f, pLayerLayer);
-
-        //var hitCenter = Physics2D.Raycast(MovementCollider.transform.position, Vector2.down, 0.5f, pLayerLayer);
-
-        var hitLeft = Physics2D.Raycast(MovementCollider.transform.position
-                                        + new Vector3(MovementCollider.offset.x * (LookRight ? 1 : -1), 0, 0)
-                                        + Vector3.left * (MovementCollider.size.x / 2),
-            Vector2.down, 0.5f, pLayerLayer);
-
-
-        if (AnimationHandler.Animator.GetBool(AnimatorBool.JUMP)
-            && !AnimationHandler.Animator.GetBool(AnimatorBool.IS_SPURTING)
-            && !AnimationHandler.Animator.GetBool(AnimatorBool.IS_RETREATING)) { // 但当前角色在跳跃而且不再冲刺的时候才判断
-            
-            if (hitLeft) { 
-
-                var hitUpY = hitLeft.transform.position.y + ((BoxCollider2D) hitLeft.collider).offset.y +
-                               ((BoxCollider2D) hitLeft.collider).size.y / 2;
-                
-                var hitDownY = hitLeft.transform.position.y + ((BoxCollider2D) hitLeft.collider).offset.y -
-                               ((BoxCollider2D) hitLeft.collider).size.y / 2;
-
-                var thisDownY = MovementCollider.transform.position.y + MovementCollider.offset.y -
-                                  MovementCollider.size.y / 2;
-                
-                if (hitDownY > 0.1f) { // 玩家2也是跳跃的不位移
-                    return;
-                }
-
-                if (thisDownY < hitUpY) { // 如果在下面重叠不采取措施，可能是回退等操作造成的
-                    return;
-                }
-
-                transform.Translate(Vector3.right * (MovementCollider.size.x / 2 + MovementCollider.offset.x + 0.1f) *
-                                    (LookRight ? 1 : -1));
-
-            } else if (hitRight) {
-                
-                var hitUpY = hitRight.transform.position.y + ((BoxCollider2D) hitRight.collider).offset.y +
-                             ((BoxCollider2D) hitRight.collider).size.y / 2;
-                
-                var hitDownY = hitRight.transform.position.y + ((BoxCollider2D) hitRight.collider).offset.y -
-                               ((BoxCollider2D) hitRight.collider).size.y / 2;
-
-                var thisDownY = MovementCollider.transform.position.y + MovementCollider.offset.y -
-                                MovementCollider.size.y / 2;
-                
-                                
-                if (hitDownY > 0.1f) { // 玩家2也是跳跃的不位移
-                    return;
-                }
-
-                if (thisDownY < hitUpY) { // 如果在下面重叠不采取措施，可能是回退等操作造成的
-                    return;
-                }
-                
-                transform.Translate(Vector3.left * (MovementCollider.size.x / 2 + MovementCollider.offset.x + 0.1f) *
-                                    (LookRight ? 1 : -1));
-
-            } /*else if (hitCenter && hitCenter.transform.position.y <
-                       MovementCollider.transform.position.y - ((BoxCollider2D) hitCenter.collider).size.y) {
-                // 如果射线碰撞的角色不是自己的话，说明对手在自己脚下，调整自己的位置          
-                if (hitCenter.transform.position.x > transform.position.x) { // 说明自己的中轴线在对手的左边，就往左边移动一点
-                    transform.Translate(Vector3.left * (MovementCollider.size.x / 2 + 0.1f));
-                } else {
-                    transform.Translate(Vector3.right * (MovementCollider.size.x / 2 + 0.1f));
-                }
-            }*/
-        }
-    }
-
+    
     private bool IsOnGround() {
 
         LayerMask groundLayer = 1 << LayerMask.NameToLayer(LayerName.GROUND); // 只检测地板这层
@@ -202,10 +115,6 @@ public class PlayerStateManager : MonoBehaviour {
 
                 if (!IsGettingHurtSmall) {
                     IsGettingHurtSmall = true;
-
-                    _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) * 2, 0.2f);
-                    
                     StartCoroutine(CloseImmortality(0.1f));
                 }
 
@@ -214,10 +123,6 @@ public class PlayerStateManager : MonoBehaviour {
 
                 if (!IsGettingHurtLarge) {
                     IsGettingHurtLarge = true;
-
-                    _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) * 4, 0.2f);
-
                     StartCoroutine(CloseImmortality(0.2f));
                 }      
 
@@ -237,11 +142,7 @@ public class PlayerStateManager : MonoBehaviour {
             case DamageType.Defensed:
 
                 if (!IsGettingHurtDefense) {
-                    IsGettingHurtDefense = true;
-                    
-                    _movementHandler.AddVelocityOnCharacter(
-                        (LookRight ? Vector2.left : Vector2.right) * 2, 0.2f);
-                
+                    IsGettingHurtDefense = true;              
                     StartCoroutine(CloseImmortality(0.5f));
                 }           
                 
