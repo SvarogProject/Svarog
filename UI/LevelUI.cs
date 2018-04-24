@@ -12,6 +12,10 @@ public class LevelUI : MonoBehaviour {
     public GameObject[] WinIndicatorGrids;
     public GameObject WinIndicator;
 
+    public Image RoundXFightImage;
+    public Sprite[] RoundSprites;
+    public Sprite FightSprite;
+
     public GameObject ShowPlayerPosterCanvas;
     public Image Player1Poster;
     public Image Player2Poster;
@@ -71,5 +75,19 @@ public class LevelUI : MonoBehaviour {
         Player1Poster.gameObject.SetActive(false);
         Player1Name.gameObject.SetActive(false);
         ShowPlayerPosterCanvas.SetActive(false);
+    }
+
+    public IEnumerator RoundXFight(int currentRounds) {
+        RoundXFightImage.sprite = RoundSprites[currentRounds - 1];
+        RoundXFightImage.gameObject.SetActive(true);
+        
+        yield return new WaitForSeconds(2);
+
+        RoundXFightImage.sprite = FightSprite;
+
+        // 过一秒让提示消失
+        yield return new WaitForSeconds(1);
+
+        RoundXFightImage.gameObject.SetActive(false);
     }
 }

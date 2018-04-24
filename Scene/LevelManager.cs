@@ -176,16 +176,8 @@ public class LevelManager : MonoBehaviour {
     private IEnumerator EnableControl() {
         Debug.Log("EnableControl");
         // Round x FIGHT!
-        _levelUi.AnnouncerTextLine1.gameObject.SetActive(true);
-        _levelUi.AnnouncerTextLine1.text = "Round " + _currentRounds;
-        _levelUi.AnnouncerTextLine1.color = Color.white;
-
-        yield return _oneSec;
-        yield return _oneSec;
-
-        _levelUi.AnnouncerTextLine1.color = Color.white;
-        _levelUi.AnnouncerTextLine1.text = "FIGHT!";
-
+        yield return _levelUi.RoundXFight(_currentRounds);
+       
         // 开启角色控制
         foreach (var player in _characterManager.Players) {
             switch (player.Type) {
@@ -226,11 +218,6 @@ public class LevelManager : MonoBehaviour {
                     throw new ArgumentOutOfRangeException();
             }
         }
-
-        // 过一秒让提示消失
-        yield return _oneSec;
-
-        _levelUi.AnnouncerTextLine1.gameObject.SetActive(false);
         EnableCountdown = true; // TODO 这个倒计时应该是可以设置的，无限时间模式则为false
     }
 
