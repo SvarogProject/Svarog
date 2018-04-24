@@ -13,7 +13,7 @@ public class NetLevelManger : NetworkBehaviour {
 
     public NetPlayerStateManager[] Players = new NetPlayerStateManager[2];
     
-    private NetLevelUI _levelUi;    // 保存UI元素，方便调用
+    public NetLevelUI LevelUi;    // 保存UI元素，方便调用
     private int _currentRounds = 1; // 当前回合
 
     // 倒计时参数
@@ -41,10 +41,10 @@ public class NetLevelManger : NetworkBehaviour {
     #endregion
 
     public void Start() {
-        _levelUi = NetLevelUI.GetInstance();
+        LevelUi = NetLevelUI.GetInstance();
         _cameraManager = NetCameraMoveManager.GetInstance();
-        _levelUi.AnnouncerTextLine1Active = false;
-        _levelUi.AnnouncerTextLine2Active = false;
+        LevelUi.AnnouncerTextLine1Active = false;
+        LevelUi.AnnouncerTextLine2Active = false;
 
     }
 
@@ -53,8 +53,8 @@ public class NetLevelManger : NetworkBehaviour {
         Debug.Log(NetworkManager.singleton.numPlayers);
 
         if (NetworkManager.singleton.numPlayers == 1) {
-            _levelUi.WaitingCanvasActive = true;
-            _levelUi.WaitingTextContent = "Waiting for other players to join...\n\nyour ip is " + Network.player.ipAddress;
+            LevelUi.WaitingCanvasActive = true;
+            LevelUi.WaitingTextContent = "Waiting for other players to join...\n\nyour ip is " + Network.player.ipAddress;
         }
         
         if (NetworkManager.singleton.numPlayers < 2 && _createdPlayerNum == 2) {
@@ -102,7 +102,7 @@ public class NetLevelManger : NetworkBehaviour {
     }
 
     private void HandleRoundTimer() {
-        _levelUi.LevelTimerText = _currentTimer.ToString();
+        LevelUi.LevelTimerText = _currentTimer.ToString();
 
         _internalTimer += Time.deltaTime;
 
@@ -120,23 +120,23 @@ public class NetLevelManger : NetworkBehaviour {
     private IEnumerator StartGame() {
         Debug.Log("StartGame");
 
-        _levelUi.WaitingTextContent = "Ready to fight.\n\nLoading...";
+        LevelUi.WaitingTextContent = "Ready to fight.\n\nLoading...";
         yield return _oneSec;
         yield return _oneSec;
         yield return _oneSec;
         
         yield return CreatePlayers();
 
-        _levelUi.WaitingCanvasActive = false;
+        LevelUi.WaitingCanvasActive = false;
         yield return InitRound();
     }
 
     private IEnumerator InitRound() {
         Debug.Log("InitRound");
 
-        _levelUi.AnnouncerTextLine1Active = false;
-        _levelUi.AnnouncerTextLine2Active = false;
-        _levelUi.LevelTimerText = MaxRoundsTimer.ToString();
+        LevelUi.AnnouncerTextLine1Active = false;
+        LevelUi.AnnouncerTextLine2Active = false;
+        LevelUi.LevelTimerText = MaxRoundsTimer.ToString();
 
         _currentTimer = MaxRoundsTimer;
         EnableCountdown = false;
@@ -151,7 +151,7 @@ public class NetLevelManger : NetworkBehaviour {
     
         for (var i = 0; i < 2; i++) {
 
-            Players[i].CmdHealthSlider(_levelUi.HealthSliders[i].gameObject); // 绑定血条
+            Players[i].CmdHealthSlider(LevelUi.HealthSliders[i].gameObject); // 绑定血条
 
 
             if (Players[i] != null) {
@@ -184,26 +184,30 @@ public class NetLevelManger : NetworkBehaviour {
     private IEnumerator EnableControl() {
         Debug.Log("EnableControl");
 
-        _levelUi.AnnouncerTextLine1.color = Color.white;
+        LevelUi.AnnouncerTextLine1.color = Color.white;
 
-        _levelUi.AnnouncerTextLine1Active = true;
-        _levelUi.AnnouncerTextLine1Text = "Round " + _currentRounds;
+        LevelUi.AnnouncerTextLine1Active = true;
+        LevelUi.AnnouncerTextLine1Text = "Round " + _currentRounds;
 
         yield return _oneSec;
         yield return _oneSec;
 
-        _levelUi.AnnouncerTextLine1.color = Color.white;
-        _levelUi.AnnouncerTextLine1Text = "FIGHT!";
+        LevelUi.AnnouncerTextLine1.color = Color.white;
+        LevelUi.AnnouncerTextLine1Text = "FIGHT!";
 
         // 开启角色控制
         foreach (var player in Players) {
-            player.gameObject.GetComponent<NetInputHandler>().enabled = true;
+            if (MobileManager.IsMobile) {
+                player.gameObject.GetComponent<NetMobilePlayerInputManager>().enabled = true;
+            } else {
+                player.gameObject.GetComponent<NetInputHandler>().enabled = true;
+            }
         }
 
         // 过一秒让提示消失
         yield return _oneSec;
 
-        _levelUi.AnnouncerTextLine1Active = false;
+        LevelUi.AnnouncerTextLine1Active = false;
         EnableCountdown = true;
     }
 
@@ -213,7 +217,11 @@ public class NetLevelManger : NetworkBehaviour {
         foreach (var player in Players) {
             player.ResetPlayer(); // 先重置角色状态
 
-            player.gameObject.GetComponent<NetInputHandler>().enabled = false;
+            if (MobileManager.IsMobile) {
+                player.gameObject.GetComponent<NetMobilePlayerInputManager>().enabled = false;
+            } else {
+                player.gameObject.GetComponent<NetInputHandler>().enabled = false;
+            }
         }
     }
 
@@ -223,15 +231,15 @@ public class NetLevelManger : NetworkBehaviour {
         EnableCountdown = false;
 
         if (timeOut) {
-            _levelUi.AnnouncerTextLine1.color = Color.white;
+            LevelUi.AnnouncerTextLine1.color = Color.white;
             
-            _levelUi.AnnouncerTextLine1Active = true;
-            _levelUi.AnnouncerTextLine1Text = "Time Out!";
+            LevelUi.AnnouncerTextLine1Active = true;
+            LevelUi.AnnouncerTextLine1Text = "Time Out!";
         } else {
-            _levelUi.AnnouncerTextLine1.color = Color.white;
+            LevelUi.AnnouncerTextLine1.color = Color.white;
             
-            _levelUi.AnnouncerTextLine1Active = true;
-            _levelUi.AnnouncerTextLine1Text = "K.O.";
+            LevelUi.AnnouncerTextLine1Active = true;
+            LevelUi.AnnouncerTextLine1Text = "K.O.";
         }
 
         DisableControl();
@@ -248,13 +256,13 @@ public class NetLevelManger : NetworkBehaviour {
         var vPlayer = FindWinningPlayer();
 
         if (vPlayer == null) {
-            _levelUi.AnnouncerTextLine1.color = Color.white;
+            LevelUi.AnnouncerTextLine1.color = Color.white;
             
-            _levelUi.AnnouncerTextLine1Text = "Draw"; // 平局
+            LevelUi.AnnouncerTextLine1Text = "Draw"; // 平局
         } else {
-            _levelUi.AnnouncerTextLine1.color = Color.white;
+            LevelUi.AnnouncerTextLine1.color = Color.white;
             
-            _levelUi.AnnouncerTextLine1Text = vPlayer.gameObject.name + " Wins!";
+            LevelUi.AnnouncerTextLine1Text = vPlayer.gameObject.name + " Wins!";
         }
 
         yield return _oneSec;
@@ -265,8 +273,8 @@ public class NetLevelManger : NetworkBehaviour {
         if (vPlayer != null) {
             if (Math.Abs(vPlayer.Health - 100) < 0.01f) {
 
-                _levelUi.AnnouncerTextLine2Active = true;
-                _levelUi.AnnouncerTextLine2Text = "Flawless Victory!";
+                LevelUi.AnnouncerTextLine2Active = true;
+                LevelUi.AnnouncerTextLine2Text = "Flawless Victory!";
             }
         }
 
@@ -314,11 +322,11 @@ public class NetLevelManger : NetworkBehaviour {
         if (Players[0].Health < Players[1].Health) {
             Players[1].Score++;
             targetPlayerState = Players[1];
-            _levelUi.CmdAddWinIndicator(1);
+            LevelUi.CmdAddWinIndicator(1);
         } else {
             Players[0].Score++;
             targetPlayerState = Players[0];
-            _levelUi.CmdAddWinIndicator(0);
+            LevelUi.CmdAddWinIndicator(0);
         }
 
         var retVal = targetPlayerState;

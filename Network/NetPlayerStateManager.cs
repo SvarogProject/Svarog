@@ -232,12 +232,12 @@ public class NetPlayerStateManager : NetworkBehaviour {
     public void CmdDefenseRight_Command(bool defenseRight) {
         DefenseRight = defenseRight;
     }    
-    public void CmdCouch(bool crouch) {
+    public void CmdCrouch(bool crouch) {
         Crouch = crouch;
-        CmdCouch_Command(crouch);
+        CmdCrouch_Command(crouch);
     }
     [Command]
-    public void CmdCouch_Command(bool crouch) {
+    public void CmdCrouch_Command(bool crouch) {
         Crouch = crouch;
     }
 
@@ -306,7 +306,7 @@ public class NetPlayerStateManager : NetworkBehaviour {
         ResetAttacks();
         CmdDead(false);
         CmdJump(false);
-        CmdCouch(false);
+        CmdCrouch(false);
         CmdRight(false);
         CmdLeft(false);
         CmdIsGettingHurtSmall(false);

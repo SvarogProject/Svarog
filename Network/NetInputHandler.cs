@@ -19,6 +19,9 @@ public class NetInputHandler : NetworkBehaviour {
     private IInputHandler _input;
 
     public void Start() {
+        if (MobileManager.IsMobile) {
+            enabled = false;
+        }
         _states = GetComponent<NetPlayerStateManager>();
         _animator = GetComponent<NetAnimationHandler>().Animator;
         _attacks = _states.Attacks;
@@ -42,7 +45,7 @@ public class NetInputHandler : NetworkBehaviour {
     }
 
     private void Crouch() {
-        _states.CmdCouch(Input.GetButton("Crouch" + PlayerInputId));
+        _states.CmdCrouch(Input.GetButton("Crouch" + PlayerInputId));
     }
 
     private void Move() {

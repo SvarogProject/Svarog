@@ -13,6 +13,7 @@ public class LevelManager : MonoBehaviour {
     public ETCButton ButtonAttackS;
     public ETCButton ButtonAttackHS;
     public ETCButton ButtonJump;
+    public ETCButton ButtonCrouch;
     
     
     public Transform[] SpawnPositions; // 角色出生点（在游戏布局中设定好）

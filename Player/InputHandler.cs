@@ -67,15 +67,7 @@ public class InputHandler : MonoBehaviour {
         if (_states.Attackable) {
             // TODO 这里应该做一个树的优先级
             foreach (var attack in _attacks) {
-                /*
-                if (attack.AttackAnimName == "FirePunch") {
-                    attack.Do(PlayerInputId, _states.LookRight, () => {
-                        
-                    });
-                } else {*/
                 attack.Do(PlayerInputId, _states.LookRight);
-                //}
-
             }
         } else {
             foreach (var attack in _attacks) {
@@ -94,7 +86,6 @@ public class InputHandler : MonoBehaviour {
             _jumpButtonUp = false; // 初始化跳跃键没松开
 
             if (_states.Jump) {
-                //_animator.SetBool("Jump", true);
                 _states.RightDouble = false;
                 _states.LeftDouble = false;
                 _leftDoubleClick.Reset();
@@ -114,7 +105,6 @@ public class InputHandler : MonoBehaviour {
                 }
 
                 if (_states.JumpDouble) {
-                    //_animator.SetTrigger("JumpDouble");
                     _states.RightDouble = false;
                     _states.LeftDouble = false;
                     _leftDoubleClick.Reset();
@@ -141,8 +131,6 @@ public class InputHandler : MonoBehaviour {
             _jumpButtonUp = false; // 初始化跳跃键没松开
 
             if (_states.JumpHigh) {
-                //_animator.SetBool("Jump", true);
-                //_animator.SetBool("JumpHigh", true);
                 _states.RightDouble = false;
                 _states.LeftDouble = false;
                 _leftDoubleClick.Reset();

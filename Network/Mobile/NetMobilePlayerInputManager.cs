@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
+using UnityEngine.Networking;
 
-public class MobilePlayerInputManager : MonoBehaviour {
+public class NetMobilePlayerInputManager : NetworkBehaviour {
     public ETCJoystick Joystick;
     public ETCButton ButtonAttackP;
     public ETCButton ButtonAttackK;
@@ -9,8 +10,7 @@ public class MobilePlayerInputManager : MonoBehaviour {
     public ETCButton ButtonJump;
     public ETCButton ButtonCrouch;
 
-
-    private PlayerStateManager _states;
+    private NetPlayerStateManager _states;
     private Animator _animator;
     private AttacksBase[] _attacks;
 
@@ -19,33 +19,39 @@ public class MobilePlayerInputManager : MonoBehaviour {
     private readonly DoubleClick _rightDoubleClick = new DoubleClick();
     private readonly DoubleClick _leftDoubleClick = new DoubleClick();
 
-    private bool _isAttack = false;
+    private bool _isAttack;
 
     public void Start() {
-        _states = GetComponent<PlayerStateManager>();
-        _animator = GetComponent<PlayerAnimationHandler>().Animator;
+        if (!MobileManager.IsMobile) {
+            enabled = false;
+        }
+        _states = GetComponent<NetPlayerStateManager>();
+        _animator = GetComponent<NetAnimationHandler>().Animator;
         _attacks = _states.Attacks;
-        Joystick = LevelManager.GetInstance().Joystick;
-        ButtonAttackP = LevelManager.GetInstance().ButtonAttackP;
-        ButtonAttackK = LevelManager.GetInstance().ButtonAttackK;
-        ButtonAttackS = LevelManager.GetInstance().ButtonAttackS;
-        ButtonAttackHS = LevelManager.GetInstance().ButtonAttackHS;
-        ButtonJump = LevelManager.GetInstance().ButtonJump;
-        ButtonCrouch = LevelManager.GetInstance().ButtonCrouch;
+        
+        var ui = GameObject.Find("UI").GetComponent<NetLevelUI>();
+        Joystick = ui.Joystick;
+        ButtonAttackP = ui.ButtonAttackP;
+        ButtonAttackK = ui.ButtonAttackK;
+        ButtonAttackS = ui.ButtonAttackS;
+        ButtonAttackHS = ui.ButtonAttackHS;
+        ButtonJump = ui.ButtonJump;
+        ButtonCrouch = ui.ButtonCrouch;
     }
 
     public void FixedUpdate() {
-
-        Attack();
-        Move();
-        Jump();
-        Crouch();
-        Defense();
+        if (isLocalPlayer) {
+            Attack();
+            Move();
+            Jump();
+            Crouch();
+            Defense();
+        }     
     }
 
     private void Defense() {
-        _states.DefenseLeft = Joystick.axisX.axisState == ETCAxis.AxisState.PressLeft;
-        _states.DefenseRight = Joystick.axisX.axisState == ETCAxis.AxisState.PressRight;
+        _states.CmdDefenseLeft(Joystick.axisX.axisState == ETCAxis.AxisState.PressLeft);
+        _states.CmdDefenseRight(Joystick.axisX.axisState == ETCAxis.AxisState.PressRight);
     }
 
     private void Crouch() {
@@ -55,27 +61,27 @@ public class MobilePlayerInputManager : MonoBehaviour {
 
     private void Move() {
         if (_animator.GetBool(AnimatorBool.MOVEABLE)) {
-            _states.Right = Joystick.axisX.axisState == ETCAxis.AxisState.PressRight;
-            _states.Left = Joystick.axisX.axisState == ETCAxis.AxisState.PressLeft;
+            _states.CmdRight(Joystick.axisX.axisState == ETCAxis.AxisState.PressRight);
+            _states.CmdLeft(Joystick.axisX.axisState == ETCAxis.AxisState.PressLeft);
 
             _leftDoubleClick.HandleDoubleBool(Joystick.axisX.axisState == ETCAxis.AxisState.PressLeft,
-                () => { _states.LeftDouble = true; });
+                () => { _states.CmdLeftDouble(true); });
 
             _rightDoubleClick.HandleDoubleBool(Joystick.axisX.axisState == ETCAxis.AxisState.PressRight,
-                () => { _states.RightDouble = true; });
+                () => { _states.CmdRightDouble(true); });
 
             if (!_states.Right) {
-                _states.RightDouble = false;
+                _states.CmdRightDouble(false);
             }
 
             if (!_states.Left) {
-                _states.LeftDouble = false;
+                _states.CmdLeftDouble(false);
             }
         } else {
-            _states.Right = false;
-            _states.Left = false;
-            _states.RightDouble = false;
-            _states.LeftDouble = false;
+            _states.CmdRight(false);
+            _states.CmdLeft(false);
+            _states.CmdRightDouble(false);
+            _states.CmdLeftDouble(false);
             _leftDoubleClick.Reset();
             _rightDoubleClick.Reset();
         }
@@ -124,20 +130,19 @@ public class MobilePlayerInputManager : MonoBehaviour {
         if (_animator.GetBool(AnimatorBool.JUMPABLE)) {
             if (Joystick.axisY.axisState == ETCAxis.AxisState.DownUp ||
                 ButtonJump.axis.axisState == ETCAxis.AxisState.Press) {
-                _states.Jump = true;
+                _states.CmdJump(true);
             }
 
             _jumpButtonUp = false; // 初始化跳跃键没松开
 
             if (_states.Jump) {
-                //_animator.SetBool("Jump", true);
-                _states.RightDouble = false;
-                _states.LeftDouble = false;
+                _states.CmdRightDouble(false);
+                _states.CmdLeftDouble(false);
                 _leftDoubleClick.Reset();
                 _rightDoubleClick.Reset();
             }
         } else {
-            _states.Jump = false;
+            _states.CmdJump(false);
         }
 
         // 二段跳
@@ -146,46 +151,43 @@ public class MobilePlayerInputManager : MonoBehaviour {
                 _jumpButtonUp = Joystick.axisY.axisState == ETCAxis.AxisState.DownDown; // 检测是否松开
             } else {
                 if (Joystick.axisY.axisState == ETCAxis.AxisState.DownUp) {
-                    _states.JumpDouble = true;
+                    _states.CmdJumpDouble(true);
                 }
 
                 if (_states.JumpDouble) {
-                    //_animator.SetTrigger("JumpDouble");
-                    _states.RightDouble = false;
-                    _states.LeftDouble = false;
+                    _states.CmdRightDouble(false);
+                    _states.CmdLeftDouble(false);
                     _leftDoubleClick.Reset();
                     _rightDoubleClick.Reset();
                     _rightDoubleClick.Reset();
 
-                    _states.JumpLeft = Joystick.axisX.axisState == ETCAxis.AxisState.PressLeft;
-                    _states.JumpRight = Joystick.axisX.axisState == ETCAxis.AxisState.PressRight;
+                    _states.CmdJumpLeft(Joystick.axisX.axisState == ETCAxis.AxisState.PressLeft);
+                    _states.CmdJumpRight(Joystick.axisX.axisState == ETCAxis.AxisState.PressRight);
 
                     _jumpButtonUp = false;
                 }
             }
         } else {
-            _states.JumpDouble = false;
+            _states.CmdJumpDouble(false);
         }
 
         // 高跳
         if (_animator.GetBool(AnimatorBool.HIGH_JUMPABLE)) {
             if (Joystick.axisY.axisState == ETCAxis.AxisState.DownUp) {
-                _states.Jump = true;
+                _states.CmdJump(true);
             }
 
-            _states.JumpHigh = _states.Jump;
+            _states.CmdJumpHigh(_states.Jump);
             _jumpButtonUp = false; // 初始化跳跃键没松开
 
             if (_states.JumpHigh) {
-                //_animator.SetBool("Jump", true);
-                //_animator.SetBool("JumpHigh", true);
-                _states.RightDouble = false;
-                _states.LeftDouble = false;
+                _states.CmdRightDouble(false);
+                _states.CmdLeftDouble(false);
                 _leftDoubleClick.Reset();
                 _rightDoubleClick.Reset();
             }
         } else {
-            _states.JumpHigh = false;
+            _states.CmdJumpHigh(false);
         }
     }
 }

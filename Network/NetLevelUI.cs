@@ -29,7 +29,17 @@ public class NetLevelUI : NetworkBehaviour {
 
     public GameObject WaitingCanvas;
     public Text WaitingText;
-
+    
+    // Mobile
+    public ETCJoystick Joystick;
+    public ETCButton ButtonAttackP;
+    public ETCButton ButtonAttackK;
+    public ETCButton ButtonAttackS;
+    public ETCButton ButtonAttackHS;
+    public ETCButton ButtonJump;
+    public ETCButton ButtonCrouch;
+    public GameObject EasyTouchControlsCanvas;
+    
     #region Singleton
 
     private static NetLevelUI _instance;
@@ -44,6 +54,14 @@ public class NetLevelUI : NetworkBehaviour {
 
     #endregion
 
+    private void Start() {
+        if (MobileManager.IsMobile) {
+            EasyTouchControlsCanvas.SetActive(true);    
+        } else {
+            EasyTouchControlsCanvas.SetActive(false);
+        }
+    }
+    
     private void OnWaitingTextChange(string text) {
         WaitingTextContent = text;
         WaitingText.text = text;

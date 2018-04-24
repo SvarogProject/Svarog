@@ -22,6 +22,40 @@ public class DoubleClick {
     public DoubleClick(float waitTime) {
         _waitTime = waitTime;
     }
+    
+    public void HandleDoubleBool(bool name, OnSeconed onSeconed) {
+        HandleDoubleBool(name, null, null, onSeconed);
+    }
+    
+    public void HandleDoubleBool(bool name, OnFirstDown onFirstDown, OnFirstUp onFirstUp, OnSeconed onSeconed) {
+        _timer -= Time.deltaTime;
+
+        if (name && _clickCount == ClickCount.ZeroTime) {
+            _timer = _waitTime;
+            _clickCount = ClickCount.FirstTime;
+
+            if (onFirstDown != null) {
+                onFirstDown();
+            }
+        }
+
+        if (!name && _clickCount == ClickCount.FirstTime) {
+            _clickCount = ClickCount.SecondTime;
+
+            if (onFirstUp != null) {
+                onFirstUp();
+            }
+        }
+
+        if (_timer < 0) {
+            _clickCount = ClickCount.ZeroTime;
+        }
+
+        if (name && _clickCount == ClickCount.SecondTime && _timer > 0f) {
+            onSeconed();
+            _clickCount = ClickCount.ZeroTime;
+        }
+    }
 
     public void HandleDoubleClickWithAxis(string axisName, bool isPositiveValue, OnSeconed onSeconed) {
         HandleDoubleClickWithAxis(axisName, isPositiveValue, null, null, onSeconed);
