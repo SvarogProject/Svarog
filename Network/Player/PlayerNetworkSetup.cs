@@ -1,5 +1,6 @@
 ﻿using UnityEngine.Networking;
 
+// 未使用
 public class PlayerNetworkSetup : NetworkBehaviour {
     private void Start() {
         if (!isLocalPlayer) { // 如果不是本地角色，把控制器关掉
