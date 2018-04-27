@@ -1,6 +1,7 @@
-﻿using UnityEngine;
+﻿using System;
+using UnityEngine;
 
-[System.Serializable]
+[Serializable]
 public class AttacksBase {
     public string AttackAnimName;
     public string AttackButtonName;
@@ -24,27 +25,6 @@ public class AttacksBase {
         TimesPressed = 0;
     }
 
-    public void DoJoystick(string playerInputId, bool lookRight, OnAttack onAttack = null) {
-        if (IsCombSkill) {
-            DoCombJoystick(playerInputId, lookRight, onAttack);
-
-            return;
-        }
-
-        if (Input.GetButtonDown(JoystickPre + AttackButtonName + playerInputId)) {
-            Attack = true;
-            AttackTimer = 0;
-            TimesPressed++;
-        }
-
-        if (Attack) {
-            AttackTimer += Time.deltaTime;
-
-            if (AttackTimer > AttackRate || TimesPressed >= 3) {
-                Reset();
-            }
-        }
-    }
 
     private void DoCombJoystick(string playerInputId, bool lookRight, OnAttack onAttack) {
         if (_currentComb == CombButtonNames.Length) { // 组合技完成，释放技能
@@ -117,7 +97,9 @@ public class AttacksBase {
             return;
         }
 
-        if (Input.GetButtonDown(AttackButtonName + playerInputId)) {
+        if (Input.GetButtonDown(AttackButtonName + playerInputId) || 
+            // Joystick
+            Input.GetButtonDown(JoystickPre + AttackButtonName + playerInputId)) {
             Attack = true;
             AttackTimer = 0;
             TimesPressed++;
@@ -159,15 +141,58 @@ public class AttacksBase {
 
             if (!lookRight) {
                 if (CombButtonNames[_currentComb] == "Left") {
-                    clickTrue = Input.GetButtonDown("Right" + playerInputId);
+                    clickTrue = Input.GetButtonDown("Right" + playerInputId) ||
+                                // Joystick
+                                Input.GetAxis("JoystickX" + playerInputId) < 0;
                 } else if (CombButtonNames[_currentComb] == "Right") {
-                    clickTrue = Input.GetButtonDown("Left" + playerInputId);
+                    clickTrue = Input.GetButtonDown("Left" + playerInputId) ||
+                                // Joystick
+                                Input.GetAxis("JoystickX" + playerInputId) > 0;
+                } else if (CombButtonNames[_currentComb] == "Crouch") {
+                    clickTrue = Input.GetButtonDown("Crouch" + playerInputId) ||
+                                // Joystick
+                                Math.Abs(Input.GetAxis("JoystickY" + playerInputId) - -1) < 0.01f;
                 } else {
-                    clickTrue = Input.GetButtonDown(CombButtonNames[_currentComb] + playerInputId);
+                    clickTrue = Input.GetButtonDown(CombButtonNames[_currentComb] + playerInputId) || 
+                                // Joystick
+                                Input.GetButtonDown(JoystickPre + CombButtonNames[_currentComb] + playerInputId);
                 }
             } else {
-                clickTrue = Input.GetButtonDown(CombButtonNames[_currentComb] + playerInputId);
+                if (CombButtonNames[_currentComb] == "Left") {
+                    clickTrue = Input.GetButtonDown("Left" + playerInputId) ||
+                                // Joystick
+                                Input.GetAxis("JoystickX" + playerInputId) > 0;
+                } else if (CombButtonNames[_currentComb] == "Right") {
+                    clickTrue = Input.GetButtonDown("Right" + playerInputId) ||
+                                // Joystick
+                                Input.GetAxis("JoystickX" + playerInputId) < 0;
+                } else if (CombButtonNames[_currentComb] == "Crouch") {
+                    clickTrue = Input.GetButtonDown("Crouch" + playerInputId) ||
+                                // Joystick
+                                Math.Abs(Input.GetAxis("JoystickY" + playerInputId) - -1) < 0.01f;
+                } else {
+                    clickTrue = Input.GetButtonDown(CombButtonNames[_currentComb] + playerInputId) || 
+                                // Joystick
+                                Input.GetButtonDown(JoystickPre + CombButtonNames[_currentComb] + playerInputId);
+                }
             }
+            
+//            if (!lookRight) {
+//                
+//                if (CombButtonNames[_currentComb] == "Left") {
+//                    clickTrue = Input.GetButtonDown("Right" + playerInputId);
+//                } else if (CombButtonNames[_currentComb] == "Right") {
+//                    clickTrue = Input.GetButtonDown("Left" + playerInputId);
+//                } else {
+//                    clickTrue = Input.GetButtonDown(CombButtonNames[_currentComb] + playerInputId) || 
+//                                // Joystick
+//                                Input.GetButtonDown(JoystickPre + CombButtonNames[_currentComb] + playerInputId);
+//                }
+//            } else {
+//                clickTrue = Input.GetButtonDown(CombButtonNames[_currentComb] + playerInputId) || 
+//                            // Joystick
+//                            Input.GetButtonDown(JoystickPre + CombButtonNames[_currentComb] + playerInputId);;
+//            }
 
             if (clickTrue) {
                 _currentComb++;
