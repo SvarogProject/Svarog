@@ -23,8 +23,8 @@ public class BorderHandler : MonoBehaviour {
     private void HandleDistanceToWall() {
         // 判断是否会撞墙(被击退，跳头位移)
         LayerMask wallLayer = 1 << LayerMask.NameToLayer(LayerName.WALL);
-        bool hitRightWall = Physics2D.Raycast(MovementCollider.transform.position, Vector2.right, 3, wallLayer);
-        bool hitLeftWall = Physics2D.Raycast(MovementCollider.transform.position, Vector2.left, 3, wallLayer);
+        bool hitRightWall = Physics2D.Raycast(MovementCollider.transform.position, Vector2.right, 2, wallLayer);
+        bool hitLeftWall = Physics2D.Raycast(MovementCollider.transform.position, Vector2.left, 2, wallLayer);
 
         //Debug.DrawRay(MovementCollider.transform.position, Vector2.right * 3, Color.green);
         //Debug.DrawRay(MovementCollider.transform.position, Vector2.left * 3, Color.green);
@@ -50,12 +50,12 @@ public class BorderHandler : MonoBehaviour {
                                          + new Vector3(MovementCollider.offset.x * (_state.LookRight ? 1 : -1), 0, 0)
                                          + Vector3.right *
                                          (MovementCollider.size.x / 2), // 0.1f为了防止正好落在中心，位移到边缘卡住
-            Vector2.down, 0.5f, pLayerLayer);
+            Vector2.down, 1, pLayerLayer);
 
         var hitLeft = Physics2D.Raycast(MovementCollider.transform.position
                                         + new Vector3(MovementCollider.offset.x * (_state.LookRight ? 1 : -1), 0, 0)
                                         + Vector3.left * (MovementCollider.size.x / 2),
-            Vector2.down, 0.5f, pLayerLayer);
+            Vector2.down, 1, pLayerLayer);
 
 
         if (_animation.Animator.GetBool(AnimatorBool.JUMP)

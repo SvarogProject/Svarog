@@ -13,7 +13,7 @@ public class InputHandler : MonoBehaviour {
 
     private readonly DoubleClick _rightDoubleClick = new DoubleClick();
     private readonly DoubleClick _leftDoubleClick = new DoubleClick();
-    
+
     private readonly DoubleClick _rightDoubleClickJoystick = new DoubleClick();
     private readonly DoubleClick _leftDoubleClickJoystick = new DoubleClick();
 
@@ -23,7 +23,7 @@ public class InputHandler : MonoBehaviour {
         _attacks = _states.Attacks;
     }
 
-    public void FixedUpdate() {        
+    public void FixedUpdate() {
         Attack();
         Move();
         Jump();
@@ -33,11 +33,14 @@ public class InputHandler : MonoBehaviour {
 
     private void Defense() {
         _states.DefenseLeft = Input.GetButton("Left" + PlayerInputId) || Input.GetAxis("JoystickX" + PlayerInputId) > 0;
-        _states.DefenseRight = Input.GetButton("Right" + PlayerInputId) || Input.GetAxis("JoystickX" + PlayerInputId) < 0;
+
+        _states.DefenseRight =
+            Input.GetButton("Right" + PlayerInputId) || Input.GetAxis("JoystickX" + PlayerInputId) < 0;
     }
 
     private void Crouch() {
-        _states.Crouch = Input.GetButton("Crouch" + PlayerInputId) || Math.Abs(Input.GetAxis("JoystickY" + PlayerInputId) - -1) < 0.01;
+        _states.Crouch = Input.GetButton("Crouch" + PlayerInputId) ||
+                         Math.Abs(Input.GetAxis("JoystickY" + PlayerInputId) - -1) < 0.01;
     }
 
     private void Move() {
@@ -47,10 +50,14 @@ public class InputHandler : MonoBehaviour {
 
             _leftDoubleClick.HandleDoubleClick("Left" + PlayerInputId, () => { _states.LeftDouble = true; });
             _rightDoubleClick.HandleDoubleClick("Right" + PlayerInputId, () => { _states.RightDouble = true; });
-            
+
             // Joystick
-            _leftDoubleClickJoystick.HandleDoubleBool(Math.Abs(Input.GetAxis("JoystickX" + PlayerInputId) - 1) < 0.01f, () => { _states.LeftDouble = true; });
-            _rightDoubleClickJoystick.HandleDoubleBool(Math.Abs(Input.GetAxis("JoystickX" + PlayerInputId) - -1) < 0.01f, () => { _states.RightDouble = true; });
+            _leftDoubleClickJoystick.HandleDoubleBool(Math.Abs(Input.GetAxis("JoystickX" + PlayerInputId) - 1) < 0.01f,
+                () => { _states.LeftDouble = true; });
+
+            _rightDoubleClickJoystick.HandleDoubleBool(
+                Math.Abs(Input.GetAxis("JoystickX" + PlayerInputId) - -1) < 0.01f,
+                () => { _states.RightDouble = true; });
 
             if (!_states.Right) {
                 _states.RightDouble = false;
@@ -85,7 +92,7 @@ public class InputHandler : MonoBehaviour {
     private void Jump() {
         // 普通跳
         if (_animator.GetBool(AnimatorBool.JUMPABLE)) {
-            if (Input.GetButtonDown("Jump" + PlayerInputId) || 
+            if (Input.GetButtonDown("Jump" + PlayerInputId) ||
                 // Joystick
                 Math.Abs(Input.GetAxis("JoystickY" + PlayerInputId) - 1) < 0.01) {
                 _states.Jump = true;
@@ -106,7 +113,7 @@ public class InputHandler : MonoBehaviour {
         // 二段跳
         if (_animator.GetBool(AnimatorBool.JUMP) && !_animator.GetBool(AnimatorBool.USED_JUMP_DOUBLE)) {
             if (!_jumpButtonUp) {
-                _jumpButtonUp = Input.GetButtonUp("Jump" + PlayerInputId) || 
+                _jumpButtonUp = Input.GetButtonUp("Jump" + PlayerInputId) ||
                                 // Joystick
                                 Math.Abs(Input.GetAxis("JoystickY" + PlayerInputId) - -1) < 0.01; // 检测是否松开
             } else {
@@ -121,8 +128,11 @@ public class InputHandler : MonoBehaviour {
                     _rightDoubleClick.Reset();
                     _rightDoubleClick.Reset();
 
-                    _states.JumpLeft = Input.GetButton("Left" + PlayerInputId) || Input.GetAxis("JoystickX" + PlayerInputId) > 0;
-                    _states.JumpRight = Input.GetButton("Right" + PlayerInputId) || Input.GetAxis("JoystickX" + PlayerInputId) < 0;
+                    _states.JumpLeft = Input.GetButton("Left" + PlayerInputId) ||
+                                       Input.GetAxis("JoystickX" + PlayerInputId) > 0;
+
+                    _states.JumpRight = Input.GetButton("Right" + PlayerInputId) ||
+                                        Input.GetAxis("JoystickX" + PlayerInputId) < 0;
 
                     _jumpButtonUp = false;
                 }
@@ -133,7 +143,7 @@ public class InputHandler : MonoBehaviour {
 
         // 高跳
         if (_animator.GetBool(AnimatorBool.HIGH_JUMPABLE)) {
-            if (Input.GetButtonDown("Jump" + PlayerInputId) || 
+            if (Input.GetButtonDown("Jump" + PlayerInputId) ||
                 // Joystick
                 Math.Abs(Input.GetAxis("JoystickY" + PlayerInputId) - 1) < 0.01) {
                 _states.Jump = true;

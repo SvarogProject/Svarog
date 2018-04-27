@@ -98,15 +98,15 @@ public class DamageHandler : MonoBehaviour {
         
         if (other.CompareTag("DefenseCollider")) {
             otherState.TakeDamage(0.01f, DamageType.Defensed);
-            BeatBack(other.GetComponentInParent<BorderHandler>().CloseToWall, 2, other);
+            BeatBack(other.GetComponentInParent<BorderHandler>().CloseToWall, 1, other);
         } else if (_animation.Animator.GetBool(AnimatorBool.IS_FIRE_PUNCH)) {
             otherState.TakeDamage(6, DamageType.FirePunch);
         } else if (_animation.Animator.GetBool(AnimatorBool.IS_HEAVY_ATTACK)) {
             otherState.TakeDamage(5, DamageType.Heavy);
-            BeatBack(other.GetComponentInParent<BorderHandler>().CloseToWall, 4, other);
+            BeatBack(other.GetComponentInParent<BorderHandler>().CloseToWall, 2, other);
         } else {
             otherState.TakeDamage(3, DamageType);
-            BeatBack(other.GetComponentInParent<BorderHandler>().CloseToWall, 2, other);
+            BeatBack(other.GetComponentInParent<BorderHandler>().CloseToWall, 1, other);
         }
         
             

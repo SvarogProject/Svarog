@@ -205,8 +205,13 @@ public class MovementHandler : MonoBehaviour {
     }
 
     // 被击退
-    public void BeBeatBack(float force) {
-        AddVelocityOnCharacter((_states.LookRight ? Vector2.left : Vector2.right) * force, 0.2f);
+    public void BeBeatBack(float force) {       
+        if (!_states.OnGround) {
+            // 浮空
+            AddVelocityOnCharacter(((_states.LookRight ? Vector2.left : Vector2.right) + Vector2.up * 6) * force, 0.2f);
+        } else {
+            AddVelocityOnCharacter((_states.LookRight ? Vector2.left : Vector2.right) * force, 0.2f);
+        }
     }
 
     public void AddVelocityOnCharacter(Vector3 direction, float timer) {

@@ -209,7 +209,12 @@ public class NetMovementHandler : NetworkBehaviour {
     // 被击退
     public void BeBeatBack(float force) {
         if (isLocalPlayer) {
-            AddVelocityOnCharacter((_states.LookRight ? Vector2.left : Vector2.right) * force, 0.2f);
+            if (!_states.OnGround) {
+                // 浮空
+                AddVelocityOnCharacter(((_states.LookRight ? Vector2.left : Vector2.right) + Vector2.up * 6) * force, 0.2f);
+            } else {
+                AddVelocityOnCharacter((_states.LookRight ? Vector2.left : Vector2.right) * force, 0.2f);
+            }
         } else {
             CmdBeBeatBack(force);
         }
@@ -217,7 +222,12 @@ public class NetMovementHandler : NetworkBehaviour {
 
     [Command]
     private void CmdBeBeatBack(float force) {
-        AddVelocityOnCharacter((_states.LookRight ? Vector2.left : Vector2.right) * force, 0.2f);
+        if (!_states.OnGround) {
+            // 浮空
+            AddVelocityOnCharacter(((_states.LookRight ? Vector2.left : Vector2.right) + Vector2.up * 6) * force, 0.2f);
+        } else {
+            AddVelocityOnCharacter((_states.LookRight ? Vector2.left : Vector2.right) * force, 0.2f);
+        }
     }
 
     public void AddVelocityOnCharacter(Vector3 direction, float timer) {

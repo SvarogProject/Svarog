@@ -16,8 +16,6 @@ public class NetInputHandler : NetworkBehaviour {
     private readonly DoubleClick _rightDoubleClick = new DoubleClick();
     private readonly DoubleClick _leftDoubleClick = new DoubleClick();
 
-    private IInputHandler _input;
-
     public void Start() {
         if (MobileManager.IsMobile) {
             enabled = false;
