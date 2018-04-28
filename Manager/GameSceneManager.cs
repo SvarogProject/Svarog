@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using UnityEngine.Networking;
 using UnityEngine.SceneManagement;
 
 public class GameSceneManager : MonoBehaviour {
@@ -15,7 +16,7 @@ public class GameSceneManager : MonoBehaviour {
 
     private bool _waitToLoad;
 
-    private CharacterManager _characterManager;
+    private GameManager _gameManager;
 
     #region Singleton
 
@@ -33,13 +34,23 @@ public class GameSceneManager : MonoBehaviour {
     #endregion
 
     public void Start() {
-        _characterManager = CharacterManager.GetInstance();
+        _gameManager = GameManager.GetInstance();
     }
 
     private void Update() {
         // TODO 这里按ESC都可以退回到主页
         if (Input.GetKeyDown(KeyCode.Escape)) {
             RequestLevelLoad(SceneType.Main, SceneName.INTRO);
+            
+            // 把自己和netManager给销毁
+            var netManager = NetworkManager.singleton;
+            if (netManager) {
+                netManager.StopClient();
+                netManager.StopHost();
+                netManager.StopServer();
+                Destroy(netManager.gameObject);
+            }
+            Destroy(gameObject); // 回到主页还会创建自己的，可以杀掉了
         }
     }
 
@@ -49,11 +60,11 @@ public class GameSceneManager : MonoBehaviour {
 
         var usedCharacters = new List<int>();
 
-        var playerChoosedCharacter = _characterManager.GetCharacterIndex(_characterManager.Players[0].PlayerPrefab);
+        var playerChoosedCharacter = _gameManager.GetCharacterIndex(_gameManager.Players[0].PlayerPrefab);
         usedCharacters.Add(playerChoosedCharacter); // 玩家已经选择了的角色先排除掉
 
-        if (ProgressionStages > _characterManager.CharacterList.Count - 1) { // 游戏局数应该小于和所有人对局完的总数
-            ProgressionStages = _characterManager.CharacterList.Count - 2;
+        if (ProgressionStages > _gameManager.CharacterList.Count - 1) { // 游戏局数应该小于和所有人对局完的总数
+            ProgressionStages = _gameManager.CharacterList.Count - 2;
         }
 
         for (var i = 0; i < ProgressionStages; i++) {
@@ -64,8 +75,8 @@ public class GameSceneManager : MonoBehaviour {
             progression.LevelId = Levels[levelInt];
 
             // 随机一个角色，排除已用过的角色
-            var charInt = Tools.UniqueRandomInt(usedCharacters, 0, _characterManager.CharacterList.Count);
-            progression.CharId = _characterManager.CharacterList[charInt].CharacterId;
+            var charInt = Tools.UniqueRandomInt(usedCharacters, 0, _gameManager.CharacterList.Count);
+            progression.CharId = _gameManager.CharacterList[charInt].CharacterId;
             usedCharacters.Add(charInt);
             Progressions.Add(progression);
         }
@@ -82,8 +93,8 @@ public class GameSceneManager : MonoBehaviour {
             targetId = Progressions[NextProgressionIndex].LevelId; // TODO 这个也不会变了，都是一个场景了
 
             // 得到敌人
-            _characterManager.Players[1].PlayerPrefab =
-                _characterManager.GetCharacterById(Progressions[NextProgressionIndex].CharId).Prefab;
+            _gameManager.Players[1].PlayerPrefab =
+                _gameManager.GetCharacterById(Progressions[NextProgressionIndex].CharId).Prefab;
 
             NextProgressionIndex++;
         }

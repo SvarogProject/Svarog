@@ -120,6 +120,8 @@ public class DamageHandler : MonoBehaviour {
         
         // 告诉状态机已经攻击到敌人，可以取消后摇
         _animation.Animator.SetBool(AnimatorBool.ATTACKED, true);
+        
+        _states.HitText.GetHit();
     }
 
     private void BeatBack(bool hitWall, float force, Collider2D other) {

@@ -6,6 +6,7 @@ public class IntroSceneManager : MonoBehaviour {
     public GameObject StartText;
     public int ActiveElement;
     public GameObject MenuObj;
+    public Transform Logo;
     public ButtonRef[] MenuOptions;
 
     private float _timer;
@@ -30,11 +31,16 @@ public class IntroSceneManager : MonoBehaviour {
 
             if (Input.anyKeyDown) {
                 _init = true;
-                StartText.SetActive(false);
-                MenuObj.SetActive(true);
+                StartText.SetActive(false);              
             }
         } else {
             if (!_loadingLevel) {
+                if (Logo.localPosition.y < 260) {
+                    Logo.Translate(Vector3.up * 20);
+                } else {
+                    MenuObj.SetActive(true);
+                }
+                
                 // 选中
                 MenuOptions[ActiveElement].Selected = true;
 
@@ -74,13 +80,13 @@ public class IntroSceneManager : MonoBehaviour {
         
         switch (ActiveElement) {
             case 0: // 人机
-                CharacterManager.GetInstance().NumberOfUsers = 1;
-                CharacterManager.GetInstance().Players[1].Type = PlayerBase.PlayerType.Ai;
+                GameManager.GetInstance().NumberOfUsers = 1;
+                GameManager.GetInstance().Players[1].Type = PlayerBase.PlayerType.Ai;
 
                 break;
             case 1: // 双人
-                CharacterManager.GetInstance().NumberOfUsers = 2;
-                CharacterManager.GetInstance().Players[1].Type = PlayerBase.PlayerType.User;
+                GameManager.GetInstance().NumberOfUsers = 2;
+                GameManager.GetInstance().Players[1].Type = PlayerBase.PlayerType.User;
 
                 break;
         }

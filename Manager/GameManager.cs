@@ -3,7 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Linq;
 
-public class CharacterManager : MonoBehaviour {
+public class GameManager : MonoBehaviour {
     
     public bool IsSolo;
     public int NumberOfUsers;
@@ -11,9 +11,9 @@ public class CharacterManager : MonoBehaviour {
     public List<CharacterBase> CharacterList = new List<CharacterBase>();
 
     #region Singleton
-    private static CharacterManager _instance;
+    private static GameManager _instance;
 
-    public static CharacterManager GetInstance() {
+    public static GameManager GetInstance() {
         return _instance;
     }
 

@@ -7,6 +7,8 @@ public class MobileManager : MonoBehaviour {
         if (Application.platform == RuntimePlatform.Android ||
             Application.platform == RuntimePlatform.IPhonePlayer) {
             IsMobile = true;
+            // Android不灭屏
+            Screen.sleepTimeout = SleepTimeout.NeverSleep;
         } else {
             IsMobile = false;
         }

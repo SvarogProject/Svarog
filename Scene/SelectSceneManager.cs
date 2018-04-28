@@ -16,7 +16,7 @@ public class SelectSceneManager : MonoBehaviour {
     private int _maxCollumn;
     private readonly List<PotraitInfo> _potraitList = new List<PotraitInfo>();
     private bool _isLoadLevel;
-    private CharacterManager _charManager;
+    private GameManager _charManager;
 
     #region Singleton
 
@@ -33,7 +33,7 @@ public class SelectSceneManager : MonoBehaviour {
     #endregion
 
     public void Start() {
-        _charManager = CharacterManager.GetInstance();
+        _charManager = GameManager.GetInstance();
         NumberOfPlayers = _charManager.NumberOfUsers;
         CreatePotraits();
         _charManager.IsSolo = NumberOfPlayers == 1;
@@ -213,7 +213,7 @@ public class SelectSceneManager : MonoBehaviour {
             }
 
             var playerObject = Instantiate(
-                    CharacterManager.GetInstance().GetCharacterById(playerChoose.ActivePotrait.CharacterId).Prefab,
+                    GameManager.GetInstance().GetCharacterById(playerChoose.ActivePotrait.CharacterId).Prefab,
                     playerChoose.CharacterVisualizationPosition.position,
                     Quaternion.identity)
                 as GameObject;

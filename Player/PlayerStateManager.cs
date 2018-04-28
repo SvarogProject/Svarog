@@ -38,6 +38,7 @@ public class PlayerStateManager : MonoBehaviour {
     public BoxCollider2D MovementCollider;
 
     public Slider HealthSlider;
+    public HitText HitText;
 
     [HideInInspector] public PlayerAnimationHandler AnimationHandler;
     private MovementHandler _movementHandler;
@@ -133,7 +134,7 @@ public class PlayerStateManager : MonoBehaviour {
                 if (!IsGettingFriePunch) {
                     IsGettingFriePunch = true;
                     
-                    _movementHandler.AddVelocityOnCharacter(Vector2.up * _movementHandler.JumpSpeed * 1.2f, 0.01f);
+                    _movementHandler.AddVelocityOnCharacter(Vector2.up * _movementHandler.JumpSpeed * 1.2f, 0.02f);
                     // TODO 这个位移只生效一次
                     StartCoroutine(CloseImmortality(0.8f));
                 }

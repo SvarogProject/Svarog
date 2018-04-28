@@ -14,15 +14,15 @@ public class LevelManager : MonoBehaviour {
     public ETCButton ButtonAttackHS;
     public ETCButton ButtonJump;
     public ETCButton ButtonCrouch;
-    
-    
+
+
     public Transform[] SpawnPositions; // 角色出生点（在游戏布局中设定好）
     public int MaxRounds = 2;          // 回合数
 
     private readonly WaitForSeconds _oneSec = new WaitForSeconds(1); // 重复利用等一秒
 
     private CameraMoveManager _cameraManager;
-    private CharacterManager _characterManager;
+    private GameManager _gameManager;
     private LevelUI _levelUi;       // 保存UI元素，方便调用
     private int _currentRounds = 1; // 当前回合
 
@@ -31,6 +31,8 @@ public class LevelManager : MonoBehaviour {
     public int MaxRoundsTimer = 60;
     private int _currentTimer;
     private float _internalTimer;
+
+    private bool _paused;
 
     #region Singleton
 
@@ -47,7 +49,7 @@ public class LevelManager : MonoBehaviour {
     #endregion
 
     public void Start() {
-        _characterManager = CharacterManager.GetInstance();
+        _gameManager = GameManager.GetInstance();
         _levelUi = LevelUI.GetInstance();
         _cameraManager = CameraMoveManager.GetInstance();
 
@@ -59,22 +61,20 @@ public class LevelManager : MonoBehaviour {
 
     public void FixedUpdate() {
         // 控制角色朝向
-        var player1IsLeft = _characterManager.Players[0].PlayerStates.transform.position.x <
-                            _characterManager.Players[1].PlayerStates.transform.position.x;
+        var player1IsLeft = _gameManager.Players[0].PlayerStates.transform.position.x <
+                            _gameManager.Players[1].PlayerStates.transform.position.x;
 
         for (var i = 0; i < 2; i++) {
-            if (_characterManager.Players[i].PlayerStates.GetComponentInChildren<Animator>()
+            if (_gameManager.Players[i].PlayerStates.GetComponentInChildren<Animator>()
                 .GetBool(AnimatorBool.CAN_LOOK_BACK)) {
-                _characterManager.Players[i].PlayerStates.LookRight =
+                _gameManager.Players[i].PlayerStates.LookRight =
                     i == 0 && player1IsLeft || i == 1 && !player1IsLeft;
-                _characterManager.Players[i].PlayerStates.ShouldLookBack = false; // 主动转了就清除通知
+
+                _gameManager.Players[i].PlayerStates.ShouldLookBack = false; // 主动转了就清除通知
             } else {
-                if (_characterManager.Players[i].PlayerStates.LookRight !=
-                    (i == 0 && player1IsLeft || i == 1 && !player1IsLeft)) {
-                    _characterManager.Players[i].PlayerStates.ShouldLookBack = true; // 通知需要回头
-                } else {
-                    _characterManager.Players[i].PlayerStates.ShouldLookBack = false;
-                }
+                _gameManager.Players[i].PlayerStates.ShouldLookBack = _gameManager.Players[i].PlayerStates.LookRight !=
+                                                                      (i == 0 && player1IsLeft ||
+                                                                       i == 1 && !player1IsLeft);
             }
         }
 
@@ -84,6 +84,11 @@ public class LevelManager : MonoBehaviour {
         if (EnableCountdown) {
             HandleRoundTimer();
         }
+
+        if (Input.GetKeyUp(KeyCode.Space))
+            _paused = !_paused;
+
+        Time.timeScale = _paused ? 0 : 1;
     }
 
     private void HandleRoundTimer() {
@@ -111,8 +116,8 @@ public class LevelManager : MonoBehaviour {
     }
 
     private IEnumerator ShowPlayersPoster() {
-        yield return _levelUi.ShowPlayersPoster(_characterManager.GetCharacterByPrefab(_characterManager.Players[0].PlayerPrefab), 
-            _characterManager.GetCharacterByPrefab(_characterManager.Players[1].PlayerPrefab));    
+        yield return _levelUi.ShowPlayersPoster(_gameManager.GetCharacterByPrefab(_gameManager.Players[0].PlayerPrefab),
+            _gameManager.GetCharacterByPrefab(_gameManager.Players[1].PlayerPrefab));
     }
 
     private IEnumerator InitRound() {
@@ -131,25 +136,27 @@ public class LevelManager : MonoBehaviour {
     private IEnumerator CreatePlayers() {
         Debug.Log("CreatePlayers");
 
-        for (var i = 0; i < _characterManager.Players.Count; i++) {
+        for (var i = 0; i < _gameManager.Players.Count; i++) {
             var player = Instantiate(
-                    _characterManager.Players[i].PlayerPrefab,
-                    SpawnPositions[i].position,
-                    Quaternion.identity);
+                _gameManager.Players[i].PlayerPrefab,
+                SpawnPositions[i].position,
+                Quaternion.identity);
 
             if (player != null)
-                _characterManager.Players[i].PlayerStates =
-                    player.GetComponent<PlayerStateManager>(); // TODO 这个为什么不在选人的时候就绑定好？
+                _gameManager.Players[i].PlayerStates =
+                    player.GetComponent<PlayerStateManager>();
 
-            _characterManager.Players[i].PlayerStates.HealthSlider = _levelUi.HealthSliders[i]; // 绑定血条
+            _gameManager.Players[i].PlayerStates.HealthSlider = _levelUi.HealthSliders[i]; // 绑定血条
+            _gameManager.Players[i].PlayerStates.HitText = _levelUi.HitTexts[i]; // 绑定攻击提示文字
 
 
             if (player != null) {
                 player.layer = LayerMask.NameToLayer("Player") + i; // 角色分层
-                foreach (var c in player.GetComponentsInChildren<BoxCollider2D>()) { 
+
+                foreach (var c in player.GetComponentsInChildren<BoxCollider2D>()) {
                     if (c.CompareTag("MovementCollider")) {
                         c.gameObject.layer = LayerMask.NameToLayer("MovementCollider") + i; // 碰撞体设置不同的层级
-                    }                
+                    }
                 }
 
                 _cameraManager.Players.Add(player.gameObject); // 给摄像机控制添加角色
@@ -164,11 +171,11 @@ public class LevelManager : MonoBehaviour {
     private IEnumerator InitPlayers() {
         Debug.Log("InitPlayers");
 
-        for (var i = 0; i < _characterManager.Players.Count; i++) {
-            _characterManager.Players[i].PlayerStates.Health = 100;
-            _characterManager.Players[i].PlayerStates.ResetPlayer();
-            _characterManager.Players[i].PlayerStates.AnimationHandler.Animator.Play("Idle");
-            _characterManager.Players[i].PlayerStates.transform.position = SpawnPositions[i].position;
+        for (var i = 0; i < _gameManager.Players.Count; i++) {
+            _gameManager.Players[i].PlayerStates.Health = 100;
+            _gameManager.Players[i].PlayerStates.ResetPlayer();
+            _gameManager.Players[i].PlayerStates.AnimationHandler.Animator.Play("Idle");
+            _gameManager.Players[i].PlayerStates.transform.position = SpawnPositions[i].position;
         }
 
         yield return null;
@@ -176,11 +183,12 @@ public class LevelManager : MonoBehaviour {
 
     private IEnumerator EnableControl() {
         Debug.Log("EnableControl");
+
         // Round x FIGHT!
         yield return _levelUi.RoundXFight(_currentRounds);
-       
+
         // 开启角色控制
-        foreach (var player in _characterManager.Players) {
+        foreach (var player in _gameManager.Players) {
             switch (player.Type) {
                 // 玩家控制
                 case PlayerBase.PlayerType.User:
@@ -201,7 +209,7 @@ public class LevelManager : MonoBehaviour {
                     //ai.enabled = true;
 
                     // 给AI设置敌人
-                    ai.EnemyStates = _characterManager.GetOppositePlayer(player).PlayerStates;
+                    ai.EnemyStates = _gameManager.GetOppositePlayer(player).PlayerStates;
 
                     var behaviour = player.PlayerStates.gameObject.GetComponent<BehaviorTree>();
                     behaviour.enabled = true;
@@ -219,13 +227,14 @@ public class LevelManager : MonoBehaviour {
                     throw new ArgumentOutOfRangeException();
             }
         }
+
         EnableCountdown = true; // TODO 这个倒计时应该是可以设置的，无限时间模式则为false
     }
 
     private void DisableControl() {
         Debug.Log("DisableControl");
 
-        foreach (var player in _characterManager.Players) {
+        foreach (var player in _gameManager.Players) {
             player.PlayerStates.ResetPlayer(); // 先重置角色状态
 
             switch (player.Type) {
@@ -314,13 +323,13 @@ public class LevelManager : MonoBehaviour {
         if (!matchOver) {
             StartCoroutine(InitRound());
         } else {
-            foreach (var player in _characterManager.Players) {
+            foreach (var player in _gameManager.Players) {
                 player.Score = 0;
                 player.HasCharacter = false;
             }
 
-            if (_characterManager.IsSolo) {
-                if (vPlayer == _characterManager.Players[0])
+            if (_gameManager.IsSolo) {
+                if (vPlayer == _gameManager.Players[0])
                     GameSceneManager.GetInstance().LoadNextOnProgression();
                 else
                     GameSceneManager.GetInstance().RequestLevelLoad(SceneType.Main, "GameOver");
@@ -334,7 +343,7 @@ public class LevelManager : MonoBehaviour {
         Debug.Log("IsMatchOver");
         var retVal = false;
 
-        foreach (var player in _characterManager.Players) {
+        foreach (var player in _gameManager.Players) {
             if (player.Score < MaxRounds) continue;
 
             retVal = true;
@@ -347,22 +356,22 @@ public class LevelManager : MonoBehaviour {
 
     private PlayerBase FindWinningPlayer() {
         // 血量相等则平手，返回null
-        if (Math.Abs(_characterManager.Players[0].PlayerStates.Health - _characterManager.Players[1].PlayerStates.Health) < 0.01f)
+        if (Math.Abs(_gameManager.Players[0].PlayerStates.Health - _gameManager.Players[1].PlayerStates.Health) < 0.01f)
             return null;
 
         PlayerStateManager targetPlayerState;
 
-        if (_characterManager.Players[0].PlayerStates.Health < _characterManager.Players[1].PlayerStates.Health) {
-            _characterManager.Players[1].Score++;
-            targetPlayerState = _characterManager.Players[1].PlayerStates;
+        if (_gameManager.Players[0].PlayerStates.Health < _gameManager.Players[1].PlayerStates.Health) {
+            _gameManager.Players[1].Score++;
+            targetPlayerState = _gameManager.Players[1].PlayerStates;
             _levelUi.AddWinIndicator(1);
         } else {
-            _characterManager.Players[0].Score++;
-            targetPlayerState = _characterManager.Players[0].PlayerStates;
+            _gameManager.Players[0].Score++;
+            targetPlayerState = _gameManager.Players[0].PlayerStates;
             _levelUi.AddWinIndicator(0);
         }
 
-        var retVal = _characterManager.GetPlayerByStates(targetPlayerState);
+        var retVal = _gameManager.GetPlayerByStates(targetPlayerState);
 
         return retVal;
     }

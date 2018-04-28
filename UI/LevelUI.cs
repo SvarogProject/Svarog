@@ -8,6 +8,7 @@ public class LevelUI : MonoBehaviour {
     public Text LevelTimer;
 
     public Slider[] HealthSliders;
+    public HitText[] HitTexts;
 
     public GameObject[] WinIndicatorGrids;
     public GameObject WinIndicator;
