@@ -14,4 +14,9 @@
     public const string ATTACK_HS = "AttackHS";
     public const string IS_HEAVY_ATTACK = "IsHeavyAttack";
     public const string ATTACKED = "Attacked"; // 当前攻击状态中角色攻击到了敌人，攻击结束后会重置，为了取消后摇
+    
+    // Effects
+    public const string ATTACK_SMALL_EFFECT = "AttackSmallEffect";
+    public const string ATTACK_KNIFE_EFFECT = "AttackKnifeEffect";
+    public const string ATTACK_CENTER_DOWM_EFFECT = "AttackCenterDownEffect";
 }

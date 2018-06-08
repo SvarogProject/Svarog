@@ -79,6 +79,7 @@ public class LevelUI : MonoBehaviour {
     }
 
     public IEnumerator RoundXFight(int currentRounds) {
+        /*
         RoundXFightImage.sprite = RoundSprites[currentRounds - 1];
         RoundXFightImage.gameObject.SetActive(true);
         
@@ -90,5 +91,19 @@ public class LevelUI : MonoBehaviour {
         yield return new WaitForSeconds(1);
 
         RoundXFightImage.gameObject.SetActive(false);
+        */
+        AnnouncerTextLine1.color = Color.white;
+
+        AnnouncerTextLine1.gameObject.SetActive(true);
+        AnnouncerTextLine1.text = "Round " + currentRounds;
+
+        yield return new WaitForSeconds(2);
+
+        AnnouncerTextLine1.color = Color.white;
+        AnnouncerTextLine1.text = "FIGHT!";
+        // 过一秒让提示消失
+        yield return new WaitForSeconds(1);
+        
+        AnnouncerTextLine1.gameObject.SetActive(false);
     }
 }

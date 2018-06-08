@@ -5,6 +5,10 @@ using System.Linq;
 
 public class DamageHandler : MonoBehaviour {
     public DamageType DamageType;
+
+    public GameObject AttackSmallEffect;
+    public GameObject AttackKnifeEffect;
+    public GameObject AttackCenterDownEffect;
     
     private PlayerStateManager _states;
     private PlayerAnimationHandler _animation;
@@ -58,6 +62,7 @@ public class DamageHandler : MonoBehaviour {
     public void OnTriggerEnter2D(Collider2D other) {
         
         //Debug.Log(other.name);
+
         
         if (!_doDamage) {
             return;
@@ -108,6 +113,28 @@ public class DamageHandler : MonoBehaviour {
             otherState.TakeDamage(3, DamageType);
             BeatBack(other.GetComponentInParent<BorderHandler>().CloseToWall, 1, other);
         }
+        
+        // 攻击特效
+        if (_animation.Animator.GetBool(AnimatorBool.ATTACK_SMALL_EFFECT)) {
+            Instantiate(
+                AttackSmallEffect,
+                transform.position + 
+                new Vector3(GetComponent<BoxCollider2D>().offset.x * (_states.LookRight ? 1 : -1), GetComponent<BoxCollider2D>().offset.y, 0),
+                Quaternion.Euler(new Vector3(0, _states.LookRight ? 180 : 0, 0)));
+        } else if (_animation.Animator.GetBool(AnimatorBool.ATTACK_KNIFE_EFFECT)) {
+            Instantiate(
+                AttackKnifeEffect,
+                transform.position + 
+                new Vector3(GetComponent<BoxCollider2D>().offset.x * (_states.LookRight ? 1 : -1), GetComponent<BoxCollider2D>().offset.y, 0),
+                Quaternion.Euler(new Vector3(0, _states.LookRight ? 180 : 0, 0)));
+        } else if (_animation.Animator.GetBool(AnimatorBool.ATTACK_CENTER_DOWM_EFFECT)) {
+            Instantiate(
+                AttackCenterDownEffect,
+                transform.position + 
+                new Vector3(GetComponent<BoxCollider2D>().offset.x * (_states.LookRight ? 1 : -1), GetComponent<BoxCollider2D>().offset.y, 0),
+                Quaternion.Euler(new Vector3(0, _states.LookRight ? 0 : 180, 0)));
+        }
+
         
             
         // 顿帧

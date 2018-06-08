@@ -51,7 +51,7 @@ public class ColliderShower : MonoBehaviour {
 
                 break;
             case "DefenseCollider":
-                _material.color = new Color32(0, 100, 255, 100);
+                _material.color = new Color32(0, 100, 0, 100);
                 break;
         }
 
