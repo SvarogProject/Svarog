@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 4c5c80e14c6d549f7a142413c6af1dd7
+timeCreated: 1524938309
+licenseType: Pro
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Boltis
+  fontNames:
+  - Boltis
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

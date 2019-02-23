@@ -1,0 +1,22 @@
+fileFormatVersion: 2
+guid: 17d82178c738d48e0a5a9b73d4465fd4
+timeCreated: 1524938685
+licenseType: Pro
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: vtks love love
+  fontNames:
+  - vtks love love
+  fallbackFontReferences: []
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 

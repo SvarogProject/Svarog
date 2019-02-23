@@ -1,0 +1,104 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1001 &100100000
+Prefab:
+  m_ObjectHideFlags: 1
+  serializedVersion: 2
+  m_Modification:
+    m_TransformParent: {fileID: 0}
+    m_Modifications: []
+    m_RemovedComponents: []
+  m_ParentPrefab: {fileID: 0}
+  m_RootGameObject: {fileID: 1000011136903134}
+  m_IsPrefabParent: 1
+--- !u!1 &1000011136903134
+GameObject:
+  m_ObjectHideFlags: 0
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 5
+  m_Component:
+  - component: {fileID: 4000013956681948}
+  - component: {fileID: 114000011997042258}
+  - component: {fileID: 114000013651931516}
+  m_Layer: 0
+  m_Name: Character Manager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &4000013956681948
+Transform:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000011136903134}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 964.9503, y: 479.70386, z: 6.0579443}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114000011997042258
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000011136903134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 912e5ee419254261b214c2c3dbaa193d, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  IsSolo: 0
+  NumberOfUsers: 0
+  Players:
+  - PlayerId: Player 1
+    InputId: 
+    Type: 0
+    HasCharacter: 0
+    PlayerPrefab: {fileID: 0}
+    PlayerStates: {fileID: 0}
+    Score: 0
+  - PlayerId: Player 2
+    InputId: 2
+    Type: 0
+    HasCharacter: 0
+    PlayerPrefab: {fileID: 0}
+    PlayerStates: {fileID: 0}
+    Score: 0
+  CharacterList:
+  - CharacterId: Fighter 1
+    Prefab: {fileID: 1000010336396618, guid: 9789b43819bed473c8deae85489e804f, type: 2}
+    Icon: {fileID: 21300000, guid: a909be28b50bc4028af3e51efc445265, type: 3}
+  - CharacterId: Fighter 2
+    Prefab: {fileID: 1000010336396618, guid: 9789b43819bed473c8deae85489e804f, type: 2}
+    Icon: {fileID: 21300000, guid: a909be28b50bc4028af3e51efc445265, type: 3}
+  - CharacterId: Fighter 3
+    Prefab: {fileID: 1000010336396618, guid: 9789b43819bed473c8deae85489e804f, type: 2}
+    Icon: {fileID: 21300000, guid: a909be28b50bc4028af3e51efc445265, type: 3}
+  - CharacterId: Fighter 4
+    Prefab: {fileID: 1000010336396618, guid: 9789b43819bed473c8deae85489e804f, type: 2}
+    Icon: {fileID: 21300000, guid: a909be28b50bc4028af3e51efc445265, type: 3}
+--- !u!114 &114000013651931516
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_PrefabParentObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1000011136903134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a83638eb021f44b0bda4cfab93fa3872, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  ProgressionStages: 5
+  Levels:
+  - Level
+  MainScenes:
+  - LevelId: Intro
+  - LevelId: Select
+  - LevelId: GameOver
+  NextProgressionIndex: 0
+  Progressions: []

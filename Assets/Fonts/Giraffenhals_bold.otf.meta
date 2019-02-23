@@ -1,0 +1,23 @@
+fileFormatVersion: 2
+guid: 6e6fa2e5fb48b40bca8e1dec44f452ed
+timeCreated: 1524939291
+licenseType: Pro
+TrueTypeFontImporter:
+  externalObjects: {}
+  serializedVersion: 4
+  fontSize: 16
+  forceTextureCase: -2
+  characterSpacing: 0
+  characterPadding: 1
+  includeFontData: 1
+  fontName: Giraffenhals
+  fontNames:
+  - Giraffenhals
+  fallbackFontReferences:
+  - {fileID: 12800000, guid: a72204cac6594435f9a37e7e83fe3188, type: 3}
+  customCharacters: 
+  fontRenderingMode: 0
+  ascentCalculationMode: 1
+  userData: 
+  assetBundleName: 
+  assetBundleVariant: 
