@@ -1,0 +1,61 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!78 &1
+TagManager:
+  serializedVersion: 2
+  tags:
+  - MovementCollider
+  - AttackCollider
+  - HurtCollider
+  - Ground
+  - DefenseCollider
+  - Wall
+  layers:
+  - Default
+  - TransparentFX
+  - Ignore Raycast
+  - 
+  - Water
+  - UI
+  - 
+  - 
+  - Effect
+  - Player
+  - Player2
+  - Ground
+  - MovementCollider
+  - MovementCollider2
+  - Wall
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  - 
+  m_SortingLayers:
+  - name: Default
+    uniqueID: 0
+    locked: 0
+  - name: Background
+    uniqueID: 1387774543
+    locked: 0
+  - name: UI
+    uniqueID: 2546257285
+    locked: 0
+  - name: Player
+    uniqueID: 2701496039
+    locked: 0
+  - name: Effect
+    uniqueID: 327956449
+    locked: 0
