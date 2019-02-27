@@ -54,7 +54,8 @@ public class NetLevelManger : NetworkBehaviour {
 
         if (NetworkManager.singleton.numPlayers == 1) {
             LevelUi.WaitingCanvasActive = true;
-            LevelUi.WaitingTextContent = "Waiting for other players to join...\n\nyour ip is " + Network.player.ipAddress;
+            LevelUi.WaitingTextContent = "Waiting for other players to join...\n\nyour ip is " + Tools.LocalIpAddress();
+            
         }
         
         if (NetworkManager.singleton.numPlayers < 2 && _createdPlayerNum == 2) {
